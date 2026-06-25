@@ -1,0 +1,1873 @@
+{
+  "version": "1.0.0",
+  "gitCommitHash": "6fd28556551ab0e6e366bfef2cfb411a74004c50",
+  "generatedAt": "2026-06-25T16:54:29.873Z",
+  "files": {
+    ".understand-anything/.understandignore": {
+      "filePath": ".understand-anything/.understandignore",
+      "contentHash": "772eb81ee1dd53a7ccba2888434deea2f0d856ea6c185fd97ea890762c60b535",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 53,
+      "hasStructuralAnalysis": false
+    },
+    "aws/lambda/handler.ts": {
+      "filePath": "aws/lambda/handler.ts",
+      "contentHash": "f6f6825e9ff1748c8f2c0c9071f894dbac966e15b102bafab9e917fc6c748b0c",
+      "functions": [
+        {
+          "name": "handler",
+          "params": [
+            "_event"
+          ],
+          "returnType": "Promise<APIGatewayProxyResult>",
+          "exported": true,
+          "lineCount": 24
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "aws-lambda",
+          "specifiers": [
+            "APIGatewayProxyResult",
+            "ScheduledEvent"
+          ]
+        },
+        {
+          "source": "../../src/lib/ingest",
+          "specifiers": [
+            "runIngest"
+          ]
+        }
+      ],
+      "exports": [
+        "handler"
+      ],
+      "totalLines": 39,
+      "hasStructuralAnalysis": true
+    },
+    "next.config.mjs": {
+      "filePath": "next.config.mjs",
+      "contentHash": "ec25e6dc9bbca196c99a526fc57e389b1955deb5620c60ac33f8f81a336a460c",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 18,
+      "hasStructuralAnalysis": true
+    },
+    "postcss.config.js": {
+      "filePath": "postcss.config.js",
+      "contentHash": "fa650b380adfabb151a0b352f7135e107e6352345f899060f1c5c231228f94bf",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 7,
+      "hasStructuralAnalysis": true
+    },
+    "scripts/build-lambda.ts": {
+      "filePath": "scripts/build-lambda.ts",
+      "contentHash": "c7b655f6d96f73fafa0907c04ab7b495a69841593c0a54dcaa83b0ac837c1da0",
+      "functions": [
+        {
+          "name": "main",
+          "params": [],
+          "exported": false,
+          "lineCount": 42
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "esbuild",
+          "specifiers": [
+            "build"
+          ]
+        },
+        {
+          "source": "fs",
+          "specifiers": [
+            "cpSync",
+            "mkdirSync",
+            "existsSync"
+          ]
+        },
+        {
+          "source": "path",
+          "specifiers": [
+            "join",
+            "resolve"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 64,
+      "hasStructuralAnalysis": true
+    },
+    "scripts/ingest.ts": {
+      "filePath": "scripts/ingest.ts",
+      "contentHash": "084d7d15e90ce286b614d51cab695f4b4c307d5b61a9fb703ab593fe41366ddc",
+      "functions": [
+        {
+          "name": "main",
+          "params": [],
+          "exported": false,
+          "lineCount": 7
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "dotenv/config",
+          "specifiers": []
+        },
+        {
+          "source": "@/lib/ingest",
+          "specifiers": [
+            "runIngest"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 20,
+      "hasStructuralAnalysis": true
+    },
+    "scripts/seed.ts": {
+      "filePath": "scripts/seed.ts",
+      "contentHash": "eb0ae24cfba5507df60c906604a2c64f2f48741fdf9baaa3c78e5d0e23db32b5",
+      "functions": [
+        {
+          "name": "main",
+          "params": [],
+          "exported": false,
+          "lineCount": 18
+        },
+        {
+          "name": "seedSamples",
+          "params": [],
+          "exported": false,
+          "lineCount": 113
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "dotenv/config",
+          "specifiers": []
+        },
+        {
+          "source": "bcryptjs",
+          "specifiers": [
+            "bcrypt"
+          ]
+        },
+        {
+          "source": "@/lib/prisma",
+          "specifiers": [
+            "prisma"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 151,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/(app)/dashboard/page.tsx": {
+      "filePath": "src/app/(app)/dashboard/page.tsx",
+      "contentHash": "8534f1f67050d330fecda1ee3ac1ba29cedf6ea79a685348b8ff17aa7a54a084",
+      "functions": [
+        {
+          "name": "getDashboardData",
+          "params": [],
+          "exported": false,
+          "lineCount": 69
+        },
+        {
+          "name": "DashboardPage",
+          "params": [],
+          "exported": true,
+          "lineCount": 107
+        },
+        {
+          "name": "KpiCard",
+          "params": [
+            "{\n  label,\n  value,\n  accent,\n}"
+          ],
+          "exported": false,
+          "lineCount": 16
+        },
+        {
+          "name": "Card",
+          "params": [
+            "{ title, children }"
+          ],
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "EmptyState",
+          "params": [],
+          "exported": false,
+          "lineCount": 7
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/link",
+          "specifiers": [
+            "Link"
+          ]
+        },
+        {
+          "source": "next-auth",
+          "specifiers": [
+            "getServerSession"
+          ]
+        },
+        {
+          "source": "@/lib/auth",
+          "specifiers": [
+            "authOptions"
+          ]
+        },
+        {
+          "source": "@/lib/prisma",
+          "specifiers": [
+            "prisma"
+          ]
+        },
+        {
+          "source": "@/components/charts/SentimentTrendChart",
+          "specifiers": [
+            "SentimentTrendChart"
+          ]
+        },
+        {
+          "source": "@/components/charts/TopicDistributionChart",
+          "specifiers": [
+            "TopicDistributionChart"
+          ]
+        },
+        {
+          "source": "@/components/charts/SeverityChart",
+          "specifiers": [
+            "SeverityChart"
+          ]
+        },
+        {
+          "source": "@/components/charts/SentimentDonutChart",
+          "specifiers": [
+            "SentimentDonutChart"
+          ]
+        },
+        {
+          "source": "@/components/Badges",
+          "specifiers": [
+            "SentimentBadge",
+            "SeverityBadge",
+            "TopicChip"
+          ]
+        },
+        {
+          "source": "@/lib/utils",
+          "specifiers": [
+            "formatDate",
+            "truncate"
+          ]
+        }
+      ],
+      "exports": [
+        "dynamic",
+        "DashboardPage"
+      ],
+      "totalLines": 229,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/(app)/inbox/[id]/page.tsx": {
+      "filePath": "src/app/(app)/inbox/[id]/page.tsx",
+      "contentHash": "5d30bc87fa49e37385d544fc72204b7fe1a65ae048523d076ddcc4d44ab7f0e8",
+      "functions": [
+        {
+          "name": "FeedbackDetailPage",
+          "params": [
+            "{\n  params,\n}"
+          ],
+          "exported": true,
+          "lineCount": 126
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/link",
+          "specifiers": [
+            "Link"
+          ]
+        },
+        {
+          "source": "next/navigation",
+          "specifiers": [
+            "notFound"
+          ]
+        },
+        {
+          "source": "@/lib/prisma",
+          "specifiers": [
+            "prisma"
+          ]
+        },
+        {
+          "source": "@/components/Badges",
+          "specifiers": [
+            "SentimentBadge",
+            "SeverityBadge",
+            "StatusBadge",
+            "TopicChip"
+          ]
+        },
+        {
+          "source": "@/components/StatusSelect",
+          "specifiers": [
+            "StatusSelect"
+          ]
+        },
+        {
+          "source": "@/lib/utils",
+          "specifiers": [
+            "formatDate"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "ChevronLeft",
+            "ExternalLink"
+          ]
+        }
+      ],
+      "exports": [
+        "dynamic",
+        "FeedbackDetailPage"
+      ],
+      "totalLines": 142,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/(app)/inbox/page.tsx": {
+      "filePath": "src/app/(app)/inbox/page.tsx",
+      "contentHash": "10d0bb238df181068cc89a40ace6f72ea0491b5b0b4a5d674d148005f02da36e",
+      "functions": [
+        {
+          "name": "asArray",
+          "params": [
+            "v"
+          ],
+          "returnType": "string[]",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "InboxPage",
+          "params": [
+            "{\n  searchParams,\n}"
+          ],
+          "exported": true,
+          "lineCount": 188
+        },
+        {
+          "name": "qs",
+          "params": [
+            "base",
+            "overrides"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 13
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/link",
+          "specifiers": [
+            "Link"
+          ]
+        },
+        {
+          "source": "@/lib/prisma",
+          "specifiers": [
+            "prisma"
+          ]
+        },
+        {
+          "source": "@/components/Filters",
+          "specifiers": [
+            "Filters"
+          ]
+        },
+        {
+          "source": "@/components/Badges",
+          "specifiers": [
+            "SentimentBadge",
+            "SeverityBadge",
+            "StatusBadge",
+            "TopicChip"
+          ]
+        },
+        {
+          "source": "@/lib/utils",
+          "specifiers": [
+            "formatDate",
+            "truncate"
+          ]
+        },
+        {
+          "source": "@/lib/types",
+          "specifiers": [
+            "SENTIMENTS",
+            "FEEDBACK_STATUSES"
+          ]
+        }
+      ],
+      "exports": [
+        "dynamic",
+        "InboxPage"
+      ],
+      "totalLines": 233,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/(app)/layout.tsx": {
+      "filePath": "src/app/(app)/layout.tsx",
+      "contentHash": "af9a96eecb073dc5eef23f13b5235b5a6f3714da2751ea4f8de9922e204f76ef",
+      "functions": [
+        {
+          "name": "AppLayout",
+          "params": [
+            "{\n  children,\n}"
+          ],
+          "exported": true,
+          "lineCount": 16
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/navigation",
+          "specifiers": [
+            "redirect"
+          ]
+        },
+        {
+          "source": "next-auth",
+          "specifiers": [
+            "getServerSession"
+          ]
+        },
+        {
+          "source": "@/lib/auth",
+          "specifiers": [
+            "authOptions"
+          ]
+        },
+        {
+          "source": "@/components/Navbar",
+          "specifiers": [
+            "Navbar"
+          ]
+        }
+      ],
+      "exports": [
+        "AppLayout"
+      ],
+      "totalLines": 22,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/api/auth/[...nextauth]/route.ts": {
+      "filePath": "src/app/api/auth/[...nextauth]/route.ts",
+      "contentHash": "31a359c46de53145f3444f9ada81553b9a511e77947d420e034cbd117c21ea77",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next-auth",
+          "specifiers": [
+            "NextAuth"
+          ]
+        },
+        {
+          "source": "@/lib/auth",
+          "specifiers": [
+            "authOptions"
+          ]
+        }
+      ],
+      "exports": [
+        "GET",
+        "POST"
+      ],
+      "totalLines": 7,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/api/auth/signup/route.ts": {
+      "filePath": "src/app/api/auth/signup/route.ts",
+      "contentHash": "8cb33067a77094010ff6c000780e6d7b2d39230a2f7919c346468f9fc33808ac",
+      "functions": [
+        {
+          "name": "POST",
+          "params": [
+            "req"
+          ],
+          "exported": true,
+          "lineCount": 32
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/server",
+          "specifiers": [
+            "NextResponse"
+          ]
+        },
+        {
+          "source": "bcryptjs",
+          "specifiers": [
+            "bcrypt"
+          ]
+        },
+        {
+          "source": "zod",
+          "specifiers": [
+            "z"
+          ]
+        },
+        {
+          "source": "@/lib/prisma",
+          "specifiers": [
+            "prisma"
+          ]
+        }
+      ],
+      "exports": [
+        "POST"
+      ],
+      "totalLines": 44,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/api/dashboard/route.ts": {
+      "filePath": "src/app/api/dashboard/route.ts",
+      "contentHash": "75de7f1ecb1f4973947f21da895d325f72f3154f51320ca348349354ee648fad",
+      "functions": [
+        {
+          "name": "GET",
+          "params": [],
+          "exported": true,
+          "lineCount": 106
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/server",
+          "specifiers": [
+            "NextResponse"
+          ]
+        },
+        {
+          "source": "next-auth",
+          "specifiers": [
+            "getServerSession"
+          ]
+        },
+        {
+          "source": "@/lib/auth",
+          "specifiers": [
+            "authOptions"
+          ]
+        },
+        {
+          "source": "@/lib/prisma",
+          "specifiers": [
+            "prisma"
+          ]
+        }
+      ],
+      "exports": [
+        "GET"
+      ],
+      "totalLines": 119,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/api/feedback/[id]/route.ts": {
+      "filePath": "src/app/api/feedback/[id]/route.ts",
+      "contentHash": "cd84e16d200ef0fa5c9b3ba6f28355db39c248336a53762fd2e0defa935567a8",
+      "functions": [
+        {
+          "name": "GET",
+          "params": [
+            "_req",
+            "{ params }"
+          ],
+          "exported": true,
+          "lineCount": 18
+        },
+        {
+          "name": "PATCH",
+          "params": [
+            "req",
+            "{ params }"
+          ],
+          "exported": true,
+          "lineCount": 45
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/server",
+          "specifiers": [
+            "NextResponse"
+          ]
+        },
+        {
+          "source": "next-auth",
+          "specifiers": [
+            "getServerSession"
+          ]
+        },
+        {
+          "source": "zod",
+          "specifiers": [
+            "z"
+          ]
+        },
+        {
+          "source": "@/lib/auth",
+          "specifiers": [
+            "authOptions"
+          ]
+        },
+        {
+          "source": "@/lib/prisma",
+          "specifiers": [
+            "prisma"
+          ]
+        },
+        {
+          "source": "@/lib/types",
+          "specifiers": [
+            "FEEDBACK_STATUSES"
+          ]
+        }
+      ],
+      "exports": [
+        "GET",
+        "PATCH"
+      ],
+      "totalLines": 78,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/api/feedback/route.ts": {
+      "filePath": "src/app/api/feedback/route.ts",
+      "contentHash": "45ece82efec923586d6dd0ca6971510935cc6aef688fe851c3a132fdbfdfbfa7",
+      "functions": [
+        {
+          "name": "GET",
+          "params": [
+            "req"
+          ],
+          "exported": true,
+          "lineCount": 82
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/server",
+          "specifiers": [
+            "NextResponse"
+          ]
+        },
+        {
+          "source": "next-auth",
+          "specifiers": [
+            "getServerSession"
+          ]
+        },
+        {
+          "source": "@/lib/auth",
+          "specifiers": [
+            "authOptions"
+          ]
+        },
+        {
+          "source": "@/lib/prisma",
+          "specifiers": [
+            "prisma"
+          ]
+        },
+        {
+          "source": "@/lib/types",
+          "specifiers": [
+            "FEEDBACK_STATUSES",
+            "SENTIMENTS"
+          ]
+        }
+      ],
+      "exports": [
+        "GET"
+      ],
+      "totalLines": 99,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/api/ingest/route.ts": {
+      "filePath": "src/app/api/ingest/route.ts",
+      "contentHash": "dc8d96ad4c9aff60720799e00f68a4232bc6c5955efb2d98bb5d750cf5afcbcc",
+      "functions": [
+        {
+          "name": "POST",
+          "params": [],
+          "exported": true,
+          "lineCount": 18
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/server",
+          "specifiers": [
+            "NextResponse"
+          ]
+        },
+        {
+          "source": "next-auth",
+          "specifiers": [
+            "getServerSession"
+          ]
+        },
+        {
+          "source": "@/lib/auth",
+          "specifiers": [
+            "authOptions"
+          ]
+        },
+        {
+          "source": "@/lib/ingest",
+          "specifiers": [
+            "runIngest"
+          ]
+        }
+      ],
+      "exports": [
+        "POST"
+      ],
+      "totalLines": 26,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/api/webhook/slack/route.ts": {
+      "filePath": "src/app/api/webhook/slack/route.ts",
+      "contentHash": "c1926efb832963cad38996545b6c15d9da170cad6078456925e68185412f7164",
+      "functions": [
+        {
+          "name": "GET",
+          "params": [],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "POST",
+          "params": [],
+          "exported": true,
+          "lineCount": 23
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/server",
+          "specifiers": [
+            "NextResponse"
+          ]
+        },
+        {
+          "source": "next-auth",
+          "specifiers": [
+            "getServerSession"
+          ]
+        },
+        {
+          "source": "@/lib/auth",
+          "specifiers": [
+            "authOptions"
+          ]
+        },
+        {
+          "source": "@/lib/slack",
+          "specifiers": [
+            "isSlackEnabled",
+            "sendSlackMessage"
+          ]
+        }
+      ],
+      "exports": [
+        "GET",
+        "POST"
+      ],
+      "totalLines": 39,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/globals.css": {
+      "filePath": "src/app/globals.css",
+      "contentHash": "01f8f80bd898888c60317a29eba3fff53d18251eef01a7022bce473d010ccfb7",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 29,
+      "hasStructuralAnalysis": false
+    },
+    "src/app/layout.tsx": {
+      "filePath": "src/app/layout.tsx",
+      "contentHash": "b39f84d5a61aa5dd6d264c5b2d7144da9cbdf5b8145c91e2c3c5681b71ff1b16",
+      "functions": [
+        {
+          "name": "RootLayout",
+          "params": [
+            "{\n  children,\n}"
+          ],
+          "exported": true,
+          "lineCount": 13
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next",
+          "specifiers": [
+            "Metadata"
+          ]
+        },
+        {
+          "source": "./globals.css",
+          "specifiers": []
+        },
+        {
+          "source": "@/components/Providers",
+          "specifiers": [
+            "Providers"
+          ]
+        }
+      ],
+      "exports": [
+        "metadata",
+        "RootLayout"
+      ],
+      "totalLines": 24,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/login/page.tsx": {
+      "filePath": "src/app/login/page.tsx",
+      "contentHash": "f902bee309789cecc0bfd79468130344e08a5e870878276c6c4b0c1a86952755",
+      "functions": [
+        {
+          "name": "LoginPage",
+          "params": [],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "LoginForm",
+          "params": [],
+          "exported": false,
+          "lineCount": 98
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useState",
+            "Suspense"
+          ]
+        },
+        {
+          "source": "next/navigation",
+          "specifiers": [
+            "useRouter",
+            "useSearchParams"
+          ]
+        },
+        {
+          "source": "next-auth/react",
+          "specifiers": [
+            "signIn"
+          ]
+        },
+        {
+          "source": "next/link",
+          "specifiers": [
+            "Link"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "MessageSquareWarning"
+          ]
+        }
+      ],
+      "exports": [
+        "LoginPage"
+      ],
+      "totalLines": 115,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/page.tsx": {
+      "filePath": "src/app/page.tsx",
+      "contentHash": "2082c6e112e4a772f76fe06a1c40f01d6a633832b392766e0ed5409bf5f8df8d",
+      "functions": [
+        {
+          "name": "Home",
+          "params": [],
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/navigation",
+          "specifiers": [
+            "redirect"
+          ]
+        }
+      ],
+      "exports": [
+        "Home"
+      ],
+      "totalLines": 7,
+      "hasStructuralAnalysis": true
+    },
+    "src/app/signup/page.tsx": {
+      "filePath": "src/app/signup/page.tsx",
+      "contentHash": "66ccae1097225b77a37249c915e12c0bfe1715b0c748d808f4d35c0e666c4e2b",
+      "functions": [
+        {
+          "name": "SignupPage",
+          "params": [],
+          "exported": true,
+          "lineCount": 124
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useState"
+          ]
+        },
+        {
+          "source": "next/navigation",
+          "specifiers": [
+            "useRouter"
+          ]
+        },
+        {
+          "source": "next/link",
+          "specifiers": [
+            "Link"
+          ]
+        },
+        {
+          "source": "next-auth/react",
+          "specifiers": [
+            "signIn"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "MessageSquareWarning"
+          ]
+        }
+      ],
+      "exports": [
+        "SignupPage"
+      ],
+      "totalLines": 133,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/Badges.tsx": {
+      "filePath": "src/components/Badges.tsx",
+      "contentHash": "0dec01241ccb0a7f7c7e91e25771ed6ef9c6541328381d6f01c11b94139b0d31",
+      "functions": [
+        {
+          "name": "SentimentBadge",
+          "params": [
+            "{ sentiment }"
+          ],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "SeverityBadge",
+          "params": [
+            "{ score }"
+          ],
+          "exported": true,
+          "lineCount": 15
+        },
+        {
+          "name": "StatusBadge",
+          "params": [
+            "{ status }"
+          ],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "TopicChip",
+          "params": [
+            "{ topic }"
+          ],
+          "exported": true,
+          "lineCount": 7
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@/lib/utils",
+          "specifiers": [
+            "cn"
+          ]
+        },
+        {
+          "source": "@/lib/types",
+          "specifiers": [
+            "Sentiment",
+            "FeedbackStatus"
+          ]
+        }
+      ],
+      "exports": [
+        "SentimentBadge",
+        "SeverityBadge",
+        "StatusBadge",
+        "TopicChip"
+      ],
+      "totalLines": 73,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/charts/SentimentDonutChart.tsx": {
+      "filePath": "src/components/charts/SentimentDonutChart.tsx",
+      "contentHash": "3c6482c7a7cb4190e31af285262aa7fe4f8cfdccf57eecea0e89be388dab9052",
+      "functions": [
+        {
+          "name": "SentimentDonutChart",
+          "params": [
+            "{\n  data,\n}"
+          ],
+          "exported": true,
+          "lineCount": 43
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "recharts",
+          "specifiers": [
+            "ResponsiveContainer",
+            "PieChart",
+            "Pie",
+            "Cell",
+            "Tooltip",
+            "Legend"
+          ]
+        }
+      ],
+      "exports": [
+        "SentimentDonutChart"
+      ],
+      "totalLines": 61,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/charts/SentimentTrendChart.tsx": {
+      "filePath": "src/components/charts/SentimentTrendChart.tsx",
+      "contentHash": "4f4232f0bffc25f3d9489f20cb2ccae9a15e1fbf3f163216962afcdc376a3002",
+      "functions": [
+        {
+          "name": "SentimentTrendChart",
+          "params": [
+            "{ data }"
+          ],
+          "exported": true,
+          "lineCount": 20
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "recharts",
+          "specifiers": [
+            "ResponsiveContainer",
+            "LineChart",
+            "Line",
+            "XAxis",
+            "YAxis",
+            "CartesianGrid",
+            "Tooltip",
+            "Legend"
+          ]
+        }
+      ],
+      "exports": [
+        "SentimentTrendChart"
+      ],
+      "totalLines": 41,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/charts/SeverityChart.tsx": {
+      "filePath": "src/components/charts/SeverityChart.tsx",
+      "contentHash": "0e06eb4775ab5e80597eb799333ffea757989b930e871d8fddb3313e7089769f",
+      "functions": [
+        {
+          "name": "SeverityChart",
+          "params": [
+            "{ data }"
+          ],
+          "exported": true,
+          "lineCount": 34
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "recharts",
+          "specifiers": [
+            "ResponsiveContainer",
+            "PieChart",
+            "Pie",
+            "Cell",
+            "Tooltip",
+            "Legend"
+          ]
+        }
+      ],
+      "exports": [
+        "SeverityChart"
+      ],
+      "totalLines": 59,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/charts/TopicDistributionChart.tsx": {
+      "filePath": "src/components/charts/TopicDistributionChart.tsx",
+      "contentHash": "2568596465bff0200ca002d201eb25af7f1c5198fb63564c83b2728dfff33352",
+      "functions": [
+        {
+          "name": "TopicDistributionChart",
+          "params": [
+            "{ data }"
+          ],
+          "exported": true,
+          "lineCount": 23
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "recharts",
+          "specifiers": [
+            "ResponsiveContainer",
+            "BarChart",
+            "Bar",
+            "XAxis",
+            "YAxis",
+            "CartesianGrid",
+            "Tooltip"
+          ]
+        }
+      ],
+      "exports": [
+        "TopicDistributionChart"
+      ],
+      "totalLines": 41,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/Filters.tsx": {
+      "filePath": "src/components/Filters.tsx",
+      "contentHash": "6a33dd027e0a163c7699eaa0d743663dfc272d5f6e621809f28ea85993d81121",
+      "functions": [
+        {
+          "name": "Filters",
+          "params": [
+            "{ topicOptions }"
+          ],
+          "exported": true,
+          "lineCount": 127
+        },
+        {
+          "name": "Toggle",
+          "params": [
+            "{\n  active,\n  onClick,\n  label,\n}"
+          ],
+          "exported": false,
+          "lineCount": 22
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/navigation",
+          "specifiers": [
+            "useRouter",
+            "useSearchParams"
+          ]
+        },
+        {
+          "source": "react",
+          "specifiers": [
+            "useCallback"
+          ]
+        },
+        {
+          "source": "@/lib/types",
+          "specifiers": [
+            "SENTIMENTS",
+            "FEEDBACK_STATUSES",
+            "TOPIC_TAXONOMY"
+          ]
+        }
+      ],
+      "exports": [
+        "Filters"
+      ],
+      "totalLines": 161,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/Navbar.tsx": {
+      "filePath": "src/components/Navbar.tsx",
+      "contentHash": "1a3cd4a74e8765e897e0135c83207585f8add4421f11f9cb2c600fb437971e44",
+      "functions": [
+        {
+          "name": "Navbar",
+          "params": [],
+          "exported": true,
+          "lineCount": 54
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next/link",
+          "specifiers": [
+            "Link"
+          ]
+        },
+        {
+          "source": "next/navigation",
+          "specifiers": [
+            "usePathname"
+          ]
+        },
+        {
+          "source": "next-auth/react",
+          "specifiers": [
+            "signOut",
+            "useSession"
+          ]
+        },
+        {
+          "source": "lucide-react",
+          "specifiers": [
+            "LayoutDashboard",
+            "Inbox",
+            "LogOut",
+            "MessageSquareWarning"
+          ]
+        },
+        {
+          "source": "@/lib/utils",
+          "specifiers": [
+            "cn"
+          ]
+        }
+      ],
+      "exports": [
+        "Navbar"
+      ],
+      "totalLines": 68,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/Providers.tsx": {
+      "filePath": "src/components/Providers.tsx",
+      "contentHash": "b24405d17bb5aa9da90b521b4f23bdf384de0e5350e4517dae37f8bf43a72e88",
+      "functions": [
+        {
+          "name": "Providers",
+          "params": [
+            "{ children }"
+          ],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next-auth/react",
+          "specifiers": [
+            "SessionProvider"
+          ]
+        },
+        {
+          "source": "react",
+          "specifiers": [
+            "ReactNode"
+          ]
+        }
+      ],
+      "exports": [
+        "Providers"
+      ],
+      "totalLines": 9,
+      "hasStructuralAnalysis": true
+    },
+    "src/components/StatusSelect.tsx": {
+      "filePath": "src/components/StatusSelect.tsx",
+      "contentHash": "c3dd6b660736e2b1963cbac25dcf2ebbd6d7c4c21dbfdfaf7ac78456275b6eda",
+      "functions": [
+        {
+          "name": "StatusSelect",
+          "params": [
+            "{\n  itemId,\n  status,\n}"
+          ],
+          "exported": true,
+          "lineCount": 57
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "react",
+          "specifiers": [
+            "useState"
+          ]
+        },
+        {
+          "source": "next/navigation",
+          "specifiers": [
+            "useRouter"
+          ]
+        },
+        {
+          "source": "@/lib/types",
+          "specifiers": [
+            "FEEDBACK_STATUSES",
+            "FeedbackStatus"
+          ]
+        },
+        {
+          "source": "@/components/Badges",
+          "specifiers": [
+            "StatusBadge"
+          ]
+        }
+      ],
+      "exports": [
+        "StatusSelect"
+      ],
+      "totalLines": 65,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/auth.ts": {
+      "filePath": "src/lib/auth.ts",
+      "contentHash": "0ee13e0157d3d60466d1c73cc812ac587290dd460df1733118604a3bc9b349f6",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next-auth",
+          "specifiers": [
+            "NextAuthOptions"
+          ]
+        },
+        {
+          "source": "next-auth/providers/credentials",
+          "specifiers": [
+            "CredentialsProvider"
+          ]
+        },
+        {
+          "source": "bcryptjs",
+          "specifiers": [
+            "bcrypt"
+          ]
+        },
+        {
+          "source": "@/lib/prisma",
+          "specifiers": [
+            "prisma"
+          ]
+        }
+      ],
+      "exports": [
+        "authOptions"
+      ],
+      "totalLines": 62,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/github.ts": {
+      "filePath": "src/lib/github.ts",
+      "contentHash": "78a9d52d609e2d1886b3b9c146d210584ddf0993dbf188a6996640d249d8cd7f",
+      "functions": [
+        {
+          "name": "getRepo",
+          "params": [],
+          "returnType": "{ owner: string; repo: string }",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "getLookbackHours",
+          "params": [],
+          "returnType": "number",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "getMaxItems",
+          "params": [],
+          "returnType": "number",
+          "exported": false,
+          "lineCount": 4
+        },
+        {
+          "name": "createOctokit",
+          "params": [],
+          "returnType": "Octokit",
+          "exported": false,
+          "lineCount": 8
+        },
+        {
+          "name": "parseRateLimit",
+          "params": [
+            "headers"
+          ],
+          "returnType": "RateLimitInfo | null",
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "waitForRateLimit",
+          "params": [
+            "info"
+          ],
+          "returnType": "Promise<void>",
+          "exported": false,
+          "lineCount": 12
+        },
+        {
+          "name": "fetchGitHubIssues",
+          "params": [],
+          "returnType": "Promise<RawFeedbackItem[]>",
+          "exported": true,
+          "lineCount": 102
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@octokit/rest",
+          "specifiers": [
+            "Octokit"
+          ]
+        },
+        {
+          "source": "@/lib/types",
+          "specifiers": [
+            "RawFeedbackItem"
+          ]
+        },
+        {
+          "source": "@/lib/utils",
+          "specifiers": [
+            "backoffDelay",
+            "sleep"
+          ]
+        }
+      ],
+      "exports": [
+        "fetchGitHubIssues",
+        "GITHUB_SOURCE"
+      ],
+      "totalLines": 181,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/ingest.ts": {
+      "filePath": "src/lib/ingest.ts",
+      "contentHash": "e3a3c6b1cb54d3833c76b5a6e57ecd7ccdece763dc61ec7f6d992830ccbd7bfb",
+      "functions": [
+        {
+          "name": "runIngest",
+          "params": [
+            "opts"
+          ],
+          "returnType": "Promise<IngestResult>",
+          "exported": true,
+          "lineCount": 140
+        },
+        {
+          "name": "persistLog",
+          "params": [
+            "result"
+          ],
+          "returnType": "Promise<void>",
+          "exported": false,
+          "lineCount": 18
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@/lib/prisma",
+          "specifiers": [
+            "prisma"
+          ]
+        },
+        {
+          "source": "@/lib/github",
+          "specifiers": [
+            "fetchGitHubIssues",
+            "GITHUB_SOURCE"
+          ]
+        },
+        {
+          "source": "@/lib/llm",
+          "specifiers": [
+            "analyzeBatch"
+          ]
+        },
+        {
+          "source": "@/lib/slack",
+          "specifiers": [
+            "notifyHighSeverity"
+          ]
+        },
+        {
+          "source": "@/lib/types",
+          "specifiers": [
+            "RawFeedbackItem"
+          ]
+        },
+        {
+          "source": "crypto",
+          "specifiers": [
+            "randomUUID"
+          ]
+        }
+      ],
+      "exports": [
+        "runIngest"
+      ],
+      "totalLines": 196,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/llm.ts": {
+      "filePath": "src/lib/llm.ts",
+      "contentHash": "2a876b3ac858f0089a7bc5aaeab76f580c2d69aa1e245626a766ea533de92d64",
+      "functions": [
+        {
+          "name": "buildUserPrompt",
+          "params": [
+            "item"
+          ],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 11
+        },
+        {
+          "name": "getClient",
+          "params": [],
+          "returnType": "OpenAI",
+          "exported": false,
+          "lineCount": 5
+        },
+        {
+          "name": "getModel",
+          "params": [],
+          "returnType": "string",
+          "exported": false,
+          "lineCount": 3
+        },
+        {
+          "name": "analyzeFeedback",
+          "params": [
+            "item",
+            "opts"
+          ],
+          "returnType": "Promise<LlmAnalysisResult>",
+          "exported": true,
+          "lineCount": 53
+        },
+        {
+          "name": "analyzeBatch",
+          "params": [
+            "items",
+            "opts"
+          ],
+          "returnType": "Promise<BatchAnalyzeResult>",
+          "exported": true,
+          "lineCount": 18
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "openai",
+          "specifiers": [
+            "OpenAI"
+          ]
+        },
+        {
+          "source": "zod",
+          "specifiers": [
+            "z"
+          ]
+        },
+        {
+          "source": "@/lib/types",
+          "specifiers": [
+            "LlmAnalysisResult",
+            "RawFeedbackItem",
+            "SENTIMENTS",
+            "TOPIC_TAXONOMY"
+          ]
+        },
+        {
+          "source": "@/lib/utils",
+          "specifiers": [
+            "backoffDelay",
+            "sleep"
+          ]
+        }
+      ],
+      "exports": [
+        "analyzeFeedback",
+        "analyzeBatch"
+      ],
+      "totalLines": 142,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/prisma.ts": {
+      "filePath": "src/lib/prisma.ts",
+      "contentHash": "37e6e8150f2110d8bb53ed6e405d2abf3fdcde95e3d09b2b3e188ee19e2d470a",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@prisma/client",
+          "specifiers": [
+            "PrismaClient"
+          ]
+        }
+      ],
+      "exports": [
+        "prisma"
+      ],
+      "totalLines": 18,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/slack.ts": {
+      "filePath": "src/lib/slack.ts",
+      "contentHash": "fbab38ba71bb897999e2aa8f1ec1808e2b817f62b68b6e1fa8784ffc3716705b",
+      "functions": [
+        {
+          "name": "isSlackEnabled",
+          "params": [],
+          "returnType": "boolean",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "sendSlackMessage",
+          "params": [
+            "payload"
+          ],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 15
+        },
+        {
+          "name": "notifyHighSeverity",
+          "params": [
+            "args"
+          ],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 17
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "isSlackEnabled",
+        "sendSlackMessage",
+        "notifyHighSeverity"
+      ],
+      "totalLines": 46,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/types.ts": {
+      "filePath": "src/lib/types.ts",
+      "contentHash": "ff28ab5891e4b9fb1df63c307e36c8eda9ff8de23145227e1cd9a6fcd2796bcd",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "SENTIMENTS",
+        "TOPIC_TAXONOMY",
+        "FEEDBACK_STATUSES"
+      ],
+      "totalLines": 46,
+      "hasStructuralAnalysis": true
+    },
+    "src/lib/utils.ts": {
+      "filePath": "src/lib/utils.ts",
+      "contentHash": "78684d1f683651740b3d248ea141c5bc7d9d18ff97dfd8114b22301bc1e03e26",
+      "functions": [
+        {
+          "name": "cn",
+          "params": [
+            "...classes"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "formatDate",
+          "params": [
+            "value"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "formatDay",
+          "params": [
+            "value"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "truncate",
+          "params": [
+            "text",
+            "max"
+          ],
+          "returnType": "string",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "sleep",
+          "params": [
+            "ms"
+          ],
+          "returnType": "Promise<void>",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "backoffDelay",
+          "params": [
+            "attempt",
+            "capMs"
+          ],
+          "returnType": "number",
+          "exported": true,
+          "lineCount": 5
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "cn",
+        "formatDate",
+        "formatDay",
+        "truncate",
+        "sleep",
+        "backoffDelay"
+      ],
+      "totalLines": 43,
+      "hasStructuralAnalysis": true
+    },
+    "src/middleware.ts": {
+      "filePath": "src/middleware.ts",
+      "contentHash": "319efd8f7ff96ded2583d96351ac492c43407d6872407f3adf294af3db00f449",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "default",
+        "config"
+      ],
+      "totalLines": 12,
+      "hasStructuralAnalysis": true
+    },
+    "src/types/next-auth.d.ts": {
+      "filePath": "src/types/next-auth.d.ts",
+      "contentHash": "cfa67e6d2b2547db73d5b2a2386dfba599a3ad354521fa6aae402ee02fc87878",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "next-auth",
+          "specifiers": [
+            "DefaultSession"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 16,
+      "hasStructuralAnalysis": true
+    },
+    "tailwind.config.ts": {
+      "filePath": "tailwind.config.ts",
+      "contentHash": "2a95a1b9d742bc695787f3e97acb9cb67802b82ecd8e527158d75d9d900142bf",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "tailwindcss",
+          "specifiers": [
+            "Config"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 34,
+      "hasStructuralAnalysis": true
+    },
+    "tsconfig.tsbuildinfo": {
+      "filePath": "tsconfig.tsbuildinfo",
+      "contentHash": "6373d8f6cf599e98cec4b7b39e1a963a0f8d0709a8798093f2047d3618309d45",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 1,
+      "hasStructuralAnalysis": false
+    }
+  }
+}

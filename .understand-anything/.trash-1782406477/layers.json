@@ -1,0 +1,124 @@
+[
+  {
+    "id": "layer:ui",
+    "name": "UI Layer",
+    "description": "Next.js App Router pages, root and authenticated layouts, and global styles that form the presentation and routing shell of the application (excluding API route handlers).",
+    "nodeIds": [
+      "file:src/app/(app)/inbox/[id]/page.tsx",
+      "file:src/app/(app)/inbox/page.tsx",
+      "file:src/app/(app)/dashboard/page.tsx",
+      "file:src/app/(app)/layout.tsx",
+      "file:src/app/layout.tsx",
+      "file:src/app/page.tsx",
+      "file:src/app/login/page.tsx",
+      "file:src/app/signup/page.tsx",
+      "file:src/app/globals.css"
+    ]
+  },
+  {
+    "id": "layer:components",
+    "name": "Component Layer",
+    "description": "Reusable React UI components including navigation, providers, badges, filters, status controls, and Recharts-based dashboard visualizations.",
+    "nodeIds": [
+      "file:src/components/Badges.tsx",
+      "file:src/components/Filters.tsx",
+      "file:src/components/StatusSelect.tsx",
+      "file:src/components/Navbar.tsx",
+      "file:src/components/Providers.tsx",
+      "file:src/components/charts/SentimentDonutChart.tsx",
+      "file:src/components/charts/SentimentTrendChart.tsx",
+      "file:src/components/charts/SeverityChart.tsx",
+      "file:src/components/charts/TopicDistributionChart.tsx"
+    ]
+  },
+  {
+    "id": "layer:api",
+    "name": "API Layer",
+    "description": "Next.js App Router API route handlers exposing REST endpoints for authentication, dashboard analytics, feedback CRUD, ingest triggering, and Slack webhooks.",
+    "nodeIds": [
+      "file:src/app/api/auth/[...nextauth]/route.ts",
+      "file:src/app/api/auth/signup/route.ts",
+      "file:src/app/api/dashboard/route.ts",
+      "file:src/app/api/feedback/[id]/route.ts",
+      "file:src/app/api/feedback/route.ts",
+      "file:src/app/api/ingest/route.ts",
+      "file:src/app/api/webhook/slack/route.ts"
+    ]
+  },
+  {
+    "id": "layer:service",
+    "name": "Service Layer",
+    "description": "Core business logic and domain services in src/lib: the ingest pipeline orchestrator, LLM analysis, GitHub ingestion adapter, Slack notifications, NextAuth configuration, the Prisma client singleton, and request-protection middleware.",
+    "nodeIds": [
+      "file:src/lib/ingest.ts",
+      "file:src/lib/llm.ts",
+      "file:src/lib/github.ts",
+      "file:src/lib/slack.ts",
+      "file:src/lib/auth.ts",
+      "file:src/lib/prisma.ts",
+      "file:src/middleware.ts"
+    ]
+  },
+  {
+    "id": "layer:utility",
+    "name": "Shared Utility & Types Layer",
+    "description": "Foundational shared helpers and type definitions with high fan-in used across UI, API, and service layers: className/date/format/backoff utilities, sentiment/topic/status constants, and NextAuth type augmentations.",
+    "nodeIds": [
+      "file:src/lib/utils.ts",
+      "file:src/lib/types.ts",
+      "file:src/types/next-auth.d.ts"
+    ]
+  },
+  {
+    "id": "layer:data",
+    "name": "Data Layer",
+    "description": "Database schema and persistence definitions: the Prisma schema, initial PostgreSQL migration SQL, individual table definitions, and the migration lock file.",
+    "nodeIds": [
+      "schema:prisma/schema.prisma",
+      "table:prisma/migrations/20260625150915_init/migration.sql",
+      "table:prisma/migrations/20260625150915_init/migration.sql:users",
+      "table:prisma/migrations/20260625150915_init/migration.sql:feedback_items",
+      "table:prisma/migrations/20260625150915_init/migration.sql:feedback_analyses",
+      "table:prisma/migrations/20260625150915_init/migration.sql:ingest_logs",
+      "config:prisma/migrations/migration_lock.toml"
+    ]
+  },
+  {
+    "id": "layer:infrastructure",
+    "name": "Infrastructure & Operations Layer",
+    "description": "Deployment and operational tooling: AWS SAM/CloudFormation template, the Lambda ingest handler, Docker Compose for local Postgres, the Amplify build spec, and build/seed/ingest CLI scripts.",
+    "nodeIds": [
+      "config:aws/template.yaml",
+      "file:aws/lambda/handler.ts",
+      "service:docker-compose.yml",
+      "config:amplify.yml",
+      "file:scripts/build-lambda.ts",
+      "file:scripts/seed.ts",
+      "file:scripts/ingest.ts"
+    ]
+  },
+  {
+    "id": "layer:config",
+    "name": "Configuration Layer",
+    "description": "Project-level configuration and build settings: package manifest, TypeScript compiler config, environment variable template, Next.js/PostCSS/Tailwind configs, the incremental build cache, and analysis ignore patterns.",
+    "nodeIds": [
+      "config:package.json",
+      "config:tsconfig.json",
+      "config:.env.example",
+      "file:next.config.mjs",
+      "file:postcss.config.js",
+      "file:tailwind.config.ts",
+      "file:tsconfig.tsbuildinfo",
+      "file:.understand-anything/.understandignore"
+    ]
+  },
+  {
+    "id": "layer:documentation",
+    "name": "Documentation Layer",
+    "description": "Project documentation including the root README covering architecture and deployment, and the AWS deployment guide.",
+    "nodeIds": [
+      "document:README.md",
+      "document:aws/README.md"
+    ]
+  }
+]

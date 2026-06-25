@@ -1,0 +1,50 @@
+{
+  "projectRoot": "/workspaces/FeedbackFlow-AI",
+  "batchFiles": [
+    {"path": "src/app/(app)/inbox/[id]/page.tsx", "language": "typescript", "sizeLines": 141, "fileCategory": "code"},
+    {"path": "src/app/(app)/inbox/page.tsx", "language": "typescript", "sizeLines": 232, "fileCategory": "code"},
+    {"path": "src/components/Badges.tsx", "language": "typescript", "sizeLines": 72, "fileCategory": "code"},
+    {"path": "src/components/Filters.tsx", "language": "typescript", "sizeLines": 160, "fileCategory": "code"},
+    {"path": "src/components/StatusSelect.tsx", "language": "typescript", "sizeLines": 64, "fileCategory": "code"},
+    {"path": "src/lib/github.ts", "language": "typescript", "sizeLines": 180, "fileCategory": "code"},
+    {"path": "src/lib/llm.ts", "language": "typescript", "sizeLines": 141, "fileCategory": "code"},
+    {"path": "src/lib/types.ts", "language": "typescript", "sizeLines": 45, "fileCategory": "code"},
+    {"path": "src/lib/utils.ts", "language": "typescript", "sizeLines": 42, "fileCategory": "code"}
+  ],
+  "batchImportData": {
+    "src/app/(app)/inbox/[id]/page.tsx": [
+      "src/components/Badges.tsx",
+      "src/components/StatusSelect.tsx",
+      "src/lib/prisma.ts",
+      "src/lib/utils.ts"
+    ],
+    "src/app/(app)/inbox/page.tsx": [
+      "src/components/Badges.tsx",
+      "src/components/Filters.tsx",
+      "src/lib/prisma.ts",
+      "src/lib/types.ts",
+      "src/lib/utils.ts"
+    ],
+    "src/components/Badges.tsx": [
+      "src/lib/types.ts",
+      "src/lib/utils.ts"
+    ],
+    "src/components/Filters.tsx": [
+      "src/lib/types.ts"
+    ],
+    "src/components/StatusSelect.tsx": [
+      "src/components/Badges.tsx",
+      "src/lib/types.ts"
+    ],
+    "src/lib/github.ts": [
+      "src/lib/types.ts",
+      "src/lib/utils.ts"
+    ],
+    "src/lib/llm.ts": [
+      "src/lib/types.ts",
+      "src/lib/utils.ts"
+    ],
+    "src/lib/types.ts": [],
+    "src/lib/utils.ts": []
+  }
+}

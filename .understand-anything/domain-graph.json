@@ -1,0 +1,2238 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "FeedbackFlow AI",
+    "languages": [
+      "typescript",
+      "javascript",
+      "prisma",
+      "sql",
+      "yaml",
+      "markdown",
+      "css",
+      "json",
+      "toml",
+      "dockerfile"
+    ],
+    "frameworks": [
+      "Next.js",
+      "NextAuth.js",
+      "Prisma",
+      "TailwindCSS",
+      "Recharts",
+      "OpenAI",
+      "AWS SAM",
+      "AWS Lambda"
+    ],
+    "description": "Automated micro-SaaS that ingests real customer feedback from GitHub Issues, runs multi-task LLM analysis (sentiment, topics, severity, summary) on each item, stores raw and structured results in Postgres, and presents a dashboard, inbox, and detail UI for Product Managers and Customer Success teams to triage feedback.",
+    "analyzedAt": "2026-06-25T16:54:05.115Z",
+    "gitCommitHash": "6fd28556551ab0e6e366bfef2cfb411a74004c50"
+  },
+  "nodes": [
+    {
+      "id": "domain:user-authentication",
+      "type": "domain",
+      "name": "User Authentication",
+      "summary": "Handles user registration, credential-based sign-in, JWT session management, and route protection for the FeedbackFlow application. It gates every authenticated page and API endpoint behind a NextAuth session validated against the Prisma user table.",
+      "tags": [
+        "authentication",
+        "security",
+        "session",
+        "nextauth"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entities": [
+          "User",
+          "Session",
+          "Credentials"
+        ],
+        "businessRules": [
+          "Emails must be unique across all users",
+          "Passwords are hashed with bcrypt before persistence",
+          "Sessions use a JWT strategy validated on every protected request",
+          "Unauthenticated visitors are redirected to the login page"
+        ],
+        "crossDomainInteractions": [
+          "Gates access to Feedback Management inbox and triage endpoints",
+          "Gates access to Dashboard Analytics pages and metrics API",
+          "Gates the on-demand ingest trigger API route"
+        ]
+      }
+    },
+    {
+      "id": "domain:feedback-ingestion",
+      "type": "domain",
+      "name": "Feedback Ingestion",
+      "summary": "Orchestrates the end-to-end pipeline that pulls raw customer feedback from GitHub Issues, deduplicates it against existing records, batches it through LLM analysis, atomically persists raw and structured results in Postgres, and logs each run for observability. It is the heart of the product and is invoked from the CLI, an API route, and an AWS Lambda handler.",
+      "tags": [
+        "ingest",
+        "data-pipeline",
+        "orchestration",
+        "github"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entities": [
+          "FeedbackItem",
+          "IngestLog",
+          "GitHubIssue"
+        ],
+        "businessRules": [
+          "Ingestion is idempotent: feedback items are keyed by source and external id",
+          "Raw items and analyses are persisted atomically in a Prisma transaction",
+          "Each ingest run is recorded in ingest_logs with status and item counts",
+          "Rate limits and transient failures are handled with exponential backoff"
+        ],
+        "crossDomainInteractions": [
+          "Delegates structured analysis to the LLM Analysis domain",
+          "Triggers high-severity alerts via the Notifications domain",
+          "Feeds persisted analyses into Dashboard Analytics and Feedback Management"
+        ]
+      }
+    },
+    {
+      "id": "domain:llm-analysis",
+      "type": "domain",
+      "name": "LLM Analysis",
+      "summary": "Transforms raw feedback text into structured insight by building prompts, calling OpenAI chat completions, and validating responses against a Zod schema enforcing sentiment, topics, severity, and summary fields. It supports single-item and batch analysis with retry and backoff for reliability.",
+      "tags": [
+        "llm",
+        "openai",
+        "analysis",
+        "validation"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entities": [
+          "FeedbackAnalysis",
+          "AnalysisSchema",
+          "Prompt"
+        ],
+        "businessRules": [
+          "Every LLM response must pass Zod schema validation for sentiment, topics, severity, and summary",
+          "Failed analyses are retried with exponential backoff before being recorded as failures",
+          "Batch analysis collects successes and failures separately so one bad item does not abort the run"
+        ],
+        "crossDomainInteractions": [
+          "Consumes raw feedback items from the Feedback Ingestion pipeline",
+          "Produces structured analyses consumed by Feedback Management and Dashboard Analytics"
+        ]
+      }
+    },
+    {
+      "id": "domain:feedback-management",
+      "type": "domain",
+      "name": "Feedback Management",
+      "summary": "Provides the triage workflow for Product Managers and Customer Success teams to browse, filter, inspect, and update the status of ingested feedback items. It exposes a filterable inbox, a detail view with AI analysis, and PATCH-based triage updates backed by Prisma.",
+      "tags": [
+        "triage",
+        "inbox",
+        "crud",
+        "ui"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entities": [
+          "FeedbackItem",
+          "FeedbackAnalysis",
+          "TriageStatus"
+        ],
+        "businessRules": [
+          "Inbox supports filtering by sentiment, severity, status, and topic with sorting and pagination",
+          "Triage updates are validated against a Zod patch schema before persistence",
+          "Detail view triggers a 404 when the requested feedback item does not exist"
+        ],
+        "crossDomainInteractions": [
+          "Depends on User Authentication to gate access to triage endpoints",
+          "Reads structured analyses produced by the LLM Analysis domain",
+          "Surface high-severity items surfaced by Dashboard Analytics"
+        ]
+      }
+    },
+    {
+      "id": "domain:dashboard-analytics",
+      "type": "domain",
+      "name": "Dashboard Analytics",
+      "summary": "Aggregates feedback analysis metrics into KPI cards and Recharts visualizations (sentiment donut, sentiment trend, severity bar, topic distribution) plus a high-severity feedback list. It server-renders dashboard data via Prisma and also exposes a REST analytics endpoint.",
+      "tags": [
+        "dashboard",
+        "analytics",
+        "visualization",
+        "recharts"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entities": [
+          "DashboardMetrics",
+          "SentimentGroup",
+          "SeverityGroup",
+          "TopicCount"
+        ],
+        "businessRules": [
+          "Dashboard data is loaded server-side and aggregated from feedback analyses",
+          "Daily sentiment trend spans a 14-day rolling window",
+          "High-severity items (severity >= 4) are highlighted in a dedicated list"
+        ],
+        "crossDomainInteractions": [
+          "Depends on User Authentication to gate the dashboard page and metrics API",
+          "Consumes structured analyses produced by the LLM Analysis domain",
+          "Reflects data ingested by the Feedback Ingestion pipeline"
+        ]
+      }
+    },
+    {
+      "id": "domain:infrastructure-deployment",
+      "type": "domain",
+      "name": "Infrastructure & Deployment",
+      "summary": "Provisions and deploys the FeedbackFlow runtime: AWS SAM provisions VPC networking, RDS Postgres, Secrets Manager, and an EventBridge-scheduled Lambda ingest function; Amplify builds and deploys the Next.js frontend; Docker Compose runs local Postgres; and build scripts bundle the Lambda deployment package with the Prisma client.",
+      "tags": [
+        "infrastructure",
+        "deployment",
+        "aws",
+        "lambda"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entities": [
+          "RDSPocstgres",
+          "LambdaFunction",
+          "EventBridgeSchedule",
+          "AmplifyBuild"
+        ],
+        "businessRules": [
+          "The same ingest pipeline runs from npm, an API route, or Lambda without code changes",
+          "Lambda deployment packages must bundle the generated Prisma client",
+          "Database credentials are stored in AWS Secrets Manager, not in code",
+          "Local development uses docker-compose to run postgres:16-alpine"
+        ],
+        "crossDomainInteractions": [
+          "Schedules and runs the Feedback Ingestion pipeline via EventBridge and Lambda",
+          "Hosts the frontend that serves Dashboard Analytics and Feedback Management UIs"
+        ]
+      }
+    },
+    {
+      "id": "flow:sign-up",
+      "type": "flow",
+      "name": "Sign Up",
+      "summary": "Registers a new user by validating credentials, preventing duplicate emails, hashing the password, persisting the user, then signing in and redirecting to the dashboard.",
+      "tags": [
+        "authentication",
+        "registration",
+        "form"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "POST /api/auth/signup",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "flow:sign-in",
+      "type": "flow",
+      "name": "Sign In",
+      "summary": "Authenticates an existing user via NextAuth credentials provider, validates email and password against the Prisma user table, issues a JWT session, and protects routes via middleware.",
+      "tags": [
+        "authentication",
+        "session",
+        "middleware"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "POST /api/auth/[...nextauth]",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "flow:fetch-github-issues",
+      "type": "flow",
+      "name": "Fetch GitHub Issues",
+      "summary": "Pulls recent GitHub issues from a configurable public repo via the Octokit client with pagination, rate-limit handling, and exponential backoff, normalizing each issue into the internal feedback item shape.",
+      "tags": [
+        "ingest",
+        "github",
+        "api-handler"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entryPoint": "GitHub Issues REST API",
+        "entryType": "event"
+      }
+    },
+    {
+      "id": "flow:run-ingest-pipeline",
+      "type": "flow",
+      "name": "Run Ingest Pipeline",
+      "summary": "Executes the core ingest orchestrator: fetch raw feedback, deduplicate against the database, batch through LLM analysis, atomically persist items and analyses, log the run, and trigger Slack alerts for high-severity findings.",
+      "tags": [
+        "ingest",
+        "orchestration",
+        "data-pipeline"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entryPoint": "runIngest (CLI / API / Lambda)",
+        "entryType": "cron"
+      }
+    },
+    {
+      "id": "flow:alert-high-severity",
+      "type": "flow",
+      "name": "Alert High Severity",
+      "summary": "Checks whether Slack notifications are enabled, formats a high-severity feedback alert with topics and sentiment, and posts it to the configured Slack incoming webhook.",
+      "tags": [
+        "slack",
+        "notification",
+        "alerting"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "notifyHighSeverity (internal call)",
+        "entryType": "event"
+      }
+    },
+    {
+      "id": "flow:analyze-single-feedback",
+      "type": "flow",
+      "name": "Analyze Single Feedback",
+      "summary": "Sends one feedback item to the OpenAI chat completions API, parses and validates the JSON response against the Zod AnalysisSchema, and retries with backoff on failure.",
+      "tags": [
+        "llm",
+        "openai",
+        "validation"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "analyzeFeedback (internal call)",
+        "entryType": "event"
+      }
+    },
+    {
+      "id": "flow:analyze-batch",
+      "type": "flow",
+      "name": "Analyze Batch",
+      "summary": "Iterates a list of feedback items, calling analyzeFeedback for each and collecting successful analyses and failures into separate result arrays so one bad item does not abort the run.",
+      "tags": [
+        "llm",
+        "batch",
+        "data-pipeline"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "analyzeBatch (internal call)",
+        "entryType": "event"
+      }
+    },
+    {
+      "id": "flow:browse-inbox",
+      "type": "flow",
+      "name": "Browse Inbox",
+      "summary": "Parses URL search params into sentiment, severity, status, topic, sort, and pagination filters, queries Prisma for paginated feedback items and analyses, and renders a filterable, sortable inbox table.",
+      "tags": [
+        "inbox",
+        "filtering",
+        "pagination"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "GET /inbox",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "flow:view-feedback-detail",
+      "type": "flow",
+      "name": "View Feedback Detail",
+      "summary": "Loads a single feedback item by id via Prisma, renders its metadata, AI analysis topics, and status selector, and triggers notFound when the record is missing.",
+      "tags": [
+        "inbox",
+        "detail",
+        "ui"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "GET /inbox/[id]",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "flow:update-triage-status",
+      "type": "flow",
+      "name": "Update Triage Status",
+      "summary": "Lets a user change a feedback item's triage status via a dropdown that PATCHes the API endpoint, which validates the update with a Zod schema and persists it via Prisma before refreshing the router.",
+      "tags": [
+        "triage",
+        "crud",
+        "patch"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "PATCH /api/feedback/[id]",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "flow:load-dashboard-metrics",
+      "type": "flow",
+      "name": "Load Dashboard Metrics",
+      "summary": "Authenticates the session and queries Prisma for sentiment and severity groupings, topic counts, daily sentiment trends, high-severity items, and ingest status to feed the dashboard.",
+      "tags": [
+        "dashboard",
+        "analytics",
+        "aggregation"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "GET /dashboard (and GET /api/dashboard)",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "flow:render-dashboard-visualizations",
+      "type": "flow",
+      "name": "Render Dashboard Visualizations",
+      "summary": "Renders KPI cards and four Recharts visualizations (sentiment donut, sentiment trend, severity bar, topic distribution) plus a high-severity feedback list from the loaded dashboard data.",
+      "tags": [
+        "dashboard",
+        "visualization",
+        "recharts"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "DashboardPage server component",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "flow:deploy-aws-backend",
+      "type": "flow",
+      "name": "Deploy AWS Backend",
+      "summary": "Provisions VPC networking, an RDS Postgres instance, Secrets Manager credentials, and an EventBridge-scheduled Lambda ingest function via AWS SAM, then bundles the Lambda deployment package with the Prisma client.",
+      "tags": [
+        "aws",
+        "sam",
+        "lambda",
+        "rds"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entryPoint": "sam deploy (aws/template.yaml)",
+        "entryType": "cli"
+      }
+    },
+    {
+      "id": "flow:build-and-deploy-frontend",
+      "type": "flow",
+      "name": "Build & Deploy Frontend",
+      "summary": "Builds and deploys the Next.js frontend via AWS Amplify: installs dependencies, generates the Prisma client, runs next build, and publishes the .next directory as build artifacts with caching.",
+      "tags": [
+        "amplify",
+        "frontend",
+        "build",
+        "deployment"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "amplify.yml build spec",
+        "entryType": "cron"
+      }
+    },
+    {
+      "id": "step:sign-up:validate-credentials",
+      "type": "step",
+      "name": "Validate Signup Credentials",
+      "summary": "Validates the signup request body against a Zod schema ensuring a well-formed name, email, and password before proceeding.",
+      "tags": [
+        "validation",
+        "zod"
+      ],
+      "complexity": "simple",
+      "filePath": "src/app/api/auth/signup/route.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:sign-up:check-existing-user",
+      "type": "step",
+      "name": "Check For Existing User",
+      "summary": "Queries Prisma for an existing user with the same email to prevent duplicate registrations and returns a 409 conflict if one is found.",
+      "tags": [
+        "validation",
+        "prisma"
+      ],
+      "complexity": "simple",
+      "filePath": "src/app/api/auth/signup/route.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:sign-up:hash-password",
+      "type": "step",
+      "name": "Hash Password",
+      "summary": "Hashes the submitted password with bcrypt before persistence so plaintext credentials are never stored.",
+      "tags": [
+        "security",
+        "bcrypt"
+      ],
+      "complexity": "simple",
+      "filePath": "src/app/api/auth/signup/route.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:sign-up:persist-user",
+      "type": "step",
+      "name": "Persist New User",
+      "summary": "Creates the new user record in the Prisma user table with the hashed password, name, and email.",
+      "tags": [
+        "prisma",
+        "persistence"
+      ],
+      "complexity": "simple",
+      "filePath": "src/app/api/auth/signup/route.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:sign-up:signin-and-redirect",
+      "type": "step",
+      "name": "Sign In And Redirect",
+      "summary": "Signs the newly registered user in via NextAuth and redirects them to the authenticated dashboard.",
+      "tags": [
+        "nextauth",
+        "redirect"
+      ],
+      "complexity": "simple",
+      "filePath": "src/app/signup/page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:sign-in:render-login-form",
+      "type": "step",
+      "name": "Render Login Form",
+      "summary": "Renders the credentials sign-in form with email and password fields, plus loading and error states.",
+      "tags": [
+        "ui",
+        "form"
+      ],
+      "complexity": "simple",
+      "filePath": "src/app/login/page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:sign-in:submit-credentials",
+      "type": "step",
+      "name": "Submit Credentials",
+      "summary": "Submits the email and password via the NextAuth signIn client action, handling errors and redirecting to the callback URL on success.",
+      "tags": [
+        "nextauth",
+        "client-component"
+      ],
+      "complexity": "simple",
+      "filePath": "src/app/login/page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:sign-in:authorize-user",
+      "type": "step",
+      "name": "Authorize Against User Table",
+      "summary": "The NextAuth credentials provider authorize callback validates the email and password against the Prisma user table, returning the user on success or null on failure.",
+      "tags": [
+        "nextauth",
+        "prisma"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/lib/auth.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:sign-in:issue-jwt-session",
+      "type": "step",
+      "name": "Issue JWT Session",
+      "summary": "Issues a JWT session token using the NextAuth JWT session strategy, augmented with a custom userId field on the session and token types.",
+      "tags": [
+        "session",
+        "jwt"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/lib/auth.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:sign-in:protect-routes",
+      "type": "step",
+      "name": "Protect Routes Via Middleware",
+      "summary": "NextAuth middleware validates the session token on every request to protected paths, redirecting unauthenticated visitors to login.",
+      "tags": [
+        "middleware",
+        "security"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/middleware.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:fetch-github-issues:build-octokit-client",
+      "type": "step",
+      "name": "Build Octokit Client",
+      "summary": "Constructs an Octokit client authenticated with the configured GitHub token to call the Issues REST API.",
+      "tags": [
+        "github",
+        "api-handler"
+      ],
+      "complexity": "simple",
+      "filePath": "src/lib/github.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:fetch-github-issues:paginate-issues",
+      "type": "step",
+      "name": "Paginate Issues From Repo",
+      "summary": "Paginates recent issues from the configured public GitHub repository, collecting all pages of results.",
+      "tags": [
+        "github",
+        "pagination"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/lib/github.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:fetch-github-issues:parse-rate-limit",
+      "type": "step",
+      "name": "Parse Rate Limit Headers",
+      "summary": "Parses GitHub rate-limit headers (remaining, limit, reset) from each response into a structured info object used to throttle requests.",
+      "tags": [
+        "github",
+        "rate-limit"
+      ],
+      "complexity": "simple",
+      "filePath": "src/lib/github.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:fetch-github-issues:apply-backoff",
+      "type": "step",
+      "name": "Apply Exponential Backoff",
+      "summary": "Sleeps until the rate-limit reset time when quota is exhausted and applies exponential backoff with jitter on transient failures.",
+      "tags": [
+        "backoff",
+        "reliability"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/lib/github.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:fetch-github-issues:normalize-issues",
+      "type": "step",
+      "name": "Normalize Issues To Feedback Items",
+      "summary": "Normalizes each GitHub issue into the internal feedback item shape with source, external id, author, title, and raw content.",
+      "tags": [
+        "normalization",
+        "data-model"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/lib/github.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:run-ingest-pipeline:fetch-raw-feedback",
+      "type": "step",
+      "name": "Fetch Raw Feedback From Source",
+      "summary": "Invokes the GitHub ingestion adapter to retrieve the latest raw feedback items for the configured source.",
+      "tags": [
+        "ingest",
+        "github"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/lib/ingest.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:run-ingest-pipeline:deduplicate-records",
+      "type": "step",
+      "name": "Deduplicate Against Existing Records",
+      "summary": "Compares fetched items against existing database records keyed by source and external id to skip already-ingested feedback.",
+      "tags": [
+        "dedup",
+        "idempotency"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/lib/ingest.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:run-ingest-pipeline:batch-llm-analysis",
+      "type": "step",
+      "name": "Batch Items Through LLM Analysis",
+      "summary": "Passes the deduplicated items to analyzeBatch, which runs structured LLM analysis on each item and collects successes and failures.",
+      "tags": [
+        "llm",
+        "batch"
+      ],
+      "complexity": "complex",
+      "filePath": "src/lib/ingest.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:run-ingest-pipeline:persist-transaction",
+      "type": "step",
+      "name": "Persist Items And Analyses",
+      "summary": "Atomically persists raw feedback items and their analyses in a Prisma transaction to maintain consistency.",
+      "tags": [
+        "prisma",
+        "transaction",
+        "persistence"
+      ],
+      "complexity": "complex",
+      "filePath": "src/lib/ingest.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:run-ingest-pipeline:log-run",
+      "type": "step",
+      "name": "Log Ingest Run",
+      "summary": "Persists an ingest run log entry to ingest_logs with source, status, item counts, and error details, swallowing logging errors so they never break the pipeline.",
+      "tags": [
+        "logging",
+        "observability"
+      ],
+      "complexity": "simple",
+      "filePath": "src/lib/ingest.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:run-ingest-pipeline:trigger-slack-alerts",
+      "type": "step",
+      "name": "Trigger Slack Alerts For High Severity",
+      "summary": "Calls notifyHighSeverity to send Slack alerts for any newly persisted items with high severity, closing the ingest loop.",
+      "tags": [
+        "slack",
+        "alerting"
+      ],
+      "complexity": "simple",
+      "filePath": "src/lib/ingest.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:alert-high-severity:check-feature-flag",
+      "type": "step",
+      "name": "Check Slack Feature Flag",
+      "summary": "Checks whether Slack notifications are enabled based on the presence of the Slack webhook URL environment variable.",
+      "tags": [
+        "feature-flag",
+        "slack"
+      ],
+      "complexity": "simple",
+      "filePath": "src/lib/slack.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:alert-high-severity:format-alert",
+      "type": "step",
+      "name": "Format High Severity Alert",
+      "summary": "Formats a high-severity feedback alert including topics and sentiment into a Slack message payload.",
+      "tags": [
+        "formatting",
+        "slack"
+      ],
+      "complexity": "simple",
+      "filePath": "src/lib/slack.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:alert-high-severity:post-to-slack",
+      "type": "step",
+      "name": "Post To Slack Webhook",
+      "summary": "Posts the formatted payload to the configured Slack incoming webhook URL via fetch, returning a success boolean with error logging on failure.",
+      "tags": [
+        "slack",
+        "notification"
+      ],
+      "complexity": "simple",
+      "filePath": "src/lib/slack.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:analyze-single-feedback:build-prompt",
+      "type": "step",
+      "name": "Build User Prompt",
+      "summary": "Constructs the user-facing prompt text for the LLM from a feedback item's source, author, title, and truncated raw content.",
+      "tags": [
+        "prompt",
+        "formatting"
+      ],
+      "complexity": "simple",
+      "filePath": "src/lib/llm.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:analyze-single-feedback:call-openai",
+      "type": "step",
+      "name": "Call OpenAI Chat Completions",
+      "summary": "Sends the constructed prompt to the OpenAI chat completions API and receives a JSON response.",
+      "tags": [
+        "openai",
+        "api-handler"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/lib/llm.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:analyze-single-feedback:validate-response",
+      "type": "step",
+      "name": "Validate Response With Zod Schema",
+      "summary": "Parses and validates the JSON response against the Zod AnalysisSchema enforcing sentiment, topics, severity, and summary fields.",
+      "tags": [
+        "zod",
+        "validation"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/lib/llm.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:analyze-single-feedback:retry-on-failure",
+      "type": "step",
+      "name": "Retry With Backoff On Failure",
+      "summary": "Retries the analysis call with exponential backoff and jitter when the OpenAI request or schema validation fails.",
+      "tags": [
+        "retry",
+        "backoff"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/lib/llm.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:analyze-batch:iterate-items",
+      "type": "step",
+      "name": "Iterate Feedback Items",
+      "summary": "Iterates the list of feedback items, invoking analyzeFeedback for each one in sequence.",
+      "tags": [
+        "iteration",
+        "batch"
+      ],
+      "complexity": "simple",
+      "filePath": "src/lib/llm.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:analyze-batch:analyze-each-item",
+      "type": "step",
+      "name": "Analyze Each Item",
+      "summary": "Calls analyzeFeedback for the current item, which builds a prompt, calls OpenAI, and validates the response.",
+      "tags": [
+        "llm",
+        "openai"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/lib/llm.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:analyze-batch:collect-results",
+      "type": "step",
+      "name": "Collect Successes And Failures",
+      "summary": "Collects successful analyses and failed items into separate result arrays so one bad item does not abort the entire batch.",
+      "tags": [
+        "results",
+        "error-handling"
+      ],
+      "complexity": "simple",
+      "filePath": "src/lib/llm.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:browse-inbox:parse-filters",
+      "type": "step",
+      "name": "Parse Search Params For Filters",
+      "summary": "Parses URL search params for sentiment, severity, status, topic, sort, and pagination filters, validating values against project enum constants.",
+      "tags": [
+        "validation",
+        "filters"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/app/(app)/inbox/page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:browse-inbox:query-paginated-feedback",
+      "type": "step",
+      "name": "Query Prisma For Paginated Feedback",
+      "summary": "Queries Prisma for paginated feedback items joined with analyses, applying the parsed filters, sorting, and pagination.",
+      "tags": [
+        "prisma",
+        "pagination"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/app/(app)/inbox/page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:browse-inbox:aggregate-topics",
+      "type": "step",
+      "name": "Aggregate Topic Options",
+      "summary": "Aggregates the available topic options from the analyses to populate the topic filter dropdown.",
+      "tags": [
+        "aggregation",
+        "topics"
+      ],
+      "complexity": "simple",
+      "filePath": "src/app/(app)/inbox/page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:browse-inbox:render-table",
+      "type": "step",
+      "name": "Render Filterable Inbox Table",
+      "summary": "Renders the paginated, filterable inbox table with sentiment, severity, and status badges plus pagination controls.",
+      "tags": [
+        "ui",
+        "table"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/app/(app)/inbox/page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:browse-inbox:sync-filter-url",
+      "type": "step",
+      "name": "Sync Filter State To URL",
+      "summary": "The client-side Filters component reads and updates URL search params via the Next.js router so filter state is shareable and bookmarkable.",
+      "tags": [
+        "filters",
+        "router"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/components/Filters.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:view-feedback-detail:load-item",
+      "type": "step",
+      "name": "Load Feedback Item By Id",
+      "summary": "Server component loads a single feedback item by id via Prisma, including its associated analysis.",
+      "tags": [
+        "prisma",
+        "data-model"
+      ],
+      "complexity": "simple",
+      "filePath": "src/app/(app)/inbox/[id]/page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:view-feedback-detail:render-metadata",
+      "type": "step",
+      "name": "Render Metadata And Analysis",
+      "summary": "Renders the feedback item's metadata, raw content, and AI analysis summary in the detail view.",
+      "tags": [
+        "ui",
+        "detail"
+      ],
+      "complexity": "simple",
+      "filePath": "src/app/(app)/inbox/[id]/page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:view-feedback-detail:display-badges",
+      "type": "step",
+      "name": "Display Topics And Sentiment Badges",
+      "summary": "Renders sentiment, severity, status, and topic badges using the reusable Badges components with conditional Tailwind styling.",
+      "tags": [
+        "ui",
+        "badges"
+      ],
+      "complexity": "simple",
+      "filePath": "src/components/Badges.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:view-feedback-detail:not-found-handling",
+      "type": "step",
+      "name": "Trigger Not Found When Missing",
+      "summary": "Triggers the Next.js notFound response when the requested feedback item does not exist in the database.",
+      "tags": [
+        "error-handling",
+        "not-found"
+      ],
+      "complexity": "simple",
+      "filePath": "src/app/(app)/inbox/[id]/page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:update-triage-status:select-status",
+      "type": "step",
+      "name": "Select New Status From Dropdown",
+      "summary": "User selects a new triage status from the StatusSelect dropdown component on the feedback detail page.",
+      "tags": [
+        "ui",
+        "dropdown"
+      ],
+      "complexity": "simple",
+      "filePath": "src/components/StatusSelect.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:update-triage-status:send-patch",
+      "type": "step",
+      "name": "Send PATCH Request",
+      "summary": "Sends the updated status to the PATCH /api/feedback/[id] endpoint via fetch, managing saving and error state.",
+      "tags": [
+        "api-handler",
+        "patch"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/components/StatusSelect.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:update-triage-status:validate-patch",
+      "type": "step",
+      "name": "Validate Patch With Zod Schema",
+      "summary": "The API endpoint validates the partial update against a Zod patch schema for status, sentiment, severity, and topics.",
+      "tags": [
+        "zod",
+        "validation"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/app/api/feedback/[id]/route.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:update-triage-status:persist-update",
+      "type": "step",
+      "name": "Persist Analysis Update Via Prisma",
+      "summary": "Applies the validated partial update to the feedback item's analysis record using Prisma.",
+      "tags": [
+        "prisma",
+        "persistence"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/app/api/feedback/[id]/route.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:update-triage-status:refresh-router",
+      "type": "step",
+      "name": "Refresh Router On Success",
+      "summary": "Refreshes the Next.js router on success so the UI reflects the persisted triage status.",
+      "tags": [
+        "router",
+        "ui"
+      ],
+      "complexity": "simple",
+      "filePath": "src/components/StatusSelect.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:load-dashboard-metrics:authenticate-session",
+      "type": "step",
+      "name": "Authenticate Session",
+      "summary": "Verifies the user session via getServerSession before loading any dashboard data.",
+      "tags": [
+        "auth",
+        "session"
+      ],
+      "complexity": "simple",
+      "filePath": "src/app/(app)/dashboard/page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:load-dashboard-metrics:query-sentiment-severity",
+      "type": "step",
+      "name": "Query Sentiment And Severity Groupings",
+      "summary": "Queries Prisma for sentiment and severity groupings aggregated across all feedback analyses.",
+      "tags": [
+        "prisma",
+        "aggregation"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/app/(app)/dashboard/page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:load-dashboard-metrics:aggregate-topics",
+      "type": "step",
+      "name": "Aggregate Topic Counts",
+      "summary": "Aggregates the counts of feedback items per detected topic for the topic distribution chart.",
+      "tags": [
+        "aggregation",
+        "topics"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/app/(app)/dashboard/page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:load-dashboard-metrics:compute-trends",
+      "type": "step",
+      "name": "Compute Daily Sentiment Trends",
+      "summary": "Computes a 14-day daily sentiment trend time series for the sentiment trend chart.",
+      "tags": [
+        "trend",
+        "time-series"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/app/(app)/dashboard/page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:load-dashboard-metrics:fetch-high-severity",
+      "type": "step",
+      "name": "Fetch High Severity Items",
+      "summary": "Fetches the list of high-severity feedback items and ingest status to display on the dashboard.",
+      "tags": [
+        "severity",
+        "high-severity"
+      ],
+      "complexity": "simple",
+      "filePath": "src/app/(app)/dashboard/page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:render-dashboard-visualizations:render-kpi-cards",
+      "type": "step",
+      "name": "Render KPI Cards",
+      "summary": "Renders labeled KPI metric cards with accent colors summarizing key feedback counts.",
+      "tags": [
+        "ui",
+        "kpi"
+      ],
+      "complexity": "simple",
+      "filePath": "src/app/(app)/dashboard/page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:render-dashboard-visualizations:render-sentiment-donut",
+      "type": "step",
+      "name": "Render Sentiment Donut Chart",
+      "summary": "Renders a Recharts donut chart visualizing the distribution of positive, neutral, and negative sentiment counts.",
+      "tags": [
+        "recharts",
+        "sentiment"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/components/charts/SentimentDonutChart.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:render-dashboard-visualizations:render-sentiment-trend",
+      "type": "step",
+      "name": "Render Sentiment Trend Chart",
+      "summary": "Renders a Recharts line chart displaying daily sentiment trend counts over time.",
+      "tags": [
+        "recharts",
+        "trend"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/components/charts/SentimentTrendChart.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:render-dashboard-visualizations:render-severity-chart",
+      "type": "step",
+      "name": "Render Severity Bar Chart",
+      "summary": "Renders a Recharts bar chart visualizing feedback counts grouped by severity level (1-5).",
+      "tags": [
+        "recharts",
+        "severity"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/components/charts/SeverityChart.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:render-dashboard-visualizations:render-topic-distribution",
+      "type": "step",
+      "name": "Render Topic Distribution Chart",
+      "summary": "Renders a Recharts horizontal bar chart showing the distribution of feedback items across detected topics.",
+      "tags": [
+        "recharts",
+        "topic"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/components/charts/TopicDistributionChart.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:render-dashboard-visualizations:render-high-severity-list",
+      "type": "step",
+      "name": "Render High Severity Feedback List",
+      "summary": "Renders the list of high-severity feedback items at the bottom of the dashboard for quick triage access.",
+      "tags": [
+        "ui",
+        "high-severity"
+      ],
+      "complexity": "simple",
+      "filePath": "src/app/(app)/dashboard/page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:deploy-aws-backend:provision-vpc-rds",
+      "type": "step",
+      "name": "Provision VPC And RDS Postgres",
+      "summary": "AWS SAM template provisions VPC networking and an RDS Postgres instance for the production database.",
+      "tags": [
+        "aws",
+        "rds",
+        "vpc"
+      ],
+      "complexity": "complex",
+      "filePath": "aws/template.yaml",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:deploy-aws-backend:store-credentials",
+      "type": "step",
+      "name": "Store Credentials In Secrets Manager",
+      "summary": "Provisions AWS Secrets Manager entries for database credentials so they are never stored in code.",
+      "tags": [
+        "aws",
+        "secrets-manager",
+        "security"
+      ],
+      "complexity": "moderate",
+      "filePath": "aws/template.yaml",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:deploy-aws-backend:schedule-lambda",
+      "type": "step",
+      "name": "Schedule Lambda Ingest Via EventBridge",
+      "summary": "Configures an EventBridge-scheduled Lambda function that invokes the shared ingest pipeline on a daily cron.",
+      "tags": [
+        "aws",
+        "eventbridge",
+        "lambda"
+      ],
+      "complexity": "moderate",
+      "filePath": "aws/template.yaml",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:deploy-aws-backend:build-lambda-package",
+      "type": "step",
+      "name": "Build Lambda Deployment Package",
+      "summary": "Build script compiles the Lambda handler and bundles the generated Prisma client into the AWS Lambda deployment package.",
+      "tags": [
+        "build",
+        "lambda",
+        "prisma"
+      ],
+      "complexity": "moderate",
+      "filePath": "scripts/build-lambda.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:deploy-aws-backend:run-ingest-handler",
+      "type": "step",
+      "name": "Run Ingest Handler In Lambda",
+      "summary": "The Lambda handler invokes the shared runIngest pipeline and returns a structured JSON response with counts and any failures.",
+      "tags": [
+        "lambda",
+        "ingest"
+      ],
+      "complexity": "moderate",
+      "filePath": "aws/lambda/handler.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:build-and-deploy-frontend:install-dependencies",
+      "type": "step",
+      "name": "Install Dependencies",
+      "summary": "The Amplify build spec runs npm ci to install all dependencies deterministically.",
+      "tags": [
+        "amplify",
+        "npm"
+      ],
+      "complexity": "simple",
+      "filePath": "amplify.yml",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:build-and-deploy-frontend:generate-prisma-client",
+      "type": "step",
+      "name": "Generate Prisma Client",
+      "summary": "Runs prisma generate to produce the Prisma client needed by the Next.js app at build and runtime.",
+      "tags": [
+        "prisma",
+        "build"
+      ],
+      "complexity": "simple",
+      "filePath": "amplify.yml",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:build-and-deploy-frontend:build-next-app",
+      "type": "step",
+      "name": "Build Next.js App",
+      "summary": "Runs next build to produce the production Next.js bundle with standalone output.",
+      "tags": [
+        "nextjs",
+        "build"
+      ],
+      "complexity": "moderate",
+      "filePath": "amplify.yml",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:build-and-deploy-frontend:publish-artifacts",
+      "type": "step",
+      "name": "Publish Next Artifacts",
+      "summary": "Publishes the .next directory as build artifacts with node_modules and .next/cache caching for faster subsequent builds.",
+      "tags": [
+        "amplify",
+        "deployment"
+      ],
+      "complexity": "simple",
+      "filePath": "amplify.yml",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "domain:email-digest",
+      "type": "domain",
+      "name": "Email Digest",
+      "summary": "Generates and sends a daily email digest summarizing triage status, sentiment distribution, high-severity items needing attention, and recent new feedback. Triggered by a second AWS Lambda + EventBridge cron (Cron Pattern B).",
+      "tags": [
+        "digest",
+        "email",
+        "cron-pattern-b",
+        "notification"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "flow:send-daily-digest",
+      "type": "flow",
+      "name": "Send Daily Digest",
+      "summary": "Orchestrates the daily digest email: aggregates feedback metrics from the database, renders an HTML summary, and sends it via SMTP to the configured recipient.",
+      "tags": [
+        "digest",
+        "email",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "step:digest-check-enabled",
+      "type": "step",
+      "name": "Check Digest Enabled",
+      "summary": "Verifies that DIGEST_SMTP_URL and DIGEST_FROM environment variables are set; returns DISABLED status if not configured.",
+      "tags": [
+        "feature-flag"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "step:digest-aggregate",
+      "type": "step",
+      "name": "Aggregate Feedback Metrics",
+      "summary": "Queries Prisma for feedback analysis counts grouped by status and sentiment, fetches high-severity items (severity >= 4, not Actioned), and recent new items (last 24h).",
+      "tags": [
+        "data-aggregation",
+        "prisma"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "step:digest-render",
+      "type": "step",
+      "name": "Render HTML Email",
+      "summary": "Renders the DigestSummary into a styled HTML email body with tables for status/sentiment breakdown, high-severity items, and recent feedback sections.",
+      "tags": [
+        "rendering",
+        "html"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "step:digest-send",
+      "type": "step",
+      "name": "Send via SMTP",
+      "summary": "Connects to the SMTP server via Node net/tls, performs AUTH LOGIN if credentials are present, and sends the email with the rendered HTML body.",
+      "tags": [
+        "smtp",
+        "email",
+        "network"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "step:digest-log",
+      "type": "step",
+      "name": "Return Result",
+      "summary": "Returns a DigestResult with status (SUCCESS/FAILURE/DISABLED), recipient, items included, and any error message for logging by the Lambda runtime.",
+      "tags": [
+        "result",
+        "logging"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "domain:user-authentication",
+      "target": "flow:sign-up",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:user-authentication",
+      "target": "flow:sign-in",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:feedback-ingestion",
+      "target": "flow:fetch-github-issues",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:feedback-ingestion",
+      "target": "flow:run-ingest-pipeline",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:feedback-ingestion",
+      "target": "flow:alert-high-severity",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:llm-analysis",
+      "target": "flow:analyze-single-feedback",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:llm-analysis",
+      "target": "flow:analyze-batch",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:feedback-management",
+      "target": "flow:browse-inbox",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:feedback-management",
+      "target": "flow:view-feedback-detail",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:feedback-management",
+      "target": "flow:update-triage-status",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:dashboard-analytics",
+      "target": "flow:load-dashboard-metrics",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:dashboard-analytics",
+      "target": "flow:render-dashboard-visualizations",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:infrastructure-deployment",
+      "target": "flow:deploy-aws-backend",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:infrastructure-deployment",
+      "target": "flow:build-and-deploy-frontend",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:sign-up",
+      "target": "step:sign-up:validate-credentials",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.2
+    },
+    {
+      "source": "flow:sign-up",
+      "target": "step:sign-up:check-existing-user",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.4
+    },
+    {
+      "source": "flow:sign-up",
+      "target": "step:sign-up:hash-password",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow:sign-up",
+      "target": "step:sign-up:persist-user",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:sign-up",
+      "target": "step:sign-up:signin-and-redirect",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:sign-in",
+      "target": "step:sign-in:render-login-form",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.2
+    },
+    {
+      "source": "flow:sign-in",
+      "target": "step:sign-in:submit-credentials",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.4
+    },
+    {
+      "source": "flow:sign-in",
+      "target": "step:sign-in:authorize-user",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow:sign-in",
+      "target": "step:sign-in:issue-jwt-session",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:sign-in",
+      "target": "step:sign-in:protect-routes",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:fetch-github-issues",
+      "target": "step:fetch-github-issues:build-octokit-client",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.2
+    },
+    {
+      "source": "flow:fetch-github-issues",
+      "target": "step:fetch-github-issues:paginate-issues",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.4
+    },
+    {
+      "source": "flow:fetch-github-issues",
+      "target": "step:fetch-github-issues:parse-rate-limit",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow:fetch-github-issues",
+      "target": "step:fetch-github-issues:apply-backoff",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:fetch-github-issues",
+      "target": "step:fetch-github-issues:normalize-issues",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:run-ingest-pipeline",
+      "target": "step:run-ingest-pipeline:fetch-raw-feedback",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.2
+    },
+    {
+      "source": "flow:run-ingest-pipeline",
+      "target": "step:run-ingest-pipeline:deduplicate-records",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:run-ingest-pipeline",
+      "target": "step:run-ingest-pipeline:batch-llm-analysis",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:run-ingest-pipeline",
+      "target": "step:run-ingest-pipeline:persist-transaction",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "flow:run-ingest-pipeline",
+      "target": "step:run-ingest-pipeline:log-run",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:run-ingest-pipeline",
+      "target": "step:run-ingest-pipeline:trigger-slack-alerts",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:alert-high-severity",
+      "target": "step:alert-high-severity:check-feature-flag",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:alert-high-severity",
+      "target": "step:alert-high-severity:format-alert",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "flow:alert-high-severity",
+      "target": "step:alert-high-severity:post-to-slack",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:analyze-single-feedback",
+      "target": "step:analyze-single-feedback:build-prompt",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:analyze-single-feedback",
+      "target": "step:analyze-single-feedback:call-openai",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:analyze-single-feedback",
+      "target": "step:analyze-single-feedback:validate-response",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:analyze-single-feedback",
+      "target": "step:analyze-single-feedback:retry-on-failure",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:analyze-batch",
+      "target": "step:analyze-batch:iterate-items",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:analyze-batch",
+      "target": "step:analyze-batch:analyze-each-item",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "flow:analyze-batch",
+      "target": "step:analyze-batch:collect-results",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:browse-inbox",
+      "target": "step:browse-inbox:parse-filters",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.2
+    },
+    {
+      "source": "flow:browse-inbox",
+      "target": "step:browse-inbox:query-paginated-feedback",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.4
+    },
+    {
+      "source": "flow:browse-inbox",
+      "target": "step:browse-inbox:aggregate-topics",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow:browse-inbox",
+      "target": "step:browse-inbox:render-table",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:browse-inbox",
+      "target": "step:browse-inbox:sync-filter-url",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:view-feedback-detail",
+      "target": "step:view-feedback-detail:load-item",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:view-feedback-detail",
+      "target": "step:view-feedback-detail:render-metadata",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:view-feedback-detail",
+      "target": "step:view-feedback-detail:display-badges",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:view-feedback-detail",
+      "target": "step:view-feedback-detail:not-found-handling",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:update-triage-status",
+      "target": "step:update-triage-status:select-status",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.2
+    },
+    {
+      "source": "flow:update-triage-status",
+      "target": "step:update-triage-status:send-patch",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.4
+    },
+    {
+      "source": "flow:update-triage-status",
+      "target": "step:update-triage-status:validate-patch",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow:update-triage-status",
+      "target": "step:update-triage-status:persist-update",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:update-triage-status",
+      "target": "step:update-triage-status:refresh-router",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:load-dashboard-metrics",
+      "target": "step:load-dashboard-metrics:authenticate-session",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.2
+    },
+    {
+      "source": "flow:load-dashboard-metrics",
+      "target": "step:load-dashboard-metrics:query-sentiment-severity",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.4
+    },
+    {
+      "source": "flow:load-dashboard-metrics",
+      "target": "step:load-dashboard-metrics:aggregate-topics",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow:load-dashboard-metrics",
+      "target": "step:load-dashboard-metrics:compute-trends",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:load-dashboard-metrics",
+      "target": "step:load-dashboard-metrics:fetch-high-severity",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:render-dashboard-visualizations",
+      "target": "step:render-dashboard-visualizations:render-kpi-cards",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.2
+    },
+    {
+      "source": "flow:render-dashboard-visualizations",
+      "target": "step:render-dashboard-visualizations:render-sentiment-donut",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:render-dashboard-visualizations",
+      "target": "step:render-dashboard-visualizations:render-sentiment-trend",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:render-dashboard-visualizations",
+      "target": "step:render-dashboard-visualizations:render-severity-chart",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "flow:render-dashboard-visualizations",
+      "target": "step:render-dashboard-visualizations:render-topic-distribution",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:render-dashboard-visualizations",
+      "target": "step:render-dashboard-visualizations:render-high-severity-list",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:deploy-aws-backend",
+      "target": "step:deploy-aws-backend:provision-vpc-rds",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.2
+    },
+    {
+      "source": "flow:deploy-aws-backend",
+      "target": "step:deploy-aws-backend:store-credentials",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.4
+    },
+    {
+      "source": "flow:deploy-aws-backend",
+      "target": "step:deploy-aws-backend:schedule-lambda",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow:deploy-aws-backend",
+      "target": "step:deploy-aws-backend:build-lambda-package",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:deploy-aws-backend",
+      "target": "step:deploy-aws-backend:run-ingest-handler",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:build-and-deploy-frontend",
+      "target": "step:build-and-deploy-frontend:install-dependencies",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:build-and-deploy-frontend",
+      "target": "step:build-and-deploy-frontend:generate-prisma-client",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:build-and-deploy-frontend",
+      "target": "step:build-and-deploy-frontend:build-next-app",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:build-and-deploy-frontend",
+      "target": "step:build-and-deploy-frontend:publish-artifacts",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:user-authentication",
+      "target": "domain:feedback-management",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Authentication gates access to the inbox and triage endpoints; unauthenticated users are redirected to login before reaching Feedback Management.",
+      "weight": 0.6
+    },
+    {
+      "source": "domain:user-authentication",
+      "target": "domain:dashboard-analytics",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Authentication gates the dashboard page and the /api/dashboard metrics endpoint via getServerSession.",
+      "weight": 0.6
+    },
+    {
+      "source": "domain:feedback-ingestion",
+      "target": "domain:llm-analysis",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "The ingest pipeline batches deduplicated feedback items through the LLM analysis module to produce structured analyses.",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:feedback-ingestion",
+      "target": "domain:dashboard-analytics",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Ingested and persisted feedback analyses feed the dashboard metrics and visualizations.",
+      "weight": 0.6
+    },
+    {
+      "source": "domain:llm-analysis",
+      "target": "domain:feedback-management",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Structured analyses produced by the LLM are displayed in the inbox and detail views and updated via triage PATCH endpoints.",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:llm-analysis",
+      "target": "domain:dashboard-analytics",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "LLM-produced sentiment, severity, and topic fields are aggregated into the dashboard metrics and charts.",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:infrastructure-deployment",
+      "target": "domain:feedback-ingestion",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "AWS EventBridge schedules the Lambda handler that invokes the shared runIngest pipeline on a daily cron, running ingestion in production.",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:email-digest",
+      "target": "flow:send-daily-digest",
+      "type": "contains_flow",
+      "direction": "out",
+      "weight": 1
+    },
+    {
+      "source": "flow:send-daily-digest",
+      "target": "step:digest-check-enabled",
+      "type": "flow_step",
+      "direction": "out",
+      "weight": 0
+    },
+    {
+      "source": "flow:send-daily-digest",
+      "target": "step:digest-aggregate",
+      "type": "flow_step",
+      "direction": "out",
+      "weight": 0.2
+    },
+    {
+      "source": "flow:send-daily-digest",
+      "target": "step:digest-render",
+      "type": "flow_step",
+      "direction": "out",
+      "weight": 0.4
+    },
+    {
+      "source": "flow:send-daily-digest",
+      "target": "step:digest-send",
+      "type": "flow_step",
+      "direction": "out",
+      "weight": 0.6
+    },
+    {
+      "source": "flow:send-daily-digest",
+      "target": "step:digest-log",
+      "type": "flow_step",
+      "direction": "out",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:feedback-management",
+      "target": "domain:email-digest",
+      "type": "cross_domain",
+      "direction": "out",
+      "weight": 1,
+      "description": "Triage status updates (NEW/ACKNOWLEDGED/ACTIONED) made in the Feedback Management domain are aggregated into the daily email digest."
+    },
+    {
+      "source": "domain:infrastructure-deployment",
+      "target": "domain:email-digest",
+      "type": "cross_domain",
+      "direction": "out",
+      "weight": 1,
+      "description": "AWS EventBridge schedules the digest Lambda on a daily cron, triggering the digest email flow in production."
+    }
+  ],
+  "layers": [],
+  "tour": []
+}

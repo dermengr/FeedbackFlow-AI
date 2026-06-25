@@ -1,0 +1,38 @@
+{
+  "issues": [],
+  "warnings": [
+    "Node 'file:.understand-anything/.understandignore' has no edges (orphan)",
+    "Node 'file:next.config.mjs' has no edges (orphan)",
+    "Node 'file:postcss.config.js' has no edges (orphan)",
+    "Node 'file:src/types/next-auth.d.ts' has no edges (orphan)",
+    "Node 'file:tailwind.config.ts' has no edges (orphan)",
+    "Node 'file:tsconfig.tsbuildinfo' has no edges (orphan)"
+  ],
+  "stats": {
+    "totalNodes": 113,
+    "totalEdges": 202,
+    "totalLayers": 9,
+    "tourSteps": 12,
+    "nodeTypes": {
+      "file": 44,
+      "function": 54,
+      "config": 6,
+      "document": 2,
+      "service": 1,
+      "table": 5,
+      "schema": 1
+    },
+    "edgeTypes": {
+      "imports": 54,
+      "contains": 58,
+      "exports": 42,
+      "calls": 20,
+      "configures": 8,
+      "related": 6,
+      "deploys": 1,
+      "depends_on": 1,
+      "documents": 11,
+      "migrates": 1
+    }
+  }
+}

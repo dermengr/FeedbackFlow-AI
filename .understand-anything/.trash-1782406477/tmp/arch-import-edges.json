@@ -1,0 +1,272 @@
+[
+  {
+    "source": "file:src/app/(app)/inbox/[id]/page.tsx",
+    "target": "file:src/components/Badges.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/inbox/[id]/page.tsx",
+    "target": "file:src/components/StatusSelect.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/inbox/[id]/page.tsx",
+    "target": "file:src/lib/prisma.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/inbox/[id]/page.tsx",
+    "target": "file:src/lib/utils.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/inbox/page.tsx",
+    "target": "file:src/components/Badges.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/inbox/page.tsx",
+    "target": "file:src/components/Filters.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/inbox/page.tsx",
+    "target": "file:src/lib/prisma.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/inbox/page.tsx",
+    "target": "file:src/lib/types.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/inbox/page.tsx",
+    "target": "file:src/lib/utils.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/components/Badges.tsx",
+    "target": "file:src/lib/types.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/components/Badges.tsx",
+    "target": "file:src/lib/utils.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/components/Filters.tsx",
+    "target": "file:src/lib/types.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/components/StatusSelect.tsx",
+    "target": "file:src/components/Badges.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/components/StatusSelect.tsx",
+    "target": "file:src/lib/types.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/lib/github.ts",
+    "target": "file:src/lib/types.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/lib/github.ts",
+    "target": "file:src/lib/utils.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/lib/llm.ts",
+    "target": "file:src/lib/types.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/lib/llm.ts",
+    "target": "file:src/lib/utils.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:scripts/seed.ts",
+    "target": "file:src/lib/prisma.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/auth/[...nextauth]/route.ts",
+    "target": "file:src/lib/auth.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/auth/signup/route.ts",
+    "target": "file:src/lib/prisma.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/dashboard/route.ts",
+    "target": "file:src/lib/auth.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/dashboard/route.ts",
+    "target": "file:src/lib/prisma.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/feedback/[id]/route.ts",
+    "target": "file:src/lib/auth.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/feedback/[id]/route.ts",
+    "target": "file:src/lib/prisma.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/feedback/[id]/route.ts",
+    "target": "file:src/lib/types.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/feedback/route.ts",
+    "target": "file:src/lib/auth.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/feedback/route.ts",
+    "target": "file:src/lib/prisma.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/feedback/route.ts",
+    "target": "file:src/lib/types.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/lib/auth.ts",
+    "target": "file:src/lib/prisma.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:aws/lambda/handler.ts",
+    "target": "file:src/lib/ingest.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:scripts/ingest.ts",
+    "target": "file:src/lib/ingest.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/ingest/route.ts",
+    "target": "file:src/lib/auth.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/ingest/route.ts",
+    "target": "file:src/lib/ingest.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/webhook/slack/route.ts",
+    "target": "file:src/lib/auth.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/webhook/slack/route.ts",
+    "target": "file:src/lib/slack.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/lib/ingest.ts",
+    "target": "file:src/lib/github.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/lib/ingest.ts",
+    "target": "file:src/lib/llm.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/lib/ingest.ts",
+    "target": "file:src/lib/prisma.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/lib/ingest.ts",
+    "target": "file:src/lib/slack.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/lib/ingest.ts",
+    "target": "file:src/lib/types.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/dashboard/page.tsx",
+    "target": "file:src/components/Badges.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/dashboard/page.tsx",
+    "target": "file:src/components/charts/SentimentDonutChart.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/dashboard/page.tsx",
+    "target": "file:src/components/charts/SentimentTrendChart.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/dashboard/page.tsx",
+    "target": "file:src/components/charts/SeverityChart.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/dashboard/page.tsx",
+    "target": "file:src/components/charts/TopicDistributionChart.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/dashboard/page.tsx",
+    "target": "file:src/lib/auth.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/dashboard/page.tsx",
+    "target": "file:src/lib/prisma.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/dashboard/page.tsx",
+    "target": "file:src/lib/utils.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/layout.tsx",
+    "target": "file:src/components/Navbar.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/layout.tsx",
+    "target": "file:src/lib/auth.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/layout.tsx",
+    "target": "file:src/app/globals.css",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/layout.tsx",
+    "target": "file:src/components/Providers.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/components/Navbar.tsx",
+    "target": "file:src/lib/utils.ts",
+    "type": "imports"
+  }
+]

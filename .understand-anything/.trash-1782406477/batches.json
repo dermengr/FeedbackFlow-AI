@@ -1,0 +1,945 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "louvain",
+  "totalFiles": 55,
+  "totalBatches": 6,
+  "exportsByPath": {
+    ".understand-anything/.understandignore": [],
+    "aws/lambda/handler.ts": [
+      "handler"
+    ],
+    "next.config.mjs": [],
+    "postcss.config.js": [],
+    "scripts/build-lambda.ts": [],
+    "scripts/ingest.ts": [],
+    "scripts/seed.ts": [],
+    "src/app/(app)/dashboard/page.tsx": [
+      "dynamic",
+      "DashboardPage"
+    ],
+    "src/app/(app)/inbox/[id]/page.tsx": [
+      "dynamic",
+      "FeedbackDetailPage"
+    ],
+    "src/app/(app)/inbox/page.tsx": [
+      "dynamic",
+      "InboxPage"
+    ],
+    "src/app/(app)/layout.tsx": [
+      "AppLayout"
+    ],
+    "src/app/api/auth/[...nextauth]/route.ts": [
+      "GET",
+      "POST"
+    ],
+    "src/app/api/auth/signup/route.ts": [
+      "POST"
+    ],
+    "src/app/api/dashboard/route.ts": [
+      "GET"
+    ],
+    "src/app/api/feedback/[id]/route.ts": [
+      "GET",
+      "PATCH"
+    ],
+    "src/app/api/feedback/route.ts": [
+      "GET"
+    ],
+    "src/app/api/ingest/route.ts": [
+      "POST"
+    ],
+    "src/app/api/webhook/slack/route.ts": [
+      "GET",
+      "POST"
+    ],
+    "src/app/layout.tsx": [
+      "metadata",
+      "RootLayout"
+    ],
+    "src/app/login/page.tsx": [
+      "LoginPage"
+    ],
+    "src/app/page.tsx": [
+      "Home"
+    ],
+    "src/app/signup/page.tsx": [
+      "SignupPage"
+    ],
+    "src/components/Badges.tsx": [
+      "SentimentBadge",
+      "SeverityBadge",
+      "StatusBadge",
+      "TopicChip"
+    ],
+    "src/components/charts/SentimentDonutChart.tsx": [
+      "SentimentDonutChart"
+    ],
+    "src/components/charts/SentimentTrendChart.tsx": [
+      "SentimentTrendChart"
+    ],
+    "src/components/charts/SeverityChart.tsx": [
+      "SeverityChart"
+    ],
+    "src/components/charts/TopicDistributionChart.tsx": [
+      "TopicDistributionChart"
+    ],
+    "src/components/Filters.tsx": [
+      "Filters"
+    ],
+    "src/components/Navbar.tsx": [
+      "Navbar"
+    ],
+    "src/components/Providers.tsx": [
+      "Providers"
+    ],
+    "src/components/StatusSelect.tsx": [
+      "StatusSelect"
+    ],
+    "src/lib/auth.ts": [
+      "authOptions"
+    ],
+    "src/lib/github.ts": [
+      "fetchGitHubIssues",
+      "GITHUB_SOURCE"
+    ],
+    "src/lib/ingest.ts": [
+      "runIngest"
+    ],
+    "src/lib/llm.ts": [
+      "analyzeFeedback",
+      "analyzeBatch"
+    ],
+    "src/lib/prisma.ts": [
+      "prisma"
+    ],
+    "src/lib/slack.ts": [
+      "isSlackEnabled",
+      "sendSlackMessage",
+      "notifyHighSeverity"
+    ],
+    "src/lib/types.ts": [
+      "SENTIMENTS",
+      "TOPIC_TAXONOMY",
+      "FEEDBACK_STATUSES"
+    ],
+    "src/lib/utils.ts": [
+      "cn",
+      "formatDate",
+      "formatDay",
+      "truncate",
+      "sleep",
+      "backoffDelay"
+    ],
+    "src/middleware.ts": [
+      "default",
+      "config"
+    ],
+    "src/types/next-auth.d.ts": [],
+    "tailwind.config.ts": [],
+    "tsconfig.tsbuildinfo": []
+  },
+  "batches": [
+    {
+      "batchIndex": 1,
+      "files": [
+        {
+          "path": "src/app/(app)/inbox/[id]/page.tsx",
+          "language": "typescript",
+          "sizeLines": 141,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/(app)/inbox/page.tsx",
+          "language": "typescript",
+          "sizeLines": 232,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/Badges.tsx",
+          "language": "typescript",
+          "sizeLines": 72,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/Filters.tsx",
+          "language": "typescript",
+          "sizeLines": 160,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/StatusSelect.tsx",
+          "language": "typescript",
+          "sizeLines": 64,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/github.ts",
+          "language": "typescript",
+          "sizeLines": 180,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/llm.ts",
+          "language": "typescript",
+          "sizeLines": 141,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/types.ts",
+          "language": "typescript",
+          "sizeLines": 45,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/utils.ts",
+          "language": "typescript",
+          "sizeLines": 42,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/app/(app)/inbox/[id]/page.tsx": [
+          "src/components/Badges.tsx",
+          "src/components/StatusSelect.tsx",
+          "src/lib/prisma.ts",
+          "src/lib/utils.ts"
+        ],
+        "src/app/(app)/inbox/page.tsx": [
+          "src/components/Badges.tsx",
+          "src/components/Filters.tsx",
+          "src/lib/prisma.ts",
+          "src/lib/types.ts",
+          "src/lib/utils.ts"
+        ],
+        "src/components/Badges.tsx": [
+          "src/lib/types.ts",
+          "src/lib/utils.ts"
+        ],
+        "src/components/Filters.tsx": [
+          "src/lib/types.ts"
+        ],
+        "src/components/StatusSelect.tsx": [
+          "src/components/Badges.tsx",
+          "src/lib/types.ts"
+        ],
+        "src/lib/github.ts": [
+          "src/lib/types.ts",
+          "src/lib/utils.ts"
+        ],
+        "src/lib/llm.ts": [
+          "src/lib/types.ts",
+          "src/lib/utils.ts"
+        ],
+        "src/lib/types.ts": [],
+        "src/lib/utils.ts": []
+      },
+      "neighborMap": {
+        "src/app/(app)/inbox/[id]/page.tsx": [
+          {
+            "path": "src/lib/prisma.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "prisma"
+            ]
+          }
+        ],
+        "src/app/(app)/inbox/page.tsx": [
+          {
+            "path": "src/lib/prisma.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "prisma"
+            ]
+          }
+        ],
+        "src/components/Badges.tsx": [
+          {
+            "path": "src/app/(app)/dashboard/page.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "dynamic",
+              "DashboardPage"
+            ]
+          }
+        ],
+        "src/lib/github.ts": [
+          {
+            "path": "src/lib/ingest.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "runIngest"
+            ]
+          }
+        ],
+        "src/lib/llm.ts": [
+          {
+            "path": "src/lib/ingest.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "runIngest"
+            ]
+          }
+        ],
+        "src/lib/types.ts": [
+          {
+            "path": "src/app/api/feedback/[id]/route.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "GET",
+              "PATCH"
+            ]
+          },
+          {
+            "path": "src/app/api/feedback/route.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "GET"
+            ]
+          },
+          {
+            "path": "src/lib/ingest.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "runIngest"
+            ]
+          }
+        ],
+        "src/lib/utils.ts": [
+          {
+            "path": "src/app/(app)/dashboard/page.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "dynamic",
+              "DashboardPage"
+            ]
+          },
+          {
+            "path": "src/components/Navbar.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "Navbar"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 2,
+      "files": [
+        {
+          "path": "scripts/seed.ts",
+          "language": "typescript",
+          "sizeLines": 150,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/api/auth/[...nextauth]/route.ts",
+          "language": "typescript",
+          "sizeLines": 6,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/api/auth/signup/route.ts",
+          "language": "typescript",
+          "sizeLines": 43,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/api/dashboard/route.ts",
+          "language": "typescript",
+          "sizeLines": 118,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/api/feedback/[id]/route.ts",
+          "language": "typescript",
+          "sizeLines": 77,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/api/feedback/route.ts",
+          "language": "typescript",
+          "sizeLines": 98,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/auth.ts",
+          "language": "typescript",
+          "sizeLines": 61,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/prisma.ts",
+          "language": "typescript",
+          "sizeLines": 17,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "scripts/seed.ts": [
+          "src/lib/prisma.ts"
+        ],
+        "src/app/api/auth/[...nextauth]/route.ts": [
+          "src/lib/auth.ts"
+        ],
+        "src/app/api/auth/signup/route.ts": [
+          "src/lib/prisma.ts"
+        ],
+        "src/app/api/dashboard/route.ts": [
+          "src/lib/auth.ts",
+          "src/lib/prisma.ts"
+        ],
+        "src/app/api/feedback/[id]/route.ts": [
+          "src/lib/auth.ts",
+          "src/lib/prisma.ts",
+          "src/lib/types.ts"
+        ],
+        "src/app/api/feedback/route.ts": [
+          "src/lib/auth.ts",
+          "src/lib/prisma.ts",
+          "src/lib/types.ts"
+        ],
+        "src/lib/auth.ts": [
+          "src/lib/prisma.ts"
+        ],
+        "src/lib/prisma.ts": []
+      },
+      "neighborMap": {
+        "src/app/api/feedback/[id]/route.ts": [
+          {
+            "path": "src/lib/types.ts",
+            "batchIndex": 1,
+            "symbols": [
+              "SENTIMENTS",
+              "TOPIC_TAXONOMY",
+              "FEEDBACK_STATUSES"
+            ]
+          }
+        ],
+        "src/app/api/feedback/route.ts": [
+          {
+            "path": "src/lib/types.ts",
+            "batchIndex": 1,
+            "symbols": [
+              "SENTIMENTS",
+              "TOPIC_TAXONOMY",
+              "FEEDBACK_STATUSES"
+            ]
+          }
+        ],
+        "src/lib/auth.ts": [
+          {
+            "path": "src/app/(app)/dashboard/page.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "dynamic",
+              "DashboardPage"
+            ]
+          },
+          {
+            "path": "src/app/(app)/layout.tsx",
+            "batchIndex": 6,
+            "symbols": [
+              "AppLayout"
+            ]
+          },
+          {
+            "path": "src/app/api/ingest/route.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "POST"
+            ]
+          },
+          {
+            "path": "src/app/api/webhook/slack/route.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "GET",
+              "POST"
+            ]
+          }
+        ],
+        "src/lib/prisma.ts": [
+          {
+            "path": "src/app/(app)/dashboard/page.tsx",
+            "batchIndex": 4,
+            "symbols": [
+              "dynamic",
+              "DashboardPage"
+            ]
+          },
+          {
+            "path": "src/app/(app)/inbox/[id]/page.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "dynamic",
+              "FeedbackDetailPage"
+            ]
+          },
+          {
+            "path": "src/app/(app)/inbox/page.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "dynamic",
+              "InboxPage"
+            ]
+          },
+          {
+            "path": "src/lib/ingest.ts",
+            "batchIndex": 3,
+            "symbols": [
+              "runIngest"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 3,
+      "files": [
+        {
+          "path": "aws/lambda/handler.ts",
+          "language": "typescript",
+          "sizeLines": 38,
+          "fileCategory": "code"
+        },
+        {
+          "path": "scripts/ingest.ts",
+          "language": "typescript",
+          "sizeLines": 19,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/api/ingest/route.ts",
+          "language": "typescript",
+          "sizeLines": 25,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/api/webhook/slack/route.ts",
+          "language": "typescript",
+          "sizeLines": 38,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/ingest.ts",
+          "language": "typescript",
+          "sizeLines": 195,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/slack.ts",
+          "language": "typescript",
+          "sizeLines": 45,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "aws/lambda/handler.ts": [
+          "src/lib/ingest.ts"
+        ],
+        "scripts/ingest.ts": [
+          "src/lib/ingest.ts"
+        ],
+        "src/app/api/ingest/route.ts": [
+          "src/lib/auth.ts",
+          "src/lib/ingest.ts"
+        ],
+        "src/app/api/webhook/slack/route.ts": [
+          "src/lib/auth.ts",
+          "src/lib/slack.ts"
+        ],
+        "src/lib/ingest.ts": [
+          "src/lib/github.ts",
+          "src/lib/llm.ts",
+          "src/lib/prisma.ts",
+          "src/lib/slack.ts",
+          "src/lib/types.ts"
+        ],
+        "src/lib/slack.ts": []
+      },
+      "neighborMap": {
+        "src/app/api/ingest/route.ts": [
+          {
+            "path": "src/lib/auth.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "authOptions"
+            ]
+          }
+        ],
+        "src/app/api/webhook/slack/route.ts": [
+          {
+            "path": "src/lib/auth.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "authOptions"
+            ]
+          }
+        ],
+        "src/lib/ingest.ts": [
+          {
+            "path": "src/lib/github.ts",
+            "batchIndex": 1,
+            "symbols": [
+              "fetchGitHubIssues",
+              "GITHUB_SOURCE"
+            ]
+          },
+          {
+            "path": "src/lib/llm.ts",
+            "batchIndex": 1,
+            "symbols": [
+              "analyzeFeedback",
+              "analyzeBatch"
+            ]
+          },
+          {
+            "path": "src/lib/prisma.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "prisma"
+            ]
+          },
+          {
+            "path": "src/lib/types.ts",
+            "batchIndex": 1,
+            "symbols": [
+              "SENTIMENTS",
+              "TOPIC_TAXONOMY",
+              "FEEDBACK_STATUSES"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 4,
+      "files": [
+        {
+          "path": "src/app/(app)/dashboard/page.tsx",
+          "language": "typescript",
+          "sizeLines": 228,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/charts/SentimentDonutChart.tsx",
+          "language": "typescript",
+          "sizeLines": 60,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/charts/SentimentTrendChart.tsx",
+          "language": "typescript",
+          "sizeLines": 40,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/charts/SeverityChart.tsx",
+          "language": "typescript",
+          "sizeLines": 58,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/charts/TopicDistributionChart.tsx",
+          "language": "typescript",
+          "sizeLines": 40,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/app/(app)/dashboard/page.tsx": [
+          "src/components/Badges.tsx",
+          "src/components/charts/SentimentDonutChart.tsx",
+          "src/components/charts/SentimentTrendChart.tsx",
+          "src/components/charts/SeverityChart.tsx",
+          "src/components/charts/TopicDistributionChart.tsx",
+          "src/lib/auth.ts",
+          "src/lib/prisma.ts",
+          "src/lib/utils.ts"
+        ],
+        "src/components/charts/SentimentDonutChart.tsx": [],
+        "src/components/charts/SentimentTrendChart.tsx": [],
+        "src/components/charts/SeverityChart.tsx": [],
+        "src/components/charts/TopicDistributionChart.tsx": []
+      },
+      "neighborMap": {
+        "src/app/(app)/dashboard/page.tsx": [
+          {
+            "path": "src/components/Badges.tsx",
+            "batchIndex": 1,
+            "symbols": [
+              "SentimentBadge",
+              "SeverityBadge",
+              "StatusBadge",
+              "TopicChip"
+            ]
+          },
+          {
+            "path": "src/lib/auth.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "authOptions"
+            ]
+          },
+          {
+            "path": "src/lib/prisma.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "prisma"
+            ]
+          },
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 1,
+            "symbols": [
+              "cn",
+              "formatDate",
+              "formatDay",
+              "truncate",
+              "sleep",
+              "backoffDelay"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 5,
+      "files": [
+        {
+          "path": ".env.example",
+          "language": "config",
+          "sizeLines": 37,
+          "fileCategory": "config"
+        },
+        {
+          "path": "README.md",
+          "language": "markdown",
+          "sizeLines": 236,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "amplify.yml",
+          "language": "yaml",
+          "sizeLines": 20,
+          "fileCategory": "config"
+        },
+        {
+          "path": "docker-compose.yml",
+          "language": "yaml",
+          "sizeLines": 18,
+          "fileCategory": "infra"
+        },
+        {
+          "path": "package.json",
+          "language": "json",
+          "sizeLines": 57,
+          "fileCategory": "config"
+        },
+        {
+          "path": "tsconfig.json",
+          "language": "json",
+          "sizeLines": 29,
+          "fileCategory": "config"
+        }
+      ],
+      "batchImportData": {
+        ".env.example": [],
+        "README.md": [],
+        "amplify.yml": [],
+        "docker-compose.yml": [],
+        "package.json": [],
+        "tsconfig.json": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 6,
+      "files": [
+        {
+          "path": ".understand-anything/.understandignore",
+          "language": "unknown",
+          "sizeLines": 52,
+          "fileCategory": "code"
+        },
+        {
+          "path": "aws/README.md",
+          "language": "markdown",
+          "sizeLines": 152,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "aws/template.yaml",
+          "language": "yaml",
+          "sizeLines": 308,
+          "fileCategory": "config"
+        },
+        {
+          "path": "next.config.mjs",
+          "language": "javascript",
+          "sizeLines": 17,
+          "fileCategory": "code"
+        },
+        {
+          "path": "postcss.config.js",
+          "language": "javascript",
+          "sizeLines": 6,
+          "fileCategory": "code"
+        },
+        {
+          "path": "prisma/migrations/20260625150915_init/migration.sql",
+          "language": "sql",
+          "sizeLines": 95,
+          "fileCategory": "data"
+        },
+        {
+          "path": "prisma/migrations/migration_lock.toml",
+          "language": "toml",
+          "sizeLines": 2,
+          "fileCategory": "config"
+        },
+        {
+          "path": "prisma/schema.prisma",
+          "language": "prisma",
+          "sizeLines": 106,
+          "fileCategory": "data"
+        },
+        {
+          "path": "scripts/build-lambda.ts",
+          "language": "typescript",
+          "sizeLines": 63,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/(app)/layout.tsx",
+          "language": "typescript",
+          "sizeLines": 21,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/globals.css",
+          "language": "css",
+          "sizeLines": 28,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "src/app/layout.tsx",
+          "language": "typescript",
+          "sizeLines": 23,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/login/page.tsx",
+          "language": "typescript",
+          "sizeLines": 114,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/page.tsx",
+          "language": "typescript",
+          "sizeLines": 6,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/signup/page.tsx",
+          "language": "typescript",
+          "sizeLines": 132,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/Navbar.tsx",
+          "language": "typescript",
+          "sizeLines": 67,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/Providers.tsx",
+          "language": "typescript",
+          "sizeLines": 8,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/middleware.ts",
+          "language": "typescript",
+          "sizeLines": 11,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/types/next-auth.d.ts",
+          "language": "typescript",
+          "sizeLines": 15,
+          "fileCategory": "code"
+        },
+        {
+          "path": "tailwind.config.ts",
+          "language": "typescript",
+          "sizeLines": 33,
+          "fileCategory": "code"
+        },
+        {
+          "path": "tsconfig.tsbuildinfo",
+          "language": "tsbuildinfo",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        ".understand-anything/.understandignore": [],
+        "aws/README.md": [],
+        "aws/template.yaml": [],
+        "next.config.mjs": [],
+        "postcss.config.js": [],
+        "prisma/migrations/20260625150915_init/migration.sql": [],
+        "prisma/migrations/migration_lock.toml": [],
+        "prisma/schema.prisma": [],
+        "scripts/build-lambda.ts": [],
+        "src/app/(app)/layout.tsx": [
+          "src/components/Navbar.tsx",
+          "src/lib/auth.ts"
+        ],
+        "src/app/globals.css": [],
+        "src/app/layout.tsx": [
+          "src/app/globals.css",
+          "src/components/Providers.tsx"
+        ],
+        "src/app/login/page.tsx": [],
+        "src/app/page.tsx": [],
+        "src/app/signup/page.tsx": [],
+        "src/components/Navbar.tsx": [
+          "src/lib/utils.ts"
+        ],
+        "src/components/Providers.tsx": [],
+        "src/middleware.ts": [],
+        "src/types/next-auth.d.ts": [],
+        "tailwind.config.ts": [],
+        "tsconfig.tsbuildinfo": []
+      },
+      "neighborMap": {
+        "src/app/(app)/layout.tsx": [
+          {
+            "path": "src/lib/auth.ts",
+            "batchIndex": 2,
+            "symbols": [
+              "authOptions"
+            ]
+          }
+        ],
+        "src/components/Navbar.tsx": [
+          {
+            "path": "src/lib/utils.ts",
+            "batchIndex": 1,
+            "symbols": [
+              "cn",
+              "formatDate",
+              "formatDay",
+              "truncate",
+              "sleep",
+              "backoffDelay"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "layer:ui",
+    "name": "UI Layer",
+    "description": "Next.js App Router pages, root and authenticated layouts, and global styles that form the presentation and routing shell of the application (excluding API route handlers)."
+  },
+  {
+    "id": "layer:components",
+    "name": "Component Layer",
+    "description": "Reusable React UI components including navigation, providers, badges, filters, status controls, and Recharts-based dashboard visualizations."
+  },
+  {
+    "id": "layer:api",
+    "name": "API Layer",
+    "description": "Next.js App Router API route handlers exposing REST endpoints for authentication, dashboard analytics, feedback CRUD, ingest triggering, and Slack webhooks."
+  },
+  {
+    "id": "layer:service",
+    "name": "Service Layer",
+    "description": "Core business logic and domain services in src/lib: the ingest pipeline orchestrator, LLM analysis, GitHub ingestion adapter, Slack notifications, NextAuth configuration, the Prisma client singleton, and request-protection middleware."
+  },
+  {
+    "id": "layer:utility",
+    "name": "Shared Utility & Types Layer",
+    "description": "Foundational shared helpers and type definitions with high fan-in used across UI, API, and service layers: className/date/format/backoff utilities, sentiment/topic/status constants, and NextAuth type augmentations."
+  },
+  {
+    "id": "layer:data",
+    "name": "Data Layer",
+    "description": "Database schema and persistence definitions: the Prisma schema, initial PostgreSQL migration SQL, individual table definitions, and the migration lock file."
+  },
+  {
+    "id": "layer:infrastructure",
+    "name": "Infrastructure & Operations Layer",
+    "description": "Deployment and operational tooling: AWS SAM/CloudFormation template, the Lambda ingest handler, Docker Compose for local Postgres, the Amplify build spec, and build/seed/ingest CLI scripts."
+  },
+  {
+    "id": "layer:config",
+    "name": "Configuration Layer",
+    "description": "Project-level configuration and build settings: package manifest, TypeScript compiler config, environment variable template, Next.js/PostCSS/Tailwind configs, the incremental build cache, and analysis ignore patterns."
+  },
+  {
+    "id": "layer:documentation",
+    "name": "Documentation Layer",
+    "description": "Project documentation including the root README covering architecture and deployment, and the AWS deployment guide."
+  }
+]

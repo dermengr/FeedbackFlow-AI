@@ -1,0 +1,415 @@
+[
+  {
+    "id": "file:src/app/(app)/inbox/[id]/page.tsx",
+    "name": "page.tsx",
+    "filePath": "src/app/(app)/inbox/[id]/page.tsx",
+    "summary": "Next.js dynamic route page that renders a single feedback item's detail view, fetching the record via Prisma and displaying its analysis, topics, and status selector.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/app/(app)/inbox/page.tsx",
+    "name": "page.tsx",
+    "filePath": "src/app/(app)/inbox/page.tsx",
+    "summary": "Inbox listing page that parses search params for sentiment, status, topic, sort, and pagination filters, queries Prisma for feedback items and analyses, and renders a paginated, filterable table.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/components/Badges.tsx",
+    "name": "Badges.tsx",
+    "filePath": "src/components/Badges.tsx",
+    "summary": "Presentational React components rendering sentiment, severity, status, and topic badges with conditional Tailwind class names via the cn helper.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/components/Filters.tsx",
+    "name": "Filters.tsx",
+    "filePath": "src/components/Filters.tsx",
+    "summary": "Client-side filter bar component that reads and updates URL search params for sentiment, severity, status, topic, sort, and pagination using Next.js router and searchParams hooks.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/components/StatusSelect.tsx",
+    "name": "StatusSelect.tsx",
+    "filePath": "src/components/StatusSelect.tsx",
+    "summary": "Client component providing a dropdown to change a feedback item's status, persisting the update via fetch to the PATCH endpoint and refreshing the router on success.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/lib/github.ts",
+    "name": "github.ts",
+    "filePath": "src/lib/github.ts",
+    "summary": "GitHub issues ingestion adapter that builds an Octokit client, paginates issues with rate-limit parsing and exponential backoff, and normalizes results into the internal feedback item shape.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/lib/llm.ts",
+    "name": "llm.ts",
+    "filePath": "src/lib/llm.ts",
+    "summary": "OpenAI analysis module that builds prompts from feedback items, calls chat completions, validates responses with a Zod schema, and supports batch analysis with retry/backoff.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/lib/types.ts",
+    "name": "types.ts",
+    "filePath": "src/lib/types.ts",
+    "summary": "Shared constant definitions for sentiment labels, topic taxonomy, and feedback statuses used across the inbox UI and ingestion pipeline.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/lib/utils.ts",
+    "name": "utils.ts",
+    "filePath": "src/lib/utils.ts",
+    "summary": "Shared utility helpers including className concatenation, date formatting, text truncation, sleep, and exponential backoff delay used across UI and pipeline modules.",
+    "type": "file"
+  },
+  {
+    "id": "file:scripts/seed.ts",
+    "name": "seed.ts",
+    "filePath": "scripts/seed.ts",
+    "summary": "Database seeding script that creates a demo user and populates sample feedback items with analyses for local development and testing.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/app/api/auth/[...nextauth]/route.ts",
+    "name": "route.ts",
+    "filePath": "src/app/api/auth/[...nextauth]/route.ts",
+    "summary": "Next.js catch-all route that wires the shared NextAuth authOptions into GET and POST handlers for the authentication endpoints.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/app/api/auth/signup/route.ts",
+    "name": "route.ts",
+    "filePath": "src/app/api/auth/signup/route.ts",
+    "summary": "Signup API endpoint that validates credentials with a Zod schema, checks for existing users, hashes passwords, and creates new user records.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/app/api/dashboard/route.ts",
+    "name": "route.ts",
+    "filePath": "src/app/api/dashboard/route.ts",
+    "summary": "Dashboard analytics API endpoint that aggregates feedback analyses by sentiment, status, severity, and topic, plus a daily feedback volume time series.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/app/api/feedback/[id]/route.ts",
+    "name": "route.ts",
+    "filePath": "src/app/api/feedback/[id]/route.ts",
+    "summary": "Feedback item API endpoints supporting fetching a single feedback item by id and patching its analysis (status, sentiment, severity, topics).",
+    "type": "file"
+  },
+  {
+    "id": "file:src/app/api/feedback/route.ts",
+    "name": "route.ts",
+    "filePath": "src/app/api/feedback/route.ts",
+    "summary": "Feedback list API endpoint with filtering by sentiment, status, and topic, plus sorting and pagination over feedback items and their analyses.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/lib/auth.ts",
+    "name": "auth.ts",
+    "filePath": "src/lib/auth.ts",
+    "summary": "Configures NextAuth authOptions with credentials provider, JWT session strategy, and an authorize callback that validates email/password against the Prisma user table.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/lib/prisma.ts",
+    "name": "prisma.ts",
+    "filePath": "src/lib/prisma.ts",
+    "summary": "Prisma client singleton that instantiates a single PrismaClient instance and reuses it in development to avoid exhausting database connections.",
+    "type": "file"
+  },
+  {
+    "id": "file:aws/lambda/handler.ts",
+    "name": "handler.ts",
+    "filePath": "aws/lambda/handler.ts",
+    "summary": "AWS Lambda entry point that invokes the shared ingest pipeline and returns a JSON summary of the run, with error handling that surfaces failures to the Lambda runtime.",
+    "type": "file"
+  },
+  {
+    "id": "file:scripts/ingest.ts",
+    "name": "ingest.ts",
+    "filePath": "scripts/ingest.ts",
+    "summary": "Command-line script that runs the ingest pipeline once and prints the result summary, exiting with a non-zero code on failure for CI integration.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/app/api/ingest/route.ts",
+    "name": "route.ts",
+    "filePath": "src/app/api/ingest/route.ts",
+    "summary": "Next.js App Router POST handler that authenticates the session via NextAuth and triggers the ingest pipeline, returning JSON status responses.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/app/api/webhook/slack/route.ts",
+    "name": "route.ts",
+    "filePath": "src/app/api/webhook/slack/route.ts",
+    "summary": "Next.js App Router webhook endpoint for Slack integration, exposing GET (status check) and POST (send a Slack message) handlers gated by session auth and a Slack-enabled feature flag.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/lib/ingest.ts",
+    "name": "ingest.ts",
+    "filePath": "src/lib/ingest.ts",
+    "summary": "Core ingest pipeline orchestrator that fetches raw feedback items from a source, deduplicates against existing records, batches them through LLM analysis, persists results in a Prisma transaction, and notifies Slack on high-severity findings.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/lib/slack.ts",
+    "name": "slack.ts",
+    "filePath": "src/lib/slack.ts",
+    "summary": "Slack notification helper module providing a feature-flag check, a generic message sender via the Slack incoming webhook, and a high-severity feedback notifier that formats topics and sentiment for alerting.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/app/(app)/dashboard/page.tsx",
+    "name": "page.tsx",
+    "filePath": "src/app/(app)/dashboard/page.tsx",
+    "summary": "Server-rendered dashboard page that aggregates feedback analysis metrics (sentiment, severity, topic distribution, trend) via Prisma and renders KPI cards, Recharts visualizations, and a high-severity feedback list.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/components/charts/SentimentDonutChart.tsx",
+    "name": "SentimentDonutChart.tsx",
+    "filePath": "src/components/charts/SentimentDonutChart.tsx",
+    "summary": "Recharts-based donut chart component visualizing the distribution of positive, neutral, and negative sentiment counts.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/components/charts/SentimentTrendChart.tsx",
+    "name": "SentimentTrendChart.tsx",
+    "filePath": "src/components/charts/SentimentTrendChart.tsx",
+    "summary": "Recharts line chart component displaying daily sentiment trend counts over time for the dashboard.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/components/charts/SeverityChart.tsx",
+    "name": "SeverityChart.tsx",
+    "filePath": "src/components/charts/SeverityChart.tsx",
+    "summary": "Recharts bar chart component visualizing feedback counts grouped by severity level (1-5) for the dashboard.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/components/charts/TopicDistributionChart.tsx",
+    "name": "TopicDistributionChart.tsx",
+    "filePath": "src/components/charts/TopicDistributionChart.tsx",
+    "summary": "Recharts bar chart component showing the distribution of feedback items across detected topics for the dashboard.",
+    "type": "file"
+  },
+  {
+    "id": "config:.env.example",
+    "name": ".env.example",
+    "filePath": ".env.example",
+    "summary": "Template of all runtime environment variables for FeedbackFlow AI, including NextAuth secrets, the Postgres DATABASE_URL, OpenAI API key and model, GitHub Issues source repo and token, ingest tuning knobs, and optional Slack/SMTP digest settings.",
+    "type": "config"
+  },
+  {
+    "id": "document:README.md",
+    "name": "README.md",
+    "filePath": "README.md",
+    "summary": "Comprehensive project documentation covering features, tech stack, architecture, local quick-start, data model, LLM output format, project structure, AWS deployment, security, and acceptance-criteria mapping for FeedbackFlow AI.",
+    "type": "document"
+  },
+  {
+    "id": "config:amplify.yml",
+    "name": "amplify.yml",
+    "filePath": "amplify.yml",
+    "summary": "AWS Amplify build specification for the Next.js frontend, running npm ci, prisma generate, and next build, then publishing the .next directory as build artifacts with node_modules and .next/cache caching.",
+    "type": "config"
+  },
+  {
+    "id": "service:docker-compose.yml",
+    "name": "docker-compose.yml",
+    "filePath": "docker-compose.yml",
+    "summary": "Local development Docker Compose file defining a single postgres:16-alpine service (feedbackflow-db) on port 5432 with a persistent volume and a pg_isready healthcheck, used by the npm run db:up script.",
+    "type": "service"
+  },
+  {
+    "id": "config:package.json",
+    "name": "package.json",
+    "filePath": "package.json",
+    "summary": "Root package manifest for the feedbackflow-ai Next.js 14 app, declaring scripts for dev/build/lint/typecheck, Prisma workflows, local db compose control, seed and ingest runners, Lambda bundling, and SAM validate/build/deploy, plus all runtime and dev dependencies.",
+    "type": "config"
+  },
+  {
+    "id": "config:tsconfig.json",
+    "name": "tsconfig.json",
+    "filePath": "tsconfig.json",
+    "summary": "TypeScript compiler configuration for the project targeting ES2022 with strict mode, bundler module resolution, JSX preserve, incremental builds, the Next.js plugin, and an @/* path alias mapping to ./src/*.",
+    "type": "config"
+  },
+  {
+    "id": "file:.understand-anything/.understandignore",
+    "name": ".understandignore",
+    "filePath": ".understand-anything/.understandignore",
+    "summary": "Ignore-pattern file listing paths excluded from the understand-anything codebase analysis pipeline.",
+    "type": "file"
+  },
+  {
+    "id": "document:aws/README.md",
+    "name": "README.md",
+    "filePath": "aws/README.md",
+    "summary": "AWS deployment guide covering backend provisioning (RDS, Lambda, EventBridge), schema migration, frontend Amplify deployment, and cost notes.",
+    "type": "document"
+  },
+  {
+    "id": "config:aws/template.yaml",
+    "name": "template.yaml",
+    "filePath": "aws/template.yaml",
+    "summary": "AWS SAM/CloudFormation template provisioning VPC networking, an RDS Postgres instance, Secrets Manager credentials, and an EventBridge-scheduled Lambda ingest function.",
+    "type": "config"
+  },
+  {
+    "id": "file:next.config.mjs",
+    "name": "next.config.mjs",
+    "filePath": "next.config.mjs",
+    "summary": "Next.js configuration enabling React strict mode and standalone output builds for containerized deployment.",
+    "type": "file"
+  },
+  {
+    "id": "file:postcss.config.js",
+    "name": "postcss.config.js",
+    "filePath": "postcss.config.js",
+    "summary": "PostCSS configuration registering Tailwind CSS and Autoprefixer plugins for the project's styling pipeline.",
+    "type": "file"
+  },
+  {
+    "id": "table:prisma/migrations/20260625150915_init/migration.sql",
+    "name": "migration.sql",
+    "filePath": "prisma/migrations/20260625150915_init/migration.sql",
+    "summary": "Initial Prisma migration creating the core PostgreSQL tables (users, feedback_items, feedback_analyses, ingest_logs) with unique constraints and query indexes.",
+    "type": "table"
+  },
+  {
+    "id": "table:prisma/migrations/20260625150915_init/migration.sql:users",
+    "name": "users",
+    "filePath": "prisma/migrations/20260625150915_init/migration.sql",
+    "summary": "Auth users table storing email, hashed password, name, and audit timestamps with a unique email constraint.",
+    "type": "table"
+  },
+  {
+    "id": "table:prisma/migrations/20260625150915_init/migration.sql:feedback_items",
+    "name": "feedback_items",
+    "filePath": "prisma/migrations/20260625150915_init/migration.sql",
+    "summary": "Ingested raw feedback table keyed by source and external id for idempotent ingestion, with indexes on source and original timestamp.",
+    "type": "table"
+  },
+  {
+    "id": "table:prisma/migrations/20260625150915_init/migration.sql:feedback_analyses",
+    "name": "feedback_analyses",
+    "filePath": "prisma/migrations/20260625150915_init/migration.sql",
+    "summary": "LLM analysis table linked 1:1 to feedback items via foreign key, storing sentiment, topics, severity score, summary, and triage status.",
+    "type": "table"
+  },
+  {
+    "id": "table:prisma/migrations/20260625150915_init/migration.sql:ingest_logs",
+    "name": "ingest_logs",
+    "filePath": "prisma/migrations/20260625150915_init/migration.sql",
+    "summary": "Observability log table recording each cron ingest run's source, status, item counts, and error details.",
+    "type": "table"
+  },
+  {
+    "id": "config:prisma/migrations/migration_lock.toml",
+    "name": "migration_lock.toml",
+    "filePath": "prisma/migrations/migration_lock.toml",
+    "summary": "Prisma migration lock file pinning the database provider to postgresql to prevent cross-provider migrations.",
+    "type": "config"
+  },
+  {
+    "id": "schema:prisma/schema.prisma",
+    "name": "schema.prisma",
+    "filePath": "prisma/schema.prisma",
+    "summary": "Prisma schema defining the PostgreSQL data model with User, FeedbackItem, FeedbackAnalysis, and IngestLog models plus enums for triage and run statuses.",
+    "type": "schema"
+  },
+  {
+    "id": "file:scripts/build-lambda.ts",
+    "name": "build-lambda.ts",
+    "filePath": "scripts/build-lambda.ts",
+    "summary": "Build script that compiles the Lambda handler and bundles the Prisma client into the AWS Lambda deployment package.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/app/(app)/layout.tsx",
+    "name": "layout.tsx",
+    "filePath": "src/app/(app)/layout.tsx",
+    "summary": "Authenticated app route-group layout that gates access via a server-side session check and renders the Navbar around nested pages.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/app/globals.css",
+    "name": "globals.css",
+    "filePath": "src/app/globals.css",
+    "summary": "Global stylesheet with Tailwind CSS directives and base layer customizations for the application theme.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/app/layout.tsx",
+    "name": "layout.tsx",
+    "filePath": "src/app/layout.tsx",
+    "summary": "Root Next.js App Router layout that sets HTML metadata and wraps the application in the session Providers component.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/app/login/page.tsx",
+    "name": "page.tsx",
+    "filePath": "src/app/login/page.tsx",
+    "summary": "Login page rendering a credentials sign-in form with email/password fields, loading and error states, and post-login redirect handling.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/app/page.tsx",
+    "name": "page.tsx",
+    "filePath": "src/app/page.tsx",
+    "summary": "Root home page that immediately redirects visitors to the authenticated dashboard route.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/app/signup/page.tsx",
+    "name": "page.tsx",
+    "filePath": "src/app/signup/page.tsx",
+    "summary": "Signup page rendering a registration form that posts to the signup API, signs the new user in, and redirects to the dashboard.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/components/Navbar.tsx",
+    "name": "Navbar.tsx",
+    "filePath": "src/components/Navbar.tsx",
+    "summary": "Navigation bar component showing active-route links and a sign-out button, adapting to the current session state.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/components/Providers.tsx",
+    "name": "Providers.tsx",
+    "filePath": "src/components/Providers.tsx",
+    "summary": "Client-side wrapper component that mounts the NextAuth SessionProvider around the React tree.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/middleware.ts",
+    "name": "middleware.ts",
+    "filePath": "src/middleware.ts",
+    "summary": "NextAuth middleware that protects authenticated routes by validating the session token on each request.",
+    "type": "file"
+  },
+  {
+    "id": "file:src/types/next-auth.d.ts",
+    "name": "next-auth.d.ts",
+    "filePath": "src/types/next-auth.d.ts",
+    "summary": "TypeScript module augmentation extending the NextAuth session and JWT types with a custom userId field.",
+    "type": "file"
+  },
+  {
+    "id": "file:tailwind.config.ts",
+    "name": "tailwind.config.ts",
+    "filePath": "tailwind.config.ts",
+    "summary": "Tailwind CSS configuration defining the content scan paths, theme extensions, and the project's design tokens.",
+    "type": "file"
+  },
+  {
+    "id": "file:tsconfig.tsbuildinfo",
+    "name": "tsconfig.tsbuildinfo",
+    "filePath": "tsconfig.tsbuildinfo",
+    "summary": "Auto-generated TypeScript incremental build cache storing compiler state for faster rebuilds.",
+    "type": "file"
+  }
+]

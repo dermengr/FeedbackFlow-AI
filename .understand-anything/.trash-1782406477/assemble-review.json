@@ -1,0 +1,15 @@
+{
+  "fixedSectionOk": true,
+  "nodesRecovered": 0,
+  "edgesRestored": 3,
+  "crossBatchEdgesAdded": 0,
+  "typesRemapped": 0,
+  "complexityRemapped": 0,
+  "notes": [
+    "Merge script reported no 'Fixed' patterns and 3 'Could not fix' dropped edges — all 3 were type-prefix mismatches, not missing nodes.",
+    "Rewired 3 dropped edges to existing node IDs: service:docker-compose.yml → schema:prisma/schema.prisma (related), document:README.md → config:aws/template.yaml (documents), document:README.md → schema:prisma/schema.prisma (documents). The targets existed as schema:/config: typed nodes (fileCategory=data) rather than file: prefixed.",
+    "Cross-batch edge gap check: importMap reports 54 total import edges across 23 files with imports; the assembled graph already contains all 54 imports edges (file-analyzer produced them within batches, and the merge script's importMap recovery scanned 55 entries and found 0 missing). No cross-batch imports edges needed to be added.",
+    "No unknown node types or unknown complexity values were reported by the merge script — all 113 nodes use valid types (file, function, config, document, service, schema, table) and valid complexity values (simple, moderate, complex).",
+    "Data quality is good: the only issue was the file-analyzer emitting a few edges with file: prefixes for nodes that the analyzer itself typed as schema:/config: — a minor internal inconsistency in LLM output, not a systemic problem."
+  ]
+}

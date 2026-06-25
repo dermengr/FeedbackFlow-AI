@@ -1,0 +1,119 @@
+{
+  "batchIndex": 3,
+  "files": [
+    {
+      "path": "aws/lambda/handler.ts",
+      "language": "typescript",
+      "sizeLines": 38,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/ingest.ts",
+      "language": "typescript",
+      "sizeLines": 19,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/api/ingest/route.ts",
+      "language": "typescript",
+      "sizeLines": 25,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/api/webhook/slack/route.ts",
+      "language": "typescript",
+      "sizeLines": 38,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/ingest.ts",
+      "language": "typescript",
+      "sizeLines": 195,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/lib/slack.ts",
+      "language": "typescript",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    "aws/lambda/handler.ts": [
+      "src/lib/ingest.ts"
+    ],
+    "scripts/ingest.ts": [
+      "src/lib/ingest.ts"
+    ],
+    "src/app/api/ingest/route.ts": [
+      "src/lib/auth.ts",
+      "src/lib/ingest.ts"
+    ],
+    "src/app/api/webhook/slack/route.ts": [
+      "src/lib/auth.ts",
+      "src/lib/slack.ts"
+    ],
+    "src/lib/ingest.ts": [
+      "src/lib/github.ts",
+      "src/lib/llm.ts",
+      "src/lib/prisma.ts",
+      "src/lib/slack.ts",
+      "src/lib/types.ts"
+    ],
+    "src/lib/slack.ts": []
+  },
+  "neighborMap": {
+    "src/app/api/ingest/route.ts": [
+      {
+        "path": "src/lib/auth.ts",
+        "batchIndex": 2,
+        "symbols": [
+          "authOptions"
+        ]
+      }
+    ],
+    "src/app/api/webhook/slack/route.ts": [
+      {
+        "path": "src/lib/auth.ts",
+        "batchIndex": 2,
+        "symbols": [
+          "authOptions"
+        ]
+      }
+    ],
+    "src/lib/ingest.ts": [
+      {
+        "path": "src/lib/github.ts",
+        "batchIndex": 1,
+        "symbols": [
+          "fetchGitHubIssues",
+          "GITHUB_SOURCE"
+        ]
+      },
+      {
+        "path": "src/lib/llm.ts",
+        "batchIndex": 1,
+        "symbols": [
+          "analyzeFeedback",
+          "analyzeBatch"
+        ]
+      },
+      {
+        "path": "src/lib/prisma.ts",
+        "batchIndex": 2,
+        "symbols": [
+          "prisma"
+        ]
+      },
+      {
+        "path": "src/lib/types.ts",
+        "batchIndex": 1,
+        "symbols": [
+          "SENTIMENTS",
+          "TOPIC_TAXONOMY",
+          "FEEDBACK_STATUSES"
+        ]
+      }
+    ]
+  }
+}

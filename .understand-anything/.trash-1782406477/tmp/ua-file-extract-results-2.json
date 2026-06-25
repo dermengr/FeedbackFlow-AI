@@ -1,0 +1,799 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 8,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "scripts/seed.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 150,
+      "nonEmptyLines": 140,
+      "functions": [
+        {
+          "name": "main",
+          "startLine": 10,
+          "endLine": 27,
+          "params": []
+        },
+        {
+          "name": "seedSamples",
+          "startLine": 29,
+          "endLine": 141,
+          "params": []
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "main",
+          "callee": "bcrypt.hash",
+          "lineNumber": 14
+        },
+        {
+          "caller": "main",
+          "callee": "prisma.user.upsert",
+          "lineNumber": 15
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 20
+        },
+        {
+          "caller": "main",
+          "callee": "process.argv.includes",
+          "lineNumber": 22
+        },
+        {
+          "caller": "main",
+          "callee": "seedSamples",
+          "lineNumber": 23
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 26
+        },
+        {
+          "caller": "seedSamples",
+          "callee": "originalTimestamp.setDate",
+          "lineNumber": 111
+        },
+        {
+          "caller": "seedSamples",
+          "callee": "originalTimestamp.getDate",
+          "lineNumber": 111
+        },
+        {
+          "caller": "seedSamples",
+          "callee": "prisma.feedbackItem.upsert",
+          "lineNumber": 113
+        },
+        {
+          "caller": "seedSamples",
+          "callee": "prisma.feedbackAnalysis.upsert",
+          "lineNumber": 127
+        },
+        {
+          "caller": "seedSamples",
+          "callee": "console.log",
+          "lineNumber": 140
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/api/auth/[...nextauth]/route.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 6,
+      "nonEmptyLines": 4,
+      "exports": [
+        {
+          "name": "GET",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "POST",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 2,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/api/auth/signup/route.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 43,
+      "nonEmptyLines": 36,
+      "functions": [
+        {
+          "name": "POST",
+          "startLine": 12,
+          "endLine": 43,
+          "params": [
+            "req"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "POST",
+          "line": 12,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "POST",
+          "callee": "req.json",
+          "lineNumber": 15
+        },
+        {
+          "caller": "POST",
+          "callee": "NextResponse.json",
+          "lineNumber": 17
+        },
+        {
+          "caller": "POST",
+          "callee": "SignupSchema.safeParse",
+          "lineNumber": 20
+        },
+        {
+          "caller": "POST",
+          "callee": "NextResponse.json",
+          "lineNumber": 22
+        },
+        {
+          "caller": "POST",
+          "callee": "parsed.error.flatten",
+          "lineNumber": 23
+        },
+        {
+          "caller": "POST",
+          "callee": "email.trim().toLowerCase",
+          "lineNumber": 29
+        },
+        {
+          "caller": "POST",
+          "callee": "email.trim",
+          "lineNumber": 29
+        },
+        {
+          "caller": "POST",
+          "callee": "prisma.user.findUnique",
+          "lineNumber": 31
+        },
+        {
+          "caller": "POST",
+          "callee": "NextResponse.json",
+          "lineNumber": 33
+        },
+        {
+          "caller": "POST",
+          "callee": "bcrypt.hash",
+          "lineNumber": 36
+        },
+        {
+          "caller": "POST",
+          "callee": "prisma.user.create",
+          "lineNumber": 37
+        },
+        {
+          "caller": "POST",
+          "callee": "NextResponse.json",
+          "lineNumber": 42
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/api/dashboard/route.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 118,
+      "nonEmptyLines": 107,
+      "functions": [
+        {
+          "name": "GET",
+          "startLine": 13,
+          "endLine": 118,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "GET",
+          "line": 13,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "GET",
+          "callee": "getServerSession",
+          "lineNumber": 14
+        },
+        {
+          "caller": "GET",
+          "callee": "NextResponse.json",
+          "lineNumber": 16
+        },
+        {
+          "caller": "GET",
+          "callee": "prisma.feedbackAnalysis.groupBy",
+          "lineNumber": 20
+        },
+        {
+          "caller": "GET",
+          "callee": "prisma.feedbackAnalysis.groupBy",
+          "lineNumber": 26
+        },
+        {
+          "caller": "GET",
+          "callee": "prisma.feedbackAnalysis.groupBy",
+          "lineNumber": 32
+        },
+        {
+          "caller": "GET",
+          "callee": "prisma.feedbackAnalysis.findMany",
+          "lineNumber": 40
+        },
+        {
+          "caller": "GET",
+          "callee": "Array.isArray",
+          "lineNumber": 45
+        },
+        {
+          "caller": "GET",
+          "callee": "topicCounts.set",
+          "lineNumber": 48
+        },
+        {
+          "caller": "GET",
+          "callee": "topicCounts.get",
+          "lineNumber": 48
+        },
+        {
+          "caller": "GET",
+          "callee": "since.setDate",
+          "lineNumber": 56
+        },
+        {
+          "caller": "GET",
+          "callee": "since.getDate",
+          "lineNumber": 56
+        },
+        {
+          "caller": "GET",
+          "callee": "since.setHours",
+          "lineNumber": 57
+        },
+        {
+          "caller": "GET",
+          "callee": "prisma.feedbackItem.findMany",
+          "lineNumber": 59
+        },
+        {
+          "caller": "GET",
+          "callee": "d.setDate",
+          "lineNumber": 70
+        },
+        {
+          "caller": "GET",
+          "callee": "d.getDate",
+          "lineNumber": 70
+        },
+        {
+          "caller": "GET",
+          "callee": "d.setHours",
+          "lineNumber": 71
+        },
+        {
+          "caller": "GET",
+          "callee": "days.push",
+          "lineNumber": 72
+        },
+        {
+          "caller": "GET",
+          "callee": "d.toISOString().slice",
+          "lineNumber": 73
+        },
+        {
+          "caller": "GET",
+          "callee": "d.toISOString",
+          "lineNumber": 73
+        },
+        {
+          "caller": "GET",
+          "callee": "days.map",
+          "lineNumber": 79
+        },
+        {
+          "caller": "GET",
+          "callee": "new Date(it.originalTimestamp).toISOString().slice",
+          "lineNumber": 81
+        },
+        {
+          "caller": "GET",
+          "callee": "new Date(it.originalTimestamp).toISOString",
+          "lineNumber": 81
+        },
+        {
+          "caller": "GET",
+          "callee": "dayMap.get",
+          "lineNumber": 82
+        },
+        {
+          "caller": "GET",
+          "callee": "prisma.feedbackItem.findMany",
+          "lineNumber": 89
+        },
+        {
+          "caller": "GET",
+          "callee": "prisma.feedbackAnalysis.count",
+          "lineNumber": 96
+        },
+        {
+          "caller": "GET",
+          "callee": "NextResponse.json",
+          "lineNumber": 98
+        },
+        {
+          "caller": "GET",
+          "callee": "Object.fromEntries",
+          "lineNumber": 101
+        },
+        {
+          "caller": "GET",
+          "callee": "sentimentGroups.map",
+          "lineNumber": 102
+        },
+        {
+          "caller": "GET",
+          "callee": "Object.fromEntries",
+          "lineNumber": 104
+        },
+        {
+          "caller": "GET",
+          "callee": "statusGroups.map",
+          "lineNumber": 105
+        },
+        {
+          "caller": "GET",
+          "callee": "severityGroups.map",
+          "lineNumber": 108
+        },
+        {
+          "caller": "GET",
+          "callee": "Array.from(topicCounts.entries())\n      .map(([topic, count]) => ({ topic, count }))\n      .sort",
+          "lineNumber": 112
+        },
+        {
+          "caller": "GET",
+          "callee": "Array.from(topicCounts.entries())\n      .map",
+          "lineNumber": 112
+        },
+        {
+          "caller": "GET",
+          "callee": "Array.from",
+          "lineNumber": 112
+        },
+        {
+          "caller": "GET",
+          "callee": "topicCounts.entries",
+          "lineNumber": 112
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/api/feedback/[id]/route.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 77,
+      "nonEmptyLines": 68,
+      "functions": [
+        {
+          "name": "GET",
+          "startLine": 9,
+          "endLine": 26,
+          "params": [
+            "_req",
+            "{ params }"
+          ]
+        },
+        {
+          "name": "PATCH",
+          "startLine": 33,
+          "endLine": 77,
+          "params": [
+            "req",
+            "{ params }"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "GET",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "PATCH",
+          "line": 33,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "GET",
+          "callee": "getServerSession",
+          "lineNumber": 13
+        },
+        {
+          "caller": "GET",
+          "callee": "NextResponse.json",
+          "lineNumber": 15
+        },
+        {
+          "caller": "GET",
+          "callee": "prisma.feedbackItem.findUnique",
+          "lineNumber": 18
+        },
+        {
+          "caller": "GET",
+          "callee": "NextResponse.json",
+          "lineNumber": 23
+        },
+        {
+          "caller": "GET",
+          "callee": "NextResponse.json",
+          "lineNumber": 25
+        },
+        {
+          "caller": "PATCH",
+          "callee": "getServerSession",
+          "lineNumber": 37
+        },
+        {
+          "caller": "PATCH",
+          "callee": "NextResponse.json",
+          "lineNumber": 39
+        },
+        {
+          "caller": "PATCH",
+          "callee": "req.json",
+          "lineNumber": 44
+        },
+        {
+          "caller": "PATCH",
+          "callee": "NextResponse.json",
+          "lineNumber": 46
+        },
+        {
+          "caller": "PATCH",
+          "callee": "PatchSchema.safeParse",
+          "lineNumber": 49
+        },
+        {
+          "caller": "PATCH",
+          "callee": "NextResponse.json",
+          "lineNumber": 51
+        },
+        {
+          "caller": "PATCH",
+          "callee": "parsed.error.flatten",
+          "lineNumber": 52
+        },
+        {
+          "caller": "PATCH",
+          "callee": "prisma.feedbackItem.findUnique",
+          "lineNumber": 57
+        },
+        {
+          "caller": "PATCH",
+          "callee": "NextResponse.json",
+          "lineNumber": 62
+        },
+        {
+          "caller": "PATCH",
+          "callee": "NextResponse.json",
+          "lineNumber": 65
+        },
+        {
+          "caller": "PATCH",
+          "callee": "prisma.feedbackAnalysis.update",
+          "lineNumber": 71
+        },
+        {
+          "caller": "PATCH",
+          "callee": "NextResponse.json",
+          "lineNumber": 76
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/api/feedback/route.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 98,
+      "nonEmptyLines": 88,
+      "functions": [
+        {
+          "name": "GET",
+          "startLine": 17,
+          "endLine": 98,
+          "params": [
+            "req"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "GET",
+          "line": 17,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "GET",
+          "callee": "getServerSession",
+          "lineNumber": 18
+        },
+        {
+          "caller": "GET",
+          "callee": "NextResponse.json",
+          "lineNumber": 20
+        },
+        {
+          "caller": "getAll",
+          "callee": "url.searchParams.getAll(key).filter",
+          "lineNumber": 25
+        },
+        {
+          "caller": "getAll",
+          "callee": "url.searchParams.getAll",
+          "lineNumber": 25
+        },
+        {
+          "caller": "GET",
+          "callee": "getAll(\"sentiment\").filter",
+          "lineNumber": 29
+        },
+        {
+          "caller": "GET",
+          "callee": "getAll",
+          "lineNumber": 29
+        },
+        {
+          "caller": "GET",
+          "callee": "(SENTIMENTS as readonly string[]).includes",
+          "lineNumber": 30
+        },
+        {
+          "caller": "GET",
+          "callee": "getAll",
+          "lineNumber": 32
+        },
+        {
+          "caller": "GET",
+          "callee": "getAll(\"status\").filter",
+          "lineNumber": 33
+        },
+        {
+          "caller": "GET",
+          "callee": "getAll",
+          "lineNumber": 33
+        },
+        {
+          "caller": "GET",
+          "callee": "(FEEDBACK_STATUSES as readonly string[]).includes",
+          "lineNumber": 34
+        },
+        {
+          "caller": "GET",
+          "callee": "Number",
+          "lineNumber": 36
+        },
+        {
+          "caller": "GET",
+          "callee": "url.searchParams.get",
+          "lineNumber": 36
+        },
+        {
+          "caller": "GET",
+          "callee": "Number.isFinite",
+          "lineNumber": 38
+        },
+        {
+          "caller": "GET",
+          "callee": "Math.floor",
+          "lineNumber": 39
+        },
+        {
+          "caller": "GET",
+          "callee": "url.searchParams.get",
+          "lineNumber": 42
+        },
+        {
+          "caller": "GET",
+          "callee": "(allowedSorts as readonly string[]).includes",
+          "lineNumber": 44
+        },
+        {
+          "caller": "GET",
+          "callee": "url.searchParams.get",
+          "lineNumber": 47
+        },
+        {
+          "caller": "GET",
+          "callee": "Math.max",
+          "lineNumber": 49
+        },
+        {
+          "caller": "GET",
+          "callee": "Number",
+          "lineNumber": 49
+        },
+        {
+          "caller": "GET",
+          "callee": "url.searchParams.get",
+          "lineNumber": 49
+        },
+        {
+          "caller": "GET",
+          "callee": "Math.min",
+          "lineNumber": 50
+        },
+        {
+          "caller": "GET",
+          "callee": "Math.max",
+          "lineNumber": 52
+        },
+        {
+          "caller": "GET",
+          "callee": "Number",
+          "lineNumber": 52
+        },
+        {
+          "caller": "GET",
+          "callee": "url.searchParams.get",
+          "lineNumber": 52
+        },
+        {
+          "caller": "GET",
+          "callee": "topics.map",
+          "lineNumber": 65
+        },
+        {
+          "caller": "GET",
+          "callee": "Object.keys",
+          "lineNumber": 69
+        },
+        {
+          "caller": "GET",
+          "callee": "Promise.all",
+          "lineNumber": 80
+        },
+        {
+          "caller": "GET",
+          "callee": "prisma.feedbackItem.findMany",
+          "lineNumber": 81
+        },
+        {
+          "caller": "GET",
+          "callee": "prisma.feedbackItem.count",
+          "lineNumber": 88
+        },
+        {
+          "caller": "GET",
+          "callee": "NextResponse.json",
+          "lineNumber": 91
+        },
+        {
+          "caller": "GET",
+          "callee": "Math.ceil",
+          "lineNumber": 96
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/auth.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 61,
+      "nonEmptyLines": 57,
+      "exports": [
+        {
+          "name": "authOptions",
+          "line": 8,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "authorize",
+          "callee": "credentials?.email?.trim().toLowerCase",
+          "lineNumber": 24
+        },
+        {
+          "caller": "authorize",
+          "callee": "credentials?.email?.trim",
+          "lineNumber": 24
+        },
+        {
+          "caller": "authorize",
+          "callee": "prisma.user.findUnique",
+          "lineNumber": 28
+        },
+        {
+          "caller": "authorize",
+          "callee": "bcrypt.compare",
+          "lineNumber": 33
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/prisma.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 17,
+      "nonEmptyLines": 14,
+      "exports": [
+        {
+          "name": "prisma",
+          "line": 9,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

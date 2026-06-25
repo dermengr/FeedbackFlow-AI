@@ -1,0 +1,554 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 6,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "aws/lambda/handler.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 38,
+      "nonEmptyLines": 33,
+      "functions": [
+        {
+          "name": "handler",
+          "startLine": 15,
+          "endLine": 38,
+          "params": [
+            "_event"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "handler",
+          "line": 15,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handler",
+          "callee": "console.log",
+          "lineNumber": 18
+        },
+        {
+          "caller": "handler",
+          "callee": "runIngest",
+          "lineNumber": 21
+        },
+        {
+          "caller": "handler",
+          "callee": "console.log",
+          "lineNumber": 22
+        },
+        {
+          "caller": "handler",
+          "callee": "JSON.stringify",
+          "lineNumber": 22
+        },
+        {
+          "caller": "handler",
+          "callee": "JSON.stringify",
+          "lineNumber": 29
+        },
+        {
+          "caller": "handler",
+          "callee": "console.error",
+          "lineNumber": 32
+        },
+        {
+          "caller": "handler",
+          "callee": "JSON.stringify",
+          "lineNumber": 35
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "scripts/ingest.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 19,
+      "nonEmptyLines": 16,
+      "functions": [
+        {
+          "name": "main",
+          "startLine": 8,
+          "endLine": 14,
+          "params": []
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 9
+        },
+        {
+          "caller": "main",
+          "callee": "runIngest",
+          "lineNumber": 10
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 11
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 12
+        },
+        {
+          "caller": "main",
+          "callee": "JSON.stringify",
+          "lineNumber": 12
+        },
+        {
+          "caller": "main",
+          "callee": "process.exit",
+          "lineNumber": 13
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/api/ingest/route.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 25,
+      "nonEmptyLines": 23,
+      "functions": [
+        {
+          "name": "POST",
+          "startLine": 8,
+          "endLine": 25,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "POST",
+          "line": 8,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "POST",
+          "callee": "getServerSession",
+          "lineNumber": 9
+        },
+        {
+          "caller": "POST",
+          "callee": "NextResponse.json",
+          "lineNumber": 11
+        },
+        {
+          "caller": "POST",
+          "callee": "runIngest",
+          "lineNumber": 15
+        },
+        {
+          "caller": "POST",
+          "callee": "NextResponse.json",
+          "lineNumber": 18
+        },
+        {
+          "caller": "POST",
+          "callee": "NextResponse.json",
+          "lineNumber": 20
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/api/webhook/slack/route.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 38,
+      "nonEmptyLines": 36,
+      "functions": [
+        {
+          "name": "GET",
+          "startLine": 7,
+          "endLine": 13,
+          "params": []
+        },
+        {
+          "name": "POST",
+          "startLine": 16,
+          "endLine": 38,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "GET",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "POST",
+          "line": 16,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "GET",
+          "callee": "getServerSession",
+          "lineNumber": 8
+        },
+        {
+          "caller": "GET",
+          "callee": "NextResponse.json",
+          "lineNumber": 10
+        },
+        {
+          "caller": "GET",
+          "callee": "NextResponse.json",
+          "lineNumber": 12
+        },
+        {
+          "caller": "GET",
+          "callee": "isSlackEnabled",
+          "lineNumber": 12
+        },
+        {
+          "caller": "POST",
+          "callee": "getServerSession",
+          "lineNumber": 17
+        },
+        {
+          "caller": "POST",
+          "callee": "NextResponse.json",
+          "lineNumber": 19
+        },
+        {
+          "caller": "POST",
+          "callee": "isSlackEnabled",
+          "lineNumber": 21
+        },
+        {
+          "caller": "POST",
+          "callee": "NextResponse.json",
+          "lineNumber": 22
+        },
+        {
+          "caller": "POST",
+          "callee": "sendSlackMessage",
+          "lineNumber": 28
+        },
+        {
+          "caller": "POST",
+          "callee": "NextResponse.json",
+          "lineNumber": 31
+        },
+        {
+          "caller": "POST",
+          "callee": "NextResponse.json",
+          "lineNumber": 33
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/ingest.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 195,
+      "nonEmptyLines": 177,
+      "functions": [
+        {
+          "name": "runIngest",
+          "startLine": 37,
+          "endLine": 176,
+          "params": [
+            "opts"
+          ]
+        },
+        {
+          "name": "persistLog",
+          "startLine": 178,
+          "endLine": 195,
+          "params": [
+            "result"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "runIngest",
+          "line": 37,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "runIngest",
+          "callee": "randomUUID",
+          "lineNumber": 38
+        },
+        {
+          "caller": "runIngest",
+          "callee": "console.log",
+          "lineNumber": 52
+        },
+        {
+          "caller": "runIngest",
+          "callee": "fetcher",
+          "lineNumber": 57
+        },
+        {
+          "caller": "runIngest",
+          "callee": "console.log",
+          "lineNumber": 59
+        },
+        {
+          "caller": "runIngest",
+          "callee": "console.error",
+          "lineNumber": 62
+        },
+        {
+          "caller": "runIngest",
+          "callee": "persistLog",
+          "lineNumber": 65
+        },
+        {
+          "caller": "runIngest",
+          "callee": "console.log",
+          "lineNumber": 70
+        },
+        {
+          "caller": "runIngest",
+          "callee": "persistLog",
+          "lineNumber": 71
+        },
+        {
+          "caller": "runIngest",
+          "callee": "rawItems.map",
+          "lineNumber": 78
+        },
+        {
+          "caller": "runIngest",
+          "callee": "prisma.feedbackItem.findMany",
+          "lineNumber": 79
+        },
+        {
+          "caller": "runIngest",
+          "callee": "existing.map",
+          "lineNumber": 83
+        },
+        {
+          "caller": "runIngest",
+          "callee": "rawItems.filter",
+          "lineNumber": 84
+        },
+        {
+          "caller": "runIngest",
+          "callee": "existingSet.has",
+          "lineNumber": 84
+        },
+        {
+          "caller": "runIngest",
+          "callee": "console.log",
+          "lineNumber": 87
+        },
+        {
+          "caller": "runIngest",
+          "callee": "persistLog",
+          "lineNumber": 92
+        },
+        {
+          "caller": "runIngest",
+          "callee": "analyzeBatch",
+          "lineNumber": 97
+        },
+        {
+          "caller": "runIngest",
+          "callee": "failures.map",
+          "lineNumber": 98
+        },
+        {
+          "caller": "runIngest",
+          "callee": "prisma.$transaction",
+          "lineNumber": 109
+        },
+        {
+          "caller": "runIngest",
+          "callee": "tx.feedbackItem.create",
+          "lineNumber": 110
+        },
+        {
+          "caller": "runIngest",
+          "callee": "tx.feedbackAnalysis.create",
+          "lineNumber": 121
+        },
+        {
+          "caller": "runIngest",
+          "callee": "notifyHighSeverity",
+          "lineNumber": 137
+        },
+        {
+          "caller": "runIngest",
+          "callee": "console.warn",
+          "lineNumber": 147
+        },
+        {
+          "caller": "runIngest",
+          "callee": "result.failures.push",
+          "lineNumber": 152
+        },
+        {
+          "caller": "runIngest",
+          "callee": "console.log",
+          "lineNumber": 160
+        },
+        {
+          "caller": "runIngest",
+          "callee": "persistLog",
+          "lineNumber": 174
+        },
+        {
+          "caller": "persistLog",
+          "callee": "prisma.ingestLog.create",
+          "lineNumber": 180
+        },
+        {
+          "caller": "persistLog",
+          "callee": "JSON.stringify",
+          "lineNumber": 188
+        },
+        {
+          "caller": "persistLog",
+          "callee": "console.error",
+          "lineNumber": 193
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/lib/slack.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 45,
+      "nonEmptyLines": 37,
+      "functions": [
+        {
+          "name": "isSlackEnabled",
+          "startLine": 9,
+          "endLine": 11,
+          "params": []
+        },
+        {
+          "name": "sendSlackMessage",
+          "startLine": 13,
+          "endLine": 27,
+          "params": [
+            "payload"
+          ]
+        },
+        {
+          "name": "notifyHighSeverity",
+          "startLine": 29,
+          "endLine": 45,
+          "params": [
+            "args"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "isSlackEnabled",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "sendSlackMessage",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "notifyHighSeverity",
+          "line": 29,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "isSlackEnabled",
+          "callee": "Boolean",
+          "lineNumber": 10
+        },
+        {
+          "caller": "sendSlackMessage",
+          "callee": "fetch",
+          "lineNumber": 17
+        },
+        {
+          "caller": "sendSlackMessage",
+          "callee": "JSON.stringify",
+          "lineNumber": 20
+        },
+        {
+          "caller": "sendSlackMessage",
+          "callee": "res.text().catch",
+          "lineNumber": 24
+        },
+        {
+          "caller": "sendSlackMessage",
+          "callee": "res.text",
+          "lineNumber": 24
+        },
+        {
+          "caller": "notifyHighSeverity",
+          "callee": "isSlackEnabled",
+          "lineNumber": 38
+        },
+        {
+          "caller": "notifyHighSeverity",
+          "callee": "args.topics.join",
+          "lineNumber": 40
+        },
+        {
+          "caller": "notifyHighSeverity",
+          "callee": "sendSlackMessage",
+          "lineNumber": 44
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 3,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,187 @@
+{
+  "batchIndex": 6,
+  "files": [
+    {
+      "path": ".understand-anything/.understandignore",
+      "language": "unknown",
+      "sizeLines": 52,
+      "fileCategory": "code"
+    },
+    {
+      "path": "aws/README.md",
+      "language": "markdown",
+      "sizeLines": 152,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "aws/template.yaml",
+      "language": "yaml",
+      "sizeLines": 308,
+      "fileCategory": "config"
+    },
+    {
+      "path": "next.config.mjs",
+      "language": "javascript",
+      "sizeLines": 17,
+      "fileCategory": "code"
+    },
+    {
+      "path": "postcss.config.js",
+      "language": "javascript",
+      "sizeLines": 6,
+      "fileCategory": "code"
+    },
+    {
+      "path": "prisma/migrations/20260625150915_init/migration.sql",
+      "language": "sql",
+      "sizeLines": 95,
+      "fileCategory": "data"
+    },
+    {
+      "path": "prisma/migrations/migration_lock.toml",
+      "language": "toml",
+      "sizeLines": 2,
+      "fileCategory": "config"
+    },
+    {
+      "path": "prisma/schema.prisma",
+      "language": "prisma",
+      "sizeLines": 106,
+      "fileCategory": "data"
+    },
+    {
+      "path": "scripts/build-lambda.ts",
+      "language": "typescript",
+      "sizeLines": 63,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/(app)/layout.tsx",
+      "language": "typescript",
+      "sizeLines": 21,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/globals.css",
+      "language": "css",
+      "sizeLines": 28,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "src/app/layout.tsx",
+      "language": "typescript",
+      "sizeLines": 23,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/login/page.tsx",
+      "language": "typescript",
+      "sizeLines": 114,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/page.tsx",
+      "language": "typescript",
+      "sizeLines": 6,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/signup/page.tsx",
+      "language": "typescript",
+      "sizeLines": 132,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/Navbar.tsx",
+      "language": "typescript",
+      "sizeLines": 67,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/components/Providers.tsx",
+      "language": "typescript",
+      "sizeLines": 8,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/middleware.ts",
+      "language": "typescript",
+      "sizeLines": 11,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/types/next-auth.d.ts",
+      "language": "typescript",
+      "sizeLines": 15,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tailwind.config.ts",
+      "language": "typescript",
+      "sizeLines": 33,
+      "fileCategory": "code"
+    },
+    {
+      "path": "tsconfig.tsbuildinfo",
+      "language": "tsbuildinfo",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    ".understand-anything/.understandignore": [],
+    "aws/README.md": [],
+    "aws/template.yaml": [],
+    "next.config.mjs": [],
+    "postcss.config.js": [],
+    "prisma/migrations/20260625150915_init/migration.sql": [],
+    "prisma/migrations/migration_lock.toml": [],
+    "prisma/schema.prisma": [],
+    "scripts/build-lambda.ts": [],
+    "src/app/(app)/layout.tsx": [
+      "src/components/Navbar.tsx",
+      "src/lib/auth.ts"
+    ],
+    "src/app/globals.css": [],
+    "src/app/layout.tsx": [
+      "src/app/globals.css",
+      "src/components/Providers.tsx"
+    ],
+    "src/app/login/page.tsx": [],
+    "src/app/page.tsx": [],
+    "src/app/signup/page.tsx": [],
+    "src/components/Navbar.tsx": [
+      "src/lib/utils.ts"
+    ],
+    "src/components/Providers.tsx": [],
+    "src/middleware.ts": [],
+    "src/types/next-auth.d.ts": [],
+    "tailwind.config.ts": [],
+    "tsconfig.tsbuildinfo": []
+  },
+  "neighborMap": {
+    "src/app/(app)/layout.tsx": [
+      {
+        "path": "src/lib/auth.ts",
+        "batchIndex": 2,
+        "symbols": [
+          "authOptions"
+        ]
+      }
+    ],
+    "src/components/Navbar.tsx": [
+      {
+        "path": "src/lib/utils.ts",
+        "batchIndex": 1,
+        "symbols": [
+          "cn",
+          "formatDate",
+          "formatDay",
+          "truncate",
+          "sleep",
+          "backoffDelay"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,219 @@
+{
+  "nodes": [
+    {
+      "id": "config:.env.example",
+      "type": "config",
+      "name": ".env.example",
+      "filePath": ".env.example",
+      "summary": "Template of all runtime environment variables for FeedbackFlow AI, including NextAuth secrets, the Postgres DATABASE_URL, OpenAI API key and model, GitHub Issues source repo and token, ingest tuning knobs, and optional Slack/SMTP digest settings.",
+      "tags": ["configuration", "security", "environment", "secrets"],
+      "complexity": "simple",
+      "languageNotes": "Placeholder-only values (.env is gitignored); groups variables by concern with comment headers."
+    },
+    {
+      "id": "document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "README.md",
+      "summary": "Comprehensive project documentation covering features, tech stack, architecture, local quick-start, data model, LLM output format, project structure, AWS deployment, security, and acceptance-criteria mapping for FeedbackFlow AI.",
+      "tags": ["documentation", "entry-point", "overview", "architecture", "deployment"],
+      "complexity": "complex"
+    },
+    {
+      "id": "config:amplify.yml",
+      "type": "config",
+      "name": "amplify.yml",
+      "filePath": "amplify.yml",
+      "summary": "AWS Amplify build specification for the Next.js frontend, running npm ci, prisma generate, and next build, then publishing the .next directory as build artifacts with node_modules and .next/cache caching.",
+      "tags": ["configuration", "deployment", "ci-cd", "build-system"],
+      "complexity": "simple",
+      "languageNotes": "Amplify auto-discovers this file at the repo root; uses the frontend.phases build model."
+    },
+    {
+      "id": "service:docker-compose.yml",
+      "type": "service",
+      "name": "docker-compose.yml",
+      "filePath": "docker-compose.yml",
+      "summary": "Local development Docker Compose file defining a single postgres:16-alpine service (feedbackflow-db) on port 5432 with a persistent volume and a pg_isready healthcheck, used by the npm run db:up script.",
+      "tags": ["infrastructure", "containerization", "database", "orchestration"],
+      "complexity": "simple",
+      "languageNotes": "Uses the Compose v2 top-level services key (no version field) with a healthcheck for readiness gating."
+    },
+    {
+      "id": "config:package.json",
+      "type": "config",
+      "name": "package.json",
+      "filePath": "package.json",
+      "summary": "Root package manifest for the feedbackflow-ai Next.js 14 app, declaring scripts for dev/build/lint/typecheck, Prisma workflows, local db compose control, seed and ingest runners, Lambda bundling, and SAM validate/build/deploy, plus all runtime and dev dependencies.",
+      "tags": ["configuration", "build-system", "dependencies", "scripts"],
+      "complexity": "moderate",
+      "languageNotes": "Engines field pins Node >=18.17.0; uses tsx for running TypeScript scripts and esbuild for Lambda bundling."
+    },
+    {
+      "id": "config:tsconfig.json",
+      "type": "config",
+      "name": "tsconfig.json",
+      "filePath": "tsconfig.json",
+      "summary": "TypeScript compiler configuration for the project targeting ES2022 with strict mode, bundler module resolution, JSX preserve, incremental builds, the Next.js plugin, and an @/* path alias mapping to ./src/*.",
+      "tags": ["configuration", "typescript", "build-system", "path-alias"],
+      "complexity": "simple",
+      "languageNotes": "moduleResolution 'bundler' aligns with Next.js 14; noEmit lets next build handle emission."
+    }
+  ],
+  "edges": [
+    {
+      "source": "config:tsconfig.json",
+      "target": "file:src/app/layout.tsx",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:tsconfig.json",
+      "target": "file:src/middleware.ts",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:package.json",
+      "target": "file:src/app/layout.tsx",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:package.json",
+      "target": "file:scripts/ingest.ts",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:package.json",
+      "target": "config:tsconfig.json",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "config:.env.example",
+      "target": "file:src/lib/auth.ts",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:.env.example",
+      "target": "file:src/lib/llm.ts",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:.env.example",
+      "target": "file:src/lib/github.ts",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:.env.example",
+      "target": "file:src/lib/ingest.ts",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:amplify.yml",
+      "target": "file:src/app/layout.tsx",
+      "type": "deploys",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "config:amplify.yml",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "service:docker-compose.yml",
+      "target": "file:prisma/schema.prisma",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "service:docker-compose.yml",
+      "target": "config:.env.example",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:src/app/layout.tsx",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:src/middleware.ts",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:src/lib/auth.ts",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:src/lib/github.ts",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:src/lib/ingest.ts",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:src/lib/llm.ts",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:scripts/ingest.ts",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:aws/template.yaml",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:prisma/schema.prisma",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}

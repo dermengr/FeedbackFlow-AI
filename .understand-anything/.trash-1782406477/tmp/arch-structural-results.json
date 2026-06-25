@@ -1,0 +1,525 @@
+{
+  "scriptCompleted": true,
+  "commonPrefix": "",
+  "directoryGroups": {
+    "src": [
+      "file:src/app/(app)/inbox/[id]/page.tsx",
+      "file:src/app/(app)/inbox/page.tsx",
+      "file:src/components/Badges.tsx",
+      "file:src/components/Filters.tsx",
+      "file:src/components/StatusSelect.tsx",
+      "file:src/lib/github.ts",
+      "file:src/lib/llm.ts",
+      "file:src/lib/types.ts",
+      "file:src/lib/utils.ts",
+      "file:src/app/api/auth/[...nextauth]/route.ts",
+      "file:src/app/api/auth/signup/route.ts",
+      "file:src/app/api/dashboard/route.ts",
+      "file:src/app/api/feedback/[id]/route.ts",
+      "file:src/app/api/feedback/route.ts",
+      "file:src/lib/auth.ts",
+      "file:src/lib/prisma.ts",
+      "file:src/app/api/ingest/route.ts",
+      "file:src/app/api/webhook/slack/route.ts",
+      "file:src/lib/ingest.ts",
+      "file:src/lib/slack.ts",
+      "file:src/app/(app)/dashboard/page.tsx",
+      "file:src/components/charts/SentimentDonutChart.tsx",
+      "file:src/components/charts/SentimentTrendChart.tsx",
+      "file:src/components/charts/SeverityChart.tsx",
+      "file:src/components/charts/TopicDistributionChart.tsx",
+      "file:src/app/(app)/layout.tsx",
+      "file:src/app/globals.css",
+      "file:src/app/layout.tsx",
+      "file:src/app/login/page.tsx",
+      "file:src/app/page.tsx",
+      "file:src/app/signup/page.tsx",
+      "file:src/components/Navbar.tsx",
+      "file:src/components/Providers.tsx",
+      "file:src/middleware.ts",
+      "file:src/types/next-auth.d.ts"
+    ],
+    "scripts": [
+      "file:scripts/seed.ts",
+      "file:scripts/ingest.ts",
+      "file:scripts/build-lambda.ts"
+    ],
+    "aws": [
+      "file:aws/lambda/handler.ts",
+      "document:aws/README.md",
+      "config:aws/template.yaml"
+    ],
+    "__root__": [
+      "config:.env.example",
+      "document:README.md",
+      "config:amplify.yml",
+      "service:docker-compose.yml",
+      "config:package.json",
+      "config:tsconfig.json",
+      "file:next.config.mjs",
+      "file:postcss.config.js",
+      "file:tailwind.config.ts",
+      "file:tsconfig.tsbuildinfo"
+    ],
+    ".understand-anything": [
+      "file:.understand-anything/.understandignore"
+    ],
+    "prisma": [
+      "table:prisma/migrations/20260625150915_init/migration.sql",
+      "table:prisma/migrations/20260625150915_init/migration.sql:users",
+      "table:prisma/migrations/20260625150915_init/migration.sql:feedback_items",
+      "table:prisma/migrations/20260625150915_init/migration.sql:feedback_analyses",
+      "table:prisma/migrations/20260625150915_init/migration.sql:ingest_logs",
+      "config:prisma/migrations/migration_lock.toml",
+      "schema:prisma/schema.prisma"
+    ]
+  },
+  "nodeTypeGroups": {
+    "file": [
+      "file:src/app/(app)/inbox/[id]/page.tsx",
+      "file:src/app/(app)/inbox/page.tsx",
+      "file:src/components/Badges.tsx",
+      "file:src/components/Filters.tsx",
+      "file:src/components/StatusSelect.tsx",
+      "file:src/lib/github.ts",
+      "file:src/lib/llm.ts",
+      "file:src/lib/types.ts",
+      "file:src/lib/utils.ts",
+      "file:scripts/seed.ts",
+      "file:src/app/api/auth/[...nextauth]/route.ts",
+      "file:src/app/api/auth/signup/route.ts",
+      "file:src/app/api/dashboard/route.ts",
+      "file:src/app/api/feedback/[id]/route.ts",
+      "file:src/app/api/feedback/route.ts",
+      "file:src/lib/auth.ts",
+      "file:src/lib/prisma.ts",
+      "file:aws/lambda/handler.ts",
+      "file:scripts/ingest.ts",
+      "file:src/app/api/ingest/route.ts",
+      "file:src/app/api/webhook/slack/route.ts",
+      "file:src/lib/ingest.ts",
+      "file:src/lib/slack.ts",
+      "file:src/app/(app)/dashboard/page.tsx",
+      "file:src/components/charts/SentimentDonutChart.tsx",
+      "file:src/components/charts/SentimentTrendChart.tsx",
+      "file:src/components/charts/SeverityChart.tsx",
+      "file:src/components/charts/TopicDistributionChart.tsx",
+      "file:.understand-anything/.understandignore",
+      "file:next.config.mjs",
+      "file:postcss.config.js",
+      "file:scripts/build-lambda.ts",
+      "file:src/app/(app)/layout.tsx",
+      "file:src/app/globals.css",
+      "file:src/app/layout.tsx",
+      "file:src/app/login/page.tsx",
+      "file:src/app/page.tsx",
+      "file:src/app/signup/page.tsx",
+      "file:src/components/Navbar.tsx",
+      "file:src/components/Providers.tsx",
+      "file:src/middleware.ts",
+      "file:src/types/next-auth.d.ts",
+      "file:tailwind.config.ts",
+      "file:tsconfig.tsbuildinfo"
+    ],
+    "config": [
+      "config:.env.example",
+      "config:amplify.yml",
+      "config:package.json",
+      "config:tsconfig.json",
+      "config:aws/template.yaml",
+      "config:prisma/migrations/migration_lock.toml"
+    ],
+    "document": [
+      "document:README.md",
+      "document:aws/README.md"
+    ],
+    "service": [
+      "service:docker-compose.yml"
+    ],
+    "table": [
+      "table:prisma/migrations/20260625150915_init/migration.sql",
+      "table:prisma/migrations/20260625150915_init/migration.sql:users",
+      "table:prisma/migrations/20260625150915_init/migration.sql:feedback_items",
+      "table:prisma/migrations/20260625150915_init/migration.sql:feedback_analyses",
+      "table:prisma/migrations/20260625150915_init/migration.sql:ingest_logs"
+    ],
+    "schema": [
+      "schema:prisma/schema.prisma"
+    ]
+  },
+  "crossCategoryEdges": [
+    {
+      "fromType": "file",
+      "toType": "file",
+      "edgeType": "imports",
+      "count": 54
+    },
+    {
+      "fromType": "config",
+      "toType": "file",
+      "edgeType": "configures",
+      "count": 8
+    },
+    {
+      "fromType": "config",
+      "toType": "config",
+      "edgeType": "related",
+      "count": 1
+    },
+    {
+      "fromType": "config",
+      "toType": "file",
+      "edgeType": "deploys",
+      "count": 1
+    },
+    {
+      "fromType": "config",
+      "toType": "config",
+      "edgeType": "depends_on",
+      "count": 1
+    },
+    {
+      "fromType": "service",
+      "toType": "config",
+      "edgeType": "related",
+      "count": 1
+    },
+    {
+      "fromType": "document",
+      "toType": "file",
+      "edgeType": "documents",
+      "count": 8
+    },
+    {
+      "fromType": "table",
+      "toType": "table",
+      "edgeType": "contains",
+      "count": 4
+    },
+    {
+      "fromType": "document",
+      "toType": "config",
+      "edgeType": "documents",
+      "count": 2
+    },
+    {
+      "fromType": "config",
+      "toType": "file",
+      "edgeType": "related",
+      "count": 1
+    },
+    {
+      "fromType": "config",
+      "toType": "schema",
+      "edgeType": "related",
+      "count": 1
+    },
+    {
+      "fromType": "config",
+      "toType": "table",
+      "edgeType": "related",
+      "count": 1
+    },
+    {
+      "fromType": "table",
+      "toType": "schema",
+      "edgeType": "migrates",
+      "count": 1
+    },
+    {
+      "fromType": "service",
+      "toType": "schema",
+      "edgeType": "related",
+      "count": 1
+    },
+    {
+      "fromType": "document",
+      "toType": "schema",
+      "edgeType": "documents",
+      "count": 1
+    }
+  ],
+  "interGroupImports": [
+    {
+      "from": "scripts",
+      "to": "src",
+      "count": 2
+    },
+    {
+      "from": "aws",
+      "to": "src",
+      "count": 1
+    }
+  ],
+  "intraGroupDensity": {
+    "src": {
+      "internalEdges": 51,
+      "totalEdges": 54,
+      "density": 0.944
+    },
+    "scripts": {
+      "internalEdges": 0,
+      "totalEdges": 2,
+      "density": 0
+    },
+    "aws": {
+      "internalEdges": 0,
+      "totalEdges": 1,
+      "density": 0
+    },
+    "__root__": {
+      "internalEdges": 0,
+      "totalEdges": 0,
+      "density": 0
+    },
+    ".understand-anything": {
+      "internalEdges": 0,
+      "totalEdges": 0,
+      "density": 0
+    },
+    "prisma": {
+      "internalEdges": 0,
+      "totalEdges": 0,
+      "density": 0
+    }
+  },
+  "patternMatches": {
+    "src": "unknown",
+    "scripts": "utility",
+    "aws": "infrastructure",
+    "__root__": "unknown",
+    ".understand-anything": "unknown",
+    "prisma": "data"
+  },
+  "filePatternMatches": {
+    "document:README.md": "documentation",
+    "config:amplify.yml": "infrastructure",
+    "service:docker-compose.yml": "infrastructure",
+    "document:aws/README.md": "documentation",
+    "file:next.config.mjs": "config",
+    "file:postcss.config.js": "config",
+    "table:prisma/migrations/20260625150915_init/migration.sql": "data",
+    "table:prisma/migrations/20260625150915_init/migration.sql:users": "data",
+    "table:prisma/migrations/20260625150915_init/migration.sql:feedback_items": "data",
+    "table:prisma/migrations/20260625150915_init/migration.sql:feedback_analyses": "data",
+    "table:prisma/migrations/20260625150915_init/migration.sql:ingest_logs": "data",
+    "schema:prisma/schema.prisma": "data",
+    "file:src/types/next-auth.d.ts": "types",
+    "file:tailwind.config.ts": "config",
+    "file:tsconfig.tsbuildinfo": "config"
+  },
+  "deploymentTopology": {
+    "hasDockerfile": false,
+    "hasCompose": true,
+    "hasK8s": false,
+    "hasTerraform": false,
+    "hasCI": true,
+    "hasSAM": true,
+    "infraFiles": [
+      "config:amplify.yml",
+      "service:docker-compose.yml",
+      "config:aws/template.yaml"
+    ]
+  },
+  "dataPipeline": {
+    "schemaFiles": [
+      "schema:prisma/schema.prisma"
+    ],
+    "migrationFiles": [],
+    "dataModelFiles": [
+      "file:src/app/(app)/inbox/[id]/page.tsx",
+      "file:src/app/(app)/inbox/page.tsx",
+      "file:src/lib/types.ts",
+      "file:src/lib/prisma.ts",
+      "file:src/app/(app)/dashboard/page.tsx",
+      "schema:prisma/schema.prisma"
+    ],
+    "apiHandlerFiles": [
+      "file:src/app/api/auth/[...nextauth]/route.ts",
+      "file:src/app/api/auth/signup/route.ts",
+      "file:src/app/api/dashboard/route.ts",
+      "file:src/app/api/feedback/[id]/route.ts",
+      "file:src/app/api/feedback/route.ts",
+      "file:src/app/api/ingest/route.ts",
+      "file:src/app/api/webhook/slack/route.ts"
+    ]
+  },
+  "docCoverage": {
+    "groupsWithDocs": 2,
+    "totalGroups": 6,
+    "coverageRatio": 0.33,
+    "undocumentedGroups": [
+      "src",
+      "scripts",
+      ".understand-anything",
+      "prisma"
+    ]
+  },
+  "dependencyDirection": [
+    {
+      "dependent": "scripts",
+      "dependsOn": "src",
+      "count": 2
+    },
+    {
+      "dependent": "aws",
+      "dependsOn": "src",
+      "count": 1
+    }
+  ],
+  "fileStats": {
+    "totalFileNodes": 59,
+    "filesPerGroup": {
+      "src": 35,
+      "scripts": 3,
+      "aws": 3,
+      "__root__": 10,
+      ".understand-anything": 1,
+      "prisma": 7
+    },
+    "nodeTypeCounts": {
+      "file": 44,
+      "config": 6,
+      "document": 2,
+      "service": 1,
+      "table": 5,
+      "schema": 1
+    }
+  },
+  "fileFanIn": {
+    "file:src/app/(app)/inbox/[id]/page.tsx": 0,
+    "file:src/app/(app)/inbox/page.tsx": 0,
+    "file:src/components/Badges.tsx": 4,
+    "file:src/components/Filters.tsx": 1,
+    "file:src/components/StatusSelect.tsx": 1,
+    "file:src/lib/github.ts": 1,
+    "file:src/lib/llm.ts": 1,
+    "file:src/lib/types.ts": 9,
+    "file:src/lib/utils.ts": 7,
+    "file:scripts/seed.ts": 0,
+    "file:src/app/api/auth/[...nextauth]/route.ts": 0,
+    "file:src/app/api/auth/signup/route.ts": 0,
+    "file:src/app/api/dashboard/route.ts": 0,
+    "file:src/app/api/feedback/[id]/route.ts": 0,
+    "file:src/app/api/feedback/route.ts": 0,
+    "file:src/lib/auth.ts": 8,
+    "file:src/lib/prisma.ts": 10,
+    "file:aws/lambda/handler.ts": 0,
+    "file:scripts/ingest.ts": 0,
+    "file:src/app/api/ingest/route.ts": 0,
+    "file:src/app/api/webhook/slack/route.ts": 0,
+    "file:src/lib/ingest.ts": 3,
+    "file:src/lib/slack.ts": 2,
+    "file:src/app/(app)/dashboard/page.tsx": 0,
+    "file:src/components/charts/SentimentDonutChart.tsx": 1,
+    "file:src/components/charts/SentimentTrendChart.tsx": 1,
+    "file:src/components/charts/SeverityChart.tsx": 1,
+    "file:src/components/charts/TopicDistributionChart.tsx": 1,
+    "config:.env.example": 0,
+    "document:README.md": 0,
+    "config:amplify.yml": 0,
+    "service:docker-compose.yml": 0,
+    "config:package.json": 0,
+    "config:tsconfig.json": 0,
+    "file:.understand-anything/.understandignore": 0,
+    "document:aws/README.md": 0,
+    "config:aws/template.yaml": 0,
+    "file:next.config.mjs": 0,
+    "file:postcss.config.js": 0,
+    "table:prisma/migrations/20260625150915_init/migration.sql": 0,
+    "table:prisma/migrations/20260625150915_init/migration.sql:users": 0,
+    "table:prisma/migrations/20260625150915_init/migration.sql:feedback_items": 0,
+    "table:prisma/migrations/20260625150915_init/migration.sql:feedback_analyses": 0,
+    "table:prisma/migrations/20260625150915_init/migration.sql:ingest_logs": 0,
+    "config:prisma/migrations/migration_lock.toml": 0,
+    "schema:prisma/schema.prisma": 0,
+    "file:scripts/build-lambda.ts": 0,
+    "file:src/app/(app)/layout.tsx": 0,
+    "file:src/app/globals.css": 1,
+    "file:src/app/layout.tsx": 0,
+    "file:src/app/login/page.tsx": 0,
+    "file:src/app/page.tsx": 0,
+    "file:src/app/signup/page.tsx": 0,
+    "file:src/components/Navbar.tsx": 1,
+    "file:src/components/Providers.tsx": 1,
+    "file:src/middleware.ts": 0,
+    "file:src/types/next-auth.d.ts": 0,
+    "file:tailwind.config.ts": 0,
+    "file:tsconfig.tsbuildinfo": 0
+  },
+  "fileFanOut": {
+    "file:src/app/(app)/inbox/[id]/page.tsx": 4,
+    "file:src/app/(app)/inbox/page.tsx": 5,
+    "file:src/components/Badges.tsx": 2,
+    "file:src/components/Filters.tsx": 1,
+    "file:src/components/StatusSelect.tsx": 2,
+    "file:src/lib/github.ts": 2,
+    "file:src/lib/llm.ts": 2,
+    "file:src/lib/types.ts": 0,
+    "file:src/lib/utils.ts": 0,
+    "file:scripts/seed.ts": 1,
+    "file:src/app/api/auth/[...nextauth]/route.ts": 1,
+    "file:src/app/api/auth/signup/route.ts": 1,
+    "file:src/app/api/dashboard/route.ts": 2,
+    "file:src/app/api/feedback/[id]/route.ts": 3,
+    "file:src/app/api/feedback/route.ts": 3,
+    "file:src/lib/auth.ts": 1,
+    "file:src/lib/prisma.ts": 0,
+    "file:aws/lambda/handler.ts": 1,
+    "file:scripts/ingest.ts": 1,
+    "file:src/app/api/ingest/route.ts": 2,
+    "file:src/app/api/webhook/slack/route.ts": 2,
+    "file:src/lib/ingest.ts": 5,
+    "file:src/lib/slack.ts": 0,
+    "file:src/app/(app)/dashboard/page.tsx": 8,
+    "file:src/components/charts/SentimentDonutChart.tsx": 0,
+    "file:src/components/charts/SentimentTrendChart.tsx": 0,
+    "file:src/components/charts/SeverityChart.tsx": 0,
+    "file:src/components/charts/TopicDistributionChart.tsx": 0,
+    "config:.env.example": 0,
+    "document:README.md": 0,
+    "config:amplify.yml": 0,
+    "service:docker-compose.yml": 0,
+    "config:package.json": 0,
+    "config:tsconfig.json": 0,
+    "file:.understand-anything/.understandignore": 0,
+    "document:aws/README.md": 0,
+    "config:aws/template.yaml": 0,
+    "file:next.config.mjs": 0,
+    "file:postcss.config.js": 0,
+    "table:prisma/migrations/20260625150915_init/migration.sql": 0,
+    "table:prisma/migrations/20260625150915_init/migration.sql:users": 0,
+    "table:prisma/migrations/20260625150915_init/migration.sql:feedback_items": 0,
+    "table:prisma/migrations/20260625150915_init/migration.sql:feedback_analyses": 0,
+    "table:prisma/migrations/20260625150915_init/migration.sql:ingest_logs": 0,
+    "config:prisma/migrations/migration_lock.toml": 0,
+    "schema:prisma/schema.prisma": 0,
+    "file:scripts/build-lambda.ts": 0,
+    "file:src/app/(app)/layout.tsx": 2,
+    "file:src/app/globals.css": 0,
+    "file:src/app/layout.tsx": 2,
+    "file:src/app/login/page.tsx": 0,
+    "file:src/app/page.tsx": 0,
+    "file:src/app/signup/page.tsx": 0,
+    "file:src/components/Navbar.tsx": 1,
+    "file:src/components/Providers.tsx": 0,
+    "file:src/middleware.ts": 0,
+    "file:src/types/next-auth.d.ts": 0,
+    "file:tailwind.config.ts": 0,
+    "file:tsconfig.tsbuildinfo": 0
+  },
+  "groupImportsFrom": {
+    "scripts": [
+      "src"
+    ],
+    "aws": [
+      "src"
+    ]
+  },
+  "groupImportedBy": {
+    "src": [
+      "scripts",
+      "aws"
+    ]
+  }
+}

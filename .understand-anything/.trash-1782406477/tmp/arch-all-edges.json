@@ -1,0 +1,1012 @@
+[
+  {
+    "source": "file:src/app/(app)/inbox/[id]/page.tsx",
+    "target": "file:src/components/Badges.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/inbox/[id]/page.tsx",
+    "target": "file:src/components/StatusSelect.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/inbox/[id]/page.tsx",
+    "target": "file:src/lib/prisma.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/inbox/[id]/page.tsx",
+    "target": "file:src/lib/utils.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/inbox/page.tsx",
+    "target": "file:src/components/Badges.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/inbox/page.tsx",
+    "target": "file:src/components/Filters.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/inbox/page.tsx",
+    "target": "file:src/lib/prisma.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/inbox/page.tsx",
+    "target": "file:src/lib/types.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/inbox/page.tsx",
+    "target": "file:src/lib/utils.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/components/Badges.tsx",
+    "target": "file:src/lib/types.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/components/Badges.tsx",
+    "target": "file:src/lib/utils.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/components/Filters.tsx",
+    "target": "file:src/lib/types.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/components/StatusSelect.tsx",
+    "target": "file:src/components/Badges.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/components/StatusSelect.tsx",
+    "target": "file:src/lib/types.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/lib/github.ts",
+    "target": "file:src/lib/types.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/lib/github.ts",
+    "target": "file:src/lib/utils.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/lib/llm.ts",
+    "target": "file:src/lib/types.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/lib/llm.ts",
+    "target": "file:src/lib/utils.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/inbox/[id]/page.tsx",
+    "target": "function:src/app/(app)/inbox/[id]/page.tsx:FeedbackDetailPage",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/app/(app)/inbox/page.tsx",
+    "target": "function:src/app/(app)/inbox/page.tsx:InboxPage",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/app/(app)/inbox/page.tsx",
+    "target": "function:src/app/(app)/inbox/page.tsx:qs",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/components/Badges.tsx",
+    "target": "function:src/components/Badges.tsx:SentimentBadge",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/components/Badges.tsx",
+    "target": "function:src/components/Badges.tsx:SeverityBadge",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/components/Badges.tsx",
+    "target": "function:src/components/Badges.tsx:StatusBadge",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/components/Badges.tsx",
+    "target": "function:src/components/Badges.tsx:TopicChip",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/components/Filters.tsx",
+    "target": "function:src/components/Filters.tsx:Filters",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/components/Filters.tsx",
+    "target": "function:src/components/Filters.tsx:Toggle",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/components/StatusSelect.tsx",
+    "target": "function:src/components/StatusSelect.tsx:StatusSelect",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/lib/github.ts",
+    "target": "function:src/lib/github.ts:parseRateLimit",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/lib/github.ts",
+    "target": "function:src/lib/github.ts:waitForRateLimit",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/lib/github.ts",
+    "target": "function:src/lib/github.ts:fetchGitHubIssues",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/lib/llm.ts",
+    "target": "function:src/lib/llm.ts:buildUserPrompt",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/lib/llm.ts",
+    "target": "function:src/lib/llm.ts:analyzeFeedback",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/lib/llm.ts",
+    "target": "function:src/lib/llm.ts:analyzeBatch",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/lib/utils.ts",
+    "target": "function:src/lib/utils.ts:cn",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/lib/utils.ts",
+    "target": "function:src/lib/utils.ts:formatDate",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/lib/utils.ts",
+    "target": "function:src/lib/utils.ts:formatDay",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/lib/utils.ts",
+    "target": "function:src/lib/utils.ts:truncate",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/lib/utils.ts",
+    "target": "function:src/lib/utils.ts:sleep",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/lib/utils.ts",
+    "target": "function:src/lib/utils.ts:backoffDelay",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/app/(app)/inbox/[id]/page.tsx",
+    "target": "function:src/app/(app)/inbox/[id]/page.tsx:FeedbackDetailPage",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/app/(app)/inbox/page.tsx",
+    "target": "function:src/app/(app)/inbox/page.tsx:InboxPage",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/components/Badges.tsx",
+    "target": "function:src/components/Badges.tsx:SentimentBadge",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/components/Badges.tsx",
+    "target": "function:src/components/Badges.tsx:SeverityBadge",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/components/Badges.tsx",
+    "target": "function:src/components/Badges.tsx:StatusBadge",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/components/Badges.tsx",
+    "target": "function:src/components/Badges.tsx:TopicChip",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/components/Filters.tsx",
+    "target": "function:src/components/Filters.tsx:Filters",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/components/StatusSelect.tsx",
+    "target": "function:src/components/StatusSelect.tsx:StatusSelect",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/lib/github.ts",
+    "target": "function:src/lib/github.ts:fetchGitHubIssues",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/lib/llm.ts",
+    "target": "function:src/lib/llm.ts:analyzeFeedback",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/lib/llm.ts",
+    "target": "function:src/lib/llm.ts:analyzeBatch",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/lib/utils.ts",
+    "target": "function:src/lib/utils.ts:cn",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/lib/utils.ts",
+    "target": "function:src/lib/utils.ts:formatDate",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/lib/utils.ts",
+    "target": "function:src/lib/utils.ts:formatDay",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/lib/utils.ts",
+    "target": "function:src/lib/utils.ts:truncate",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/lib/utils.ts",
+    "target": "function:src/lib/utils.ts:sleep",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/lib/utils.ts",
+    "target": "function:src/lib/utils.ts:backoffDelay",
+    "type": "exports"
+  },
+  {
+    "source": "function:src/app/(app)/inbox/[id]/page.tsx:FeedbackDetailPage",
+    "target": "function:src/lib/utils.ts:formatDate",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/app/(app)/inbox/page.tsx:InboxPage",
+    "target": "function:src/lib/utils.ts:formatDate",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/app/(app)/inbox/page.tsx:InboxPage",
+    "target": "function:src/lib/utils.ts:truncate",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/components/Badges.tsx:SentimentBadge",
+    "target": "function:src/lib/utils.ts:cn",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/components/Badges.tsx:SeverityBadge",
+    "target": "function:src/lib/utils.ts:cn",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/components/Badges.tsx:StatusBadge",
+    "target": "function:src/lib/utils.ts:cn",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/lib/github.ts:fetchGitHubIssues",
+    "target": "function:src/lib/utils.ts:sleep",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/lib/github.ts:fetchGitHubIssues",
+    "target": "function:src/lib/utils.ts:backoffDelay",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/lib/llm.ts:analyzeFeedback",
+    "target": "function:src/lib/utils.ts:backoffDelay",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/lib/llm.ts:analyzeFeedback",
+    "target": "function:src/lib/utils.ts:sleep",
+    "type": "calls"
+  },
+  {
+    "source": "file:scripts/seed.ts",
+    "target": "function:scripts/seed.ts:main",
+    "type": "contains"
+  },
+  {
+    "source": "file:scripts/seed.ts",
+    "target": "function:scripts/seed.ts:seedSamples",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/app/api/auth/signup/route.ts",
+    "target": "function:src/app/api/auth/signup/route.ts:POST",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/app/api/dashboard/route.ts",
+    "target": "function:src/app/api/dashboard/route.ts:GET",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/app/api/feedback/[id]/route.ts",
+    "target": "function:src/app/api/feedback/[id]/route.ts:GET",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/app/api/feedback/[id]/route.ts",
+    "target": "function:src/app/api/feedback/[id]/route.ts:PATCH",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/app/api/feedback/route.ts",
+    "target": "function:src/app/api/feedback/route.ts:GET",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/app/api/auth/signup/route.ts",
+    "target": "function:src/app/api/auth/signup/route.ts:POST",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/app/api/dashboard/route.ts",
+    "target": "function:src/app/api/dashboard/route.ts:GET",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/app/api/feedback/[id]/route.ts",
+    "target": "function:src/app/api/feedback/[id]/route.ts:GET",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/app/api/feedback/[id]/route.ts",
+    "target": "function:src/app/api/feedback/[id]/route.ts:PATCH",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/app/api/feedback/route.ts",
+    "target": "function:src/app/api/feedback/route.ts:GET",
+    "type": "exports"
+  },
+  {
+    "source": "file:scripts/seed.ts",
+    "target": "file:src/lib/prisma.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/auth/[...nextauth]/route.ts",
+    "target": "file:src/lib/auth.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/auth/signup/route.ts",
+    "target": "file:src/lib/prisma.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/dashboard/route.ts",
+    "target": "file:src/lib/auth.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/dashboard/route.ts",
+    "target": "file:src/lib/prisma.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/feedback/[id]/route.ts",
+    "target": "file:src/lib/auth.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/feedback/[id]/route.ts",
+    "target": "file:src/lib/prisma.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/feedback/[id]/route.ts",
+    "target": "file:src/lib/types.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/feedback/route.ts",
+    "target": "file:src/lib/auth.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/feedback/route.ts",
+    "target": "file:src/lib/prisma.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/feedback/route.ts",
+    "target": "file:src/lib/types.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/lib/auth.ts",
+    "target": "file:src/lib/prisma.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:aws/lambda/handler.ts",
+    "target": "function:aws/lambda/handler.ts:handler",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/app/api/ingest/route.ts",
+    "target": "function:src/app/api/ingest/route.ts:POST",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/app/api/webhook/slack/route.ts",
+    "target": "function:src/app/api/webhook/slack/route.ts:GET",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/app/api/webhook/slack/route.ts",
+    "target": "function:src/app/api/webhook/slack/route.ts:POST",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/lib/ingest.ts",
+    "target": "function:src/lib/ingest.ts:runIngest",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/lib/ingest.ts",
+    "target": "function:src/lib/ingest.ts:persistLog",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/lib/slack.ts",
+    "target": "function:src/lib/slack.ts:isSlackEnabled",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/lib/slack.ts",
+    "target": "function:src/lib/slack.ts:sendSlackMessage",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/lib/slack.ts",
+    "target": "function:src/lib/slack.ts:notifyHighSeverity",
+    "type": "contains"
+  },
+  {
+    "source": "file:aws/lambda/handler.ts",
+    "target": "function:aws/lambda/handler.ts:handler",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/app/api/ingest/route.ts",
+    "target": "function:src/app/api/ingest/route.ts:POST",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/app/api/webhook/slack/route.ts",
+    "target": "function:src/app/api/webhook/slack/route.ts:GET",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/app/api/webhook/slack/route.ts",
+    "target": "function:src/app/api/webhook/slack/route.ts:POST",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/lib/ingest.ts",
+    "target": "function:src/lib/ingest.ts:runIngest",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/lib/slack.ts",
+    "target": "function:src/lib/slack.ts:isSlackEnabled",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/lib/slack.ts",
+    "target": "function:src/lib/slack.ts:sendSlackMessage",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/lib/slack.ts",
+    "target": "function:src/lib/slack.ts:notifyHighSeverity",
+    "type": "exports"
+  },
+  {
+    "source": "file:aws/lambda/handler.ts",
+    "target": "file:src/lib/ingest.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:scripts/ingest.ts",
+    "target": "file:src/lib/ingest.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/ingest/route.ts",
+    "target": "file:src/lib/auth.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/ingest/route.ts",
+    "target": "file:src/lib/ingest.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/webhook/slack/route.ts",
+    "target": "file:src/lib/auth.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/api/webhook/slack/route.ts",
+    "target": "file:src/lib/slack.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/lib/ingest.ts",
+    "target": "file:src/lib/github.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/lib/ingest.ts",
+    "target": "file:src/lib/llm.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/lib/ingest.ts",
+    "target": "file:src/lib/prisma.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/lib/ingest.ts",
+    "target": "file:src/lib/slack.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/lib/ingest.ts",
+    "target": "file:src/lib/types.ts",
+    "type": "imports"
+  },
+  {
+    "source": "function:aws/lambda/handler.ts:handler",
+    "target": "function:src/lib/ingest.ts:runIngest",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/app/api/ingest/route.ts:POST",
+    "target": "function:src/lib/ingest.ts:runIngest",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/app/api/webhook/slack/route.ts:GET",
+    "target": "function:src/lib/slack.ts:isSlackEnabled",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/app/api/webhook/slack/route.ts:POST",
+    "target": "function:src/lib/slack.ts:isSlackEnabled",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/app/api/webhook/slack/route.ts:POST",
+    "target": "function:src/lib/slack.ts:sendSlackMessage",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/lib/ingest.ts:runIngest",
+    "target": "function:src/lib/llm.ts:analyzeBatch",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/lib/ingest.ts:runIngest",
+    "target": "function:src/lib/slack.ts:notifyHighSeverity",
+    "type": "calls"
+  },
+  {
+    "source": "file:src/app/(app)/dashboard/page.tsx",
+    "target": "file:src/components/Badges.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/dashboard/page.tsx",
+    "target": "file:src/components/charts/SentimentDonutChart.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/dashboard/page.tsx",
+    "target": "file:src/components/charts/SentimentTrendChart.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/dashboard/page.tsx",
+    "target": "file:src/components/charts/SeverityChart.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/dashboard/page.tsx",
+    "target": "file:src/components/charts/TopicDistributionChart.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/dashboard/page.tsx",
+    "target": "file:src/lib/auth.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/dashboard/page.tsx",
+    "target": "file:src/lib/prisma.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/dashboard/page.tsx",
+    "target": "file:src/lib/utils.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/dashboard/page.tsx",
+    "target": "function:src/app/(app)/dashboard/page.tsx:getDashboardData",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/app/(app)/dashboard/page.tsx",
+    "target": "function:src/app/(app)/dashboard/page.tsx:DashboardPage",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/app/(app)/dashboard/page.tsx",
+    "target": "function:src/app/(app)/dashboard/page.tsx:KpiCard",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/app/(app)/dashboard/page.tsx",
+    "target": "function:src/app/(app)/dashboard/page.tsx:DashboardPage",
+    "type": "exports"
+  },
+  {
+    "source": "function:src/app/(app)/dashboard/page.tsx:DashboardPage",
+    "target": "function:src/lib/utils.ts:formatDate",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/app/(app)/dashboard/page.tsx:DashboardPage",
+    "target": "function:src/lib/utils.ts:truncate",
+    "type": "calls"
+  },
+  {
+    "source": "file:src/components/charts/SentimentDonutChart.tsx",
+    "target": "function:src/components/charts/SentimentDonutChart.tsx:SentimentDonutChart",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/components/charts/SentimentDonutChart.tsx",
+    "target": "function:src/components/charts/SentimentDonutChart.tsx:SentimentDonutChart",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/components/charts/SentimentTrendChart.tsx",
+    "target": "function:src/components/charts/SentimentTrendChart.tsx:SentimentTrendChart",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/components/charts/SentimentTrendChart.tsx",
+    "target": "function:src/components/charts/SentimentTrendChart.tsx:SentimentTrendChart",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/components/charts/SeverityChart.tsx",
+    "target": "function:src/components/charts/SeverityChart.tsx:SeverityChart",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/components/charts/SeverityChart.tsx",
+    "target": "function:src/components/charts/SeverityChart.tsx:SeverityChart",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/components/charts/TopicDistributionChart.tsx",
+    "target": "function:src/components/charts/TopicDistributionChart.tsx:TopicDistributionChart",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/components/charts/TopicDistributionChart.tsx",
+    "target": "function:src/components/charts/TopicDistributionChart.tsx:TopicDistributionChart",
+    "type": "exports"
+  },
+  {
+    "source": "config:tsconfig.json",
+    "target": "file:src/app/layout.tsx",
+    "type": "configures"
+  },
+  {
+    "source": "config:tsconfig.json",
+    "target": "file:src/middleware.ts",
+    "type": "configures"
+  },
+  {
+    "source": "config:package.json",
+    "target": "file:src/app/layout.tsx",
+    "type": "configures"
+  },
+  {
+    "source": "config:package.json",
+    "target": "file:scripts/ingest.ts",
+    "type": "configures"
+  },
+  {
+    "source": "config:package.json",
+    "target": "config:tsconfig.json",
+    "type": "related"
+  },
+  {
+    "source": "config:.env.example",
+    "target": "file:src/lib/auth.ts",
+    "type": "configures"
+  },
+  {
+    "source": "config:.env.example",
+    "target": "file:src/lib/llm.ts",
+    "type": "configures"
+  },
+  {
+    "source": "config:.env.example",
+    "target": "file:src/lib/github.ts",
+    "type": "configures"
+  },
+  {
+    "source": "config:.env.example",
+    "target": "file:src/lib/ingest.ts",
+    "type": "configures"
+  },
+  {
+    "source": "config:amplify.yml",
+    "target": "file:src/app/layout.tsx",
+    "type": "deploys"
+  },
+  {
+    "source": "config:amplify.yml",
+    "target": "config:package.json",
+    "type": "depends_on"
+  },
+  {
+    "source": "service:docker-compose.yml",
+    "target": "config:.env.example",
+    "type": "related"
+  },
+  {
+    "source": "document:README.md",
+    "target": "file:src/app/layout.tsx",
+    "type": "documents"
+  },
+  {
+    "source": "document:README.md",
+    "target": "file:src/middleware.ts",
+    "type": "documents"
+  },
+  {
+    "source": "document:README.md",
+    "target": "file:src/lib/auth.ts",
+    "type": "documents"
+  },
+  {
+    "source": "document:README.md",
+    "target": "file:src/lib/github.ts",
+    "type": "documents"
+  },
+  {
+    "source": "document:README.md",
+    "target": "file:src/lib/ingest.ts",
+    "type": "documents"
+  },
+  {
+    "source": "document:README.md",
+    "target": "file:src/lib/llm.ts",
+    "type": "documents"
+  },
+  {
+    "source": "document:README.md",
+    "target": "file:scripts/ingest.ts",
+    "type": "documents"
+  },
+  {
+    "source": "file:src/app/(app)/layout.tsx",
+    "target": "file:src/components/Navbar.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/(app)/layout.tsx",
+    "target": "file:src/lib/auth.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/layout.tsx",
+    "target": "file:src/app/globals.css",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/app/layout.tsx",
+    "target": "file:src/components/Providers.tsx",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/components/Navbar.tsx",
+    "target": "file:src/lib/utils.ts",
+    "type": "imports"
+  },
+  {
+    "source": "file:scripts/build-lambda.ts",
+    "target": "function:scripts/build-lambda.ts:main",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/app/(app)/layout.tsx",
+    "target": "function:src/app/(app)/layout.tsx:AppLayout",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/app/layout.tsx",
+    "target": "function:src/app/layout.tsx:RootLayout",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/app/login/page.tsx",
+    "target": "function:src/app/login/page.tsx:LoginPage",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/app/login/page.tsx",
+    "target": "function:src/app/login/page.tsx:LoginForm",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/app/page.tsx",
+    "target": "function:src/app/page.tsx:Home",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/app/signup/page.tsx",
+    "target": "function:src/app/signup/page.tsx:SignupPage",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/components/Navbar.tsx",
+    "target": "function:src/components/Navbar.tsx:Navbar",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/components/Providers.tsx",
+    "target": "function:src/components/Providers.tsx:Providers",
+    "type": "contains"
+  },
+  {
+    "source": "table:prisma/migrations/20260625150915_init/migration.sql",
+    "target": "table:prisma/migrations/20260625150915_init/migration.sql:users",
+    "type": "contains"
+  },
+  {
+    "source": "table:prisma/migrations/20260625150915_init/migration.sql",
+    "target": "table:prisma/migrations/20260625150915_init/migration.sql:feedback_items",
+    "type": "contains"
+  },
+  {
+    "source": "table:prisma/migrations/20260625150915_init/migration.sql",
+    "target": "table:prisma/migrations/20260625150915_init/migration.sql:feedback_analyses",
+    "type": "contains"
+  },
+  {
+    "source": "table:prisma/migrations/20260625150915_init/migration.sql",
+    "target": "table:prisma/migrations/20260625150915_init/migration.sql:ingest_logs",
+    "type": "contains"
+  },
+  {
+    "source": "file:src/app/(app)/layout.tsx",
+    "target": "function:src/app/(app)/layout.tsx:AppLayout",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/app/layout.tsx",
+    "target": "function:src/app/layout.tsx:RootLayout",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/app/login/page.tsx",
+    "target": "function:src/app/login/page.tsx:LoginPage",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/app/page.tsx",
+    "target": "function:src/app/page.tsx:Home",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/app/signup/page.tsx",
+    "target": "function:src/app/signup/page.tsx:SignupPage",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/components/Navbar.tsx",
+    "target": "function:src/components/Navbar.tsx:Navbar",
+    "type": "exports"
+  },
+  {
+    "source": "file:src/components/Providers.tsx",
+    "target": "function:src/components/Providers.tsx:Providers",
+    "type": "exports"
+  },
+  {
+    "source": "function:src/components/Navbar.tsx:Navbar",
+    "target": "function:src/lib/utils.ts:cn",
+    "type": "calls"
+  },
+  {
+    "source": "document:aws/README.md",
+    "target": "config:aws/template.yaml",
+    "type": "documents"
+  },
+  {
+    "source": "document:aws/README.md",
+    "target": "file:scripts/build-lambda.ts",
+    "type": "documents"
+  },
+  {
+    "source": "config:aws/template.yaml",
+    "target": "file:scripts/build-lambda.ts",
+    "type": "related"
+  },
+  {
+    "source": "config:aws/template.yaml",
+    "target": "schema:prisma/schema.prisma",
+    "type": "related"
+  },
+  {
+    "source": "config:prisma/migrations/migration_lock.toml",
+    "target": "table:prisma/migrations/20260625150915_init/migration.sql",
+    "type": "related"
+  },
+  {
+    "source": "table:prisma/migrations/20260625150915_init/migration.sql",
+    "target": "schema:prisma/schema.prisma",
+    "type": "migrates"
+  },
+  {
+    "source": "service:docker-compose.yml",
+    "target": "schema:prisma/schema.prisma",
+    "type": "related"
+  },
+  {
+    "source": "document:README.md",
+    "target": "config:aws/template.yaml",
+    "type": "documents"
+  },
+  {
+    "source": "document:README.md",
+    "target": "schema:prisma/schema.prisma",
+    "type": "documents"
+  }
+]

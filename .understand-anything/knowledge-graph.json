@@ -1,0 +1,3841 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "FeedbackFlow AI",
+    "languages": [
+      "typescript",
+      "javascript",
+      "prisma",
+      "sql",
+      "yaml",
+      "markdown",
+      "css",
+      "json",
+      "toml",
+      "dockerfile"
+    ],
+    "frameworks": [
+      "Next.js",
+      "NextAuth.js",
+      "Prisma",
+      "TailwindCSS",
+      "Recharts",
+      "OpenAI",
+      "AWS SAM",
+      "AWS Lambda"
+    ],
+    "description": "Automated micro-SaaS to ingest, analyze, and triage real-world B2B/B2C public reviews using LLMs. Pulls in real customer feedback from a public source (GitHub Issues API), runs a multi-task LLM analysis on each item (sentiment, topics, severity, summary), stores the raw + structured results in Postgres, and presents a dashboard + inbox + detail UI for Product Managers and Customer Success teams to triage it.",
+    "analyzedAt": "2026-06-25T17:12:25.441Z",
+    "gitCommitHash": "6fd28556551ab0e6e366bfef2cfb411a74004c50"
+  },
+  "nodes": [
+    {
+      "id": "file:src/app/(app)/inbox/[id]/page.tsx",
+      "type": "file",
+      "name": "page.tsx",
+      "filePath": "src/app/(app)/inbox/[id]/page.tsx",
+      "summary": "Next.js dynamic route page that renders a single feedback item's detail view, fetching the record via Prisma and displaying its analysis, topics, and status selector.",
+      "tags": [
+        "entry-point",
+        "component",
+        "page",
+        "data-model"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Next.js App Router dynamic route using server components with Prisma direct queries."
+    },
+    {
+      "id": "file:src/app/(app)/inbox/page.tsx",
+      "type": "file",
+      "name": "page.tsx",
+      "filePath": "src/app/(app)/inbox/page.tsx",
+      "summary": "Inbox listing page that parses search params for sentiment, status, topic, sort, and pagination filters, queries Prisma for feedback items and analyses, and renders a paginated, filterable table.",
+      "tags": [
+        "entry-point",
+        "component",
+        "page",
+        "data-model",
+        "validation"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Server component performing URL search-param validation and pagination math before Prisma queries."
+    },
+    {
+      "id": "file:src/components/Badges.tsx",
+      "type": "file",
+      "name": "Badges.tsx",
+      "filePath": "src/components/Badges.tsx",
+      "summary": "Presentational React components rendering sentiment, severity, status, and topic badges with conditional Tailwind class names via the cn helper.",
+      "tags": [
+        "component",
+        "utility",
+        "ui",
+        "serialization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/Filters.tsx",
+      "type": "file",
+      "name": "Filters.tsx",
+      "filePath": "src/components/Filters.tsx",
+      "summary": "Client-side filter bar component that reads and updates URL search params for sentiment, severity, status, topic, sort, and pagination using Next.js router and searchParams hooks.",
+      "tags": [
+        "component",
+        "ui",
+        "validation",
+        "event-handler"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Uses Next.js useRouter/useSearchParams with a useCallback-based update helper to mutate query strings."
+    },
+    {
+      "id": "file:src/components/StatusSelect.tsx",
+      "type": "file",
+      "name": "StatusSelect.tsx",
+      "filePath": "src/components/StatusSelect.tsx",
+      "summary": "Client component providing a dropdown to change a feedback item's status, persisting the update via fetch to the PATCH endpoint and refreshing the router on success.",
+      "tags": [
+        "component",
+        "ui",
+        "event-handler",
+        "api-handler"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/lib/github.ts",
+      "type": "file",
+      "name": "github.ts",
+      "filePath": "src/lib/github.ts",
+      "summary": "GitHub issues ingestion adapter that builds an Octokit client, paginates issues with rate-limit parsing and exponential backoff, and normalizes results into the internal feedback item shape.",
+      "tags": [
+        "service",
+        "api-handler",
+        "data-pipeline",
+        "validation"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Implements GitHub REST API rate-limit header parsing and retry/backoff using shared sleep/backoffDelay helpers."
+    },
+    {
+      "id": "file:src/lib/llm.ts",
+      "type": "file",
+      "name": "llm.ts",
+      "filePath": "src/lib/llm.ts",
+      "summary": "OpenAI analysis module that builds prompts from feedback items, calls chat completions, validates responses with a Zod schema, and supports batch analysis with retry/backoff.",
+      "tags": [
+        "service",
+        "api-handler",
+        "validation",
+        "data-pipeline"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Uses Zod schema parsing (AnalysisSchema.parse) to validate LLM JSON output and shared backoff helpers for retries."
+    },
+    {
+      "id": "file:src/lib/types.ts",
+      "type": "file",
+      "name": "types.ts",
+      "filePath": "src/lib/types.ts",
+      "summary": "Shared constant definitions for sentiment labels, topic taxonomy, and feedback statuses used across the inbox UI and ingestion pipeline.",
+      "tags": [
+        "type-definition",
+        "data-model",
+        "constants"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/utils.ts",
+      "type": "file",
+      "name": "utils.ts",
+      "filePath": "src/lib/utils.ts",
+      "summary": "Shared utility helpers including className concatenation, date formatting, text truncation, sleep, and exponential backoff delay used across UI and pipeline modules.",
+      "tags": [
+        "utility",
+        "formatting",
+        "serialization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/(app)/inbox/[id]/page.tsx:FeedbackDetailPage",
+      "type": "function",
+      "name": "FeedbackDetailPage",
+      "filePath": "src/app/(app)/inbox/[id]/page.tsx",
+      "lineRange": [
+        16,
+        141
+      ],
+      "summary": "Server component that loads a single feedback item by id via Prisma, renders its metadata, analysis topics, and status selector, and triggers notFound when missing.",
+      "tags": [
+        "component",
+        "page",
+        "data-model",
+        "entry-point"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/(app)/inbox/page.tsx:InboxPage",
+      "type": "function",
+      "name": "InboxPage",
+      "filePath": "src/app/(app)/inbox/page.tsx",
+      "lineRange": [
+        31,
+        218
+      ],
+      "summary": "Server component that validates search params, queries Prisma for paginated feedback items and analyses, aggregates topic options, and renders the filterable inbox table with pagination controls.",
+      "tags": [
+        "component",
+        "page",
+        "data-model",
+        "validation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/(app)/inbox/page.tsx:qs",
+      "type": "function",
+      "name": "qs",
+      "filePath": "src/app/(app)/inbox/page.tsx",
+      "lineRange": [
+        220,
+        232
+      ],
+      "summary": "Helper that builds a URLSearchParams string from a base params object and override entries, supporting both array and scalar values.",
+      "tags": [
+        "utility",
+        "serialization",
+        "formatting"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/Badges.tsx:SentimentBadge",
+      "type": "function",
+      "name": "SentimentBadge",
+      "filePath": "src/components/Badges.tsx",
+      "lineRange": [
+        10,
+        21
+      ],
+      "summary": "Renders a colored badge label for a feedback sentiment value using conditional Tailwind classes.",
+      "tags": [
+        "component",
+        "ui",
+        "serialization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/Badges.tsx:SeverityBadge",
+      "type": "function",
+      "name": "SeverityBadge",
+      "filePath": "src/components/Badges.tsx",
+      "lineRange": [
+        31,
+        45
+      ],
+      "summary": "Renders a severity score badge with color scaling based on numeric severity level.",
+      "tags": [
+        "component",
+        "ui",
+        "serialization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/Badges.tsx:StatusBadge",
+      "type": "function",
+      "name": "StatusBadge",
+      "filePath": "src/components/Badges.tsx",
+      "lineRange": [
+        53,
+        64
+      ],
+      "summary": "Renders a status badge with color and label derived from a feedback status string.",
+      "tags": [
+        "component",
+        "ui",
+        "serialization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/Badges.tsx:TopicChip",
+      "type": "function",
+      "name": "TopicChip",
+      "filePath": "src/components/Badges.tsx",
+      "lineRange": [
+        66,
+        72
+      ],
+      "summary": "Renders a small chip label for a single analysis topic string.",
+      "tags": [
+        "component",
+        "ui",
+        "serialization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/Filters.tsx:Filters",
+      "type": "function",
+      "name": "Filters",
+      "filePath": "src/components/Filters.tsx",
+      "lineRange": [
+        11,
+        137
+      ],
+      "summary": "Client component rendering sentiment, severity, status, topic, sort, and pagination filter controls that sync state to URL search params via the Next.js router.",
+      "tags": [
+        "component",
+        "ui",
+        "event-handler",
+        "validation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/components/Filters.tsx:Toggle",
+      "type": "function",
+      "name": "Toggle",
+      "filePath": "src/components/Filters.tsx",
+      "lineRange": [
+        139,
+        160
+      ],
+      "summary": "Small presentational toggle button used by the Filters component to show active/inactive filter state.",
+      "tags": [
+        "component",
+        "ui"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/StatusSelect.tsx:StatusSelect",
+      "type": "function",
+      "name": "StatusSelect",
+      "filePath": "src/components/StatusSelect.tsx",
+      "lineRange": [
+        8,
+        64
+      ],
+      "summary": "Client component dropdown that updates a feedback item's status via a PATCH fetch call, manages saving/error state, and refreshes the router on success.",
+      "tags": [
+        "component",
+        "ui",
+        "event-handler",
+        "api-handler"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/lib/github.ts:parseRateLimit",
+      "type": "function",
+      "name": "parseRateLimit",
+      "filePath": "src/lib/github.ts",
+      "lineRange": [
+        50,
+        60
+      ],
+      "summary": "Parses GitHub rate-limit headers (remaining, limit, reset) from a response into a structured info object.",
+      "tags": [
+        "utility",
+        "serialization",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/github.ts:waitForRateLimit",
+      "type": "function",
+      "name": "waitForRateLimit",
+      "filePath": "src/lib/github.ts",
+      "lineRange": [
+        62,
+        73
+      ],
+      "summary": "Sleeps until the GitHub rate-limit reset time when the remaining quota is exhausted, logging a warning before waiting.",
+      "tags": [
+        "utility",
+        "event-handler",
+        "data-pipeline"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/github.ts:fetchGitHubIssues",
+      "type": "function",
+      "name": "fetchGitHubIssues",
+      "filePath": "src/lib/github.ts",
+      "lineRange": [
+        77,
+        178
+      ],
+      "summary": "Fetches recent GitHub issues via Octokit with pagination, rate-limit handling, and exponential backoff, normalizing each issue into the internal feedback item shape.",
+      "tags": [
+        "service",
+        "api-handler",
+        "data-pipeline",
+        "validation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/lib/llm.ts:buildUserPrompt",
+      "type": "function",
+      "name": "buildUserPrompt",
+      "filePath": "src/lib/llm.ts",
+      "lineRange": [
+        37,
+        47
+      ],
+      "summary": "Constructs the user-facing prompt text for the LLM from a feedback item's source, author, title, and truncated raw content.",
+      "tags": [
+        "utility",
+        "serialization",
+        "formatting"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/llm.ts:analyzeFeedback",
+      "type": "function",
+      "name": "analyzeFeedback",
+      "filePath": "src/lib/llm.ts",
+      "lineRange": [
+        64,
+        116
+      ],
+      "summary": "Sends a single feedback item to the OpenAI chat completions API, parses and validates the JSON response against the Zod AnalysisSchema, and retries with backoff on failure.",
+      "tags": [
+        "service",
+        "api-handler",
+        "validation",
+        "data-pipeline"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/lib/llm.ts:analyzeBatch",
+      "type": "function",
+      "name": "analyzeBatch",
+      "filePath": "src/lib/llm.ts",
+      "lineRange": [
+        124,
+        141
+      ],
+      "summary": "Iterates a list of feedback items, calling analyzeFeedback for each and collecting successful analyses and failures into separate result arrays.",
+      "tags": [
+        "service",
+        "data-pipeline",
+        "event-handler"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/utils.ts:cn",
+      "type": "function",
+      "name": "cn",
+      "filePath": "src/lib/utils.ts",
+      "lineRange": [
+        3,
+        5
+      ],
+      "summary": "Concatenates truthy class name arguments into a single space-separated className string.",
+      "tags": [
+        "utility",
+        "serialization",
+        "formatting"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/utils.ts:formatDate",
+      "type": "function",
+      "name": "formatDate",
+      "filePath": "src/lib/utils.ts",
+      "lineRange": [
+        7,
+        16
+      ],
+      "summary": "Formats an ISO date or Date object into a human-readable locale string, returning a placeholder for invalid input.",
+      "tags": [
+        "utility",
+        "formatting",
+        "date"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/utils.ts:formatDay",
+      "type": "function",
+      "name": "formatDay",
+      "filePath": "src/lib/utils.ts",
+      "lineRange": [
+        18,
+        25
+      ],
+      "summary": "Formats an ISO date or Date object into a short locale date string, returning a placeholder for invalid input.",
+      "tags": [
+        "utility",
+        "formatting",
+        "date"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/utils.ts:truncate",
+      "type": "function",
+      "name": "truncate",
+      "filePath": "src/lib/utils.ts",
+      "lineRange": [
+        27,
+        30
+      ],
+      "summary": "Truncates a string to a maximum length and trims trailing whitespace.",
+      "tags": [
+        "utility",
+        "formatting",
+        "serialization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/utils.ts:sleep",
+      "type": "function",
+      "name": "sleep",
+      "filePath": "src/lib/utils.ts",
+      "lineRange": [
+        32,
+        34
+      ],
+      "summary": "Returns a promise that resolves after the given number of milliseconds, used for rate-limit and backoff waits.",
+      "tags": [
+        "utility",
+        "event-handler"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/utils.ts:backoffDelay",
+      "type": "function",
+      "name": "backoffDelay",
+      "filePath": "src/lib/utils.ts",
+      "lineRange": [
+        38,
+        42
+      ],
+      "summary": "Computes an exponential backoff delay with jitter for a given attempt number, capped at a maximum milliseconds value.",
+      "tags": [
+        "utility",
+        "data-pipeline",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:scripts/seed.ts",
+      "type": "file",
+      "name": "seed.ts",
+      "filePath": "scripts/seed.ts",
+      "summary": "Database seeding script that creates a demo user and populates sample feedback items with analyses for local development and testing.",
+      "tags": [
+        "script",
+        "database",
+        "seeding",
+        "utility",
+        "development"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Uses process.argv to optionally skip sample seeding; relies on Prisma upserts for idempotent inserts."
+    },
+    {
+      "id": "function:scripts/seed.ts:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "scripts/seed.ts",
+      "lineRange": [
+        10,
+        27
+      ],
+      "summary": "Entry point that hashes a demo password, upserts a seed user, and conditionally invokes sample feedback seeding.",
+      "tags": [
+        "entry-point",
+        "seeding",
+        "database"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:scripts/seed.ts:seedSamples",
+      "type": "function",
+      "name": "seedSamples",
+      "filePath": "scripts/seed.ts",
+      "lineRange": [
+        29,
+        141
+      ],
+      "summary": "Populates the database with sample feedback items and associated analyses using Prisma upserts, generating timestamps across past days.",
+      "tags": [
+        "seeding",
+        "database",
+        "utility"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/app/api/auth/[...nextauth]/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/auth/[...nextauth]/route.ts",
+      "summary": "Next.js catch-all route that wires the shared NextAuth authOptions into GET and POST handlers for the authentication endpoints.",
+      "tags": [
+        "api-handler",
+        "authentication",
+        "entry-point",
+        "middleware"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Re-exports NextAuth(authOptions) as named GET/POST handlers per Next.js App Router convention."
+    },
+    {
+      "id": "file:src/app/api/auth/signup/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/auth/signup/route.ts",
+      "summary": "Signup API endpoint that validates credentials with a Zod schema, checks for existing users, hashes passwords, and creates new user records.",
+      "tags": [
+        "api-handler",
+        "authentication",
+        "validation",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/api/auth/signup/route.ts:POST",
+      "type": "function",
+      "name": "POST",
+      "filePath": "src/app/api/auth/signup/route.ts",
+      "lineRange": [
+        12,
+        43
+      ],
+      "summary": "Handles user registration by validating the request body, preventing duplicate emails, hashing the password with bcrypt, and persisting the new user via Prisma.",
+      "tags": [
+        "api-handler",
+        "authentication",
+        "validation",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/api/dashboard/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/dashboard/route.ts",
+      "summary": "Dashboard analytics API endpoint that aggregates feedback analyses by sentiment, status, severity, and topic, plus a daily feedback volume time series.",
+      "tags": [
+        "api-handler",
+        "analytics",
+        "service",
+        "data-aggregation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/api/dashboard/route.ts:GET",
+      "type": "function",
+      "name": "GET",
+      "filePath": "src/app/api/dashboard/route.ts",
+      "lineRange": [
+        13,
+        118
+      ],
+      "summary": "Authenticates the session then returns aggregated dashboard metrics: sentiment/status/severity/topic distributions, recent feedback counts, and a 14-day daily volume series.",
+      "tags": [
+        "api-handler",
+        "analytics",
+        "data-aggregation",
+        "service"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/app/api/feedback/[id]/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/feedback/[id]/route.ts",
+      "summary": "Feedback item API endpoints supporting fetching a single feedback item by id and patching its analysis (status, sentiment, severity, topics).",
+      "tags": [
+        "api-handler",
+        "service",
+        "validation",
+        "crud"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/api/feedback/[id]/route.ts:GET",
+      "type": "function",
+      "name": "GET",
+      "filePath": "src/app/api/feedback/[id]/route.ts",
+      "lineRange": [
+        9,
+        26
+      ],
+      "summary": "Returns a single feedback item by id after verifying the user session via getServerSession.",
+      "tags": [
+        "api-handler",
+        "crud",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/api/feedback/[id]/route.ts:PATCH",
+      "type": "function",
+      "name": "PATCH",
+      "filePath": "src/app/api/feedback/[id]/route.ts",
+      "lineRange": [
+        33,
+        77
+      ],
+      "summary": "Validates and applies partial updates to a feedback item's analysis (status, sentiment, severity, topics) using a Zod patch schema and Prisma.",
+      "tags": [
+        "api-handler",
+        "crud",
+        "validation",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/api/feedback/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/feedback/route.ts",
+      "summary": "Feedback list API endpoint with filtering by sentiment, status, and topic, plus sorting and pagination over feedback items and their analyses.",
+      "tags": [
+        "api-handler",
+        "service",
+        "validation",
+        "crud"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/api/feedback/route.ts:GET",
+      "type": "function",
+      "name": "GET",
+      "filePath": "src/app/api/feedback/route.ts",
+      "lineRange": [
+        17,
+        98
+      ],
+      "summary": "Authenticates the session then returns a paginated, filterable list of feedback items joined with analyses, validating filter values against project enum constants.",
+      "tags": [
+        "api-handler",
+        "crud",
+        "validation",
+        "service"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/lib/auth.ts",
+      "type": "file",
+      "name": "auth.ts",
+      "filePath": "src/lib/auth.ts",
+      "summary": "Configures NextAuth authOptions with credentials provider, JWT session strategy, and an authorize callback that validates email/password against the Prisma user table.",
+      "tags": [
+        "authentication",
+        "middleware",
+        "config",
+        "service"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Exports an authOptions object consumed by NextAuth; the authorize callback is a nested function within the credentials provider config."
+    },
+    {
+      "id": "file:src/lib/prisma.ts",
+      "type": "file",
+      "name": "prisma.ts",
+      "filePath": "src/lib/prisma.ts",
+      "summary": "Prisma client singleton that instantiates a single PrismaClient instance and reuses it in development to avoid exhausting database connections.",
+      "tags": [
+        "singleton",
+        "database",
+        "utility",
+        "service"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Attaches the client to globalThis.prisma in development to prevent hot-reload connection leaks."
+    },
+    {
+      "id": "file:aws/lambda/handler.ts",
+      "type": "file",
+      "name": "handler.ts",
+      "filePath": "aws/lambda/handler.ts",
+      "summary": "AWS Lambda entry point that invokes the shared ingest pipeline and returns a JSON summary of the run, with error handling that surfaces failures to the Lambda runtime.",
+      "tags": [
+        "entry-point",
+        "api-handler",
+        "service",
+        "ingest",
+        "lambda"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Exports a named `handler` async function conforming to the AWS Lambda signature."
+    },
+    {
+      "id": "file:scripts/ingest.ts",
+      "type": "file",
+      "name": "ingest.ts",
+      "filePath": "scripts/ingest.ts",
+      "summary": "Command-line script that runs the ingest pipeline once and prints the result summary, exiting with a non-zero code on failure for CI integration.",
+      "tags": [
+        "script",
+        "entry-point",
+        "ingest",
+        "cli"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/api/ingest/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/ingest/route.ts",
+      "summary": "Next.js App Router POST handler that authenticates the session via NextAuth and triggers the ingest pipeline, returning JSON status responses.",
+      "tags": [
+        "api-handler",
+        "entry-point",
+        "ingest",
+        "middleware",
+        "route"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Uses Next.js App Router route handler conventions (exported POST function)."
+    },
+    {
+      "id": "file:src/app/api/webhook/slack/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/webhook/slack/route.ts",
+      "summary": "Next.js App Router webhook endpoint for Slack integration, exposing GET (status check) and POST (send a Slack message) handlers gated by session auth and a Slack-enabled feature flag.",
+      "tags": [
+        "api-handler",
+        "entry-point",
+        "webhook",
+        "slack",
+        "route"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Exports both GET and POST route handlers per Next.js App Router conventions."
+    },
+    {
+      "id": "file:src/lib/ingest.ts",
+      "type": "file",
+      "name": "ingest.ts",
+      "filePath": "src/lib/ingest.ts",
+      "summary": "Core ingest pipeline orchestrator that fetches raw feedback items from a source, deduplicates against existing records, batches them through LLM analysis, persists results in a Prisma transaction, and notifies Slack on high-severity findings.",
+      "tags": [
+        "service",
+        "ingest",
+        "data-pipeline",
+        "orchestration",
+        "serialization"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Uses a Prisma $transaction for atomic feedback item and analysis creation, with structured logging via persistLog."
+    },
+    {
+      "id": "file:src/lib/slack.ts",
+      "type": "file",
+      "name": "slack.ts",
+      "filePath": "src/lib/slack.ts",
+      "summary": "Slack notification helper module providing a feature-flag check, a generic message sender via the Slack incoming webhook, and a high-severity feedback notifier that formats topics and sentiment for alerting.",
+      "tags": [
+        "service",
+        "slack",
+        "notification",
+        "utility",
+        "event-handler"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:aws/lambda/handler.ts:handler",
+      "type": "function",
+      "name": "handler",
+      "filePath": "aws/lambda/handler.ts",
+      "lineRange": [
+        15,
+        38
+      ],
+      "summary": "AWS Lambda handler that runs the ingest pipeline, logs progress, and returns a structured JSON response with counts and any failures.",
+      "tags": [
+        "entry-point",
+        "api-handler",
+        "ingest",
+        "lambda"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/api/ingest/route.ts:POST",
+      "type": "function",
+      "name": "POST",
+      "filePath": "src/app/api/ingest/route.ts",
+      "lineRange": [
+        8,
+        25
+      ],
+      "summary": "Authenticates the request session and invokes the ingest pipeline, returning a JSON response with the run result or an error status.",
+      "tags": [
+        "api-handler",
+        "ingest",
+        "middleware",
+        "route"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/api/webhook/slack/route.ts:GET",
+      "type": "function",
+      "name": "GET",
+      "filePath": "src/app/api/webhook/slack/route.ts",
+      "lineRange": [
+        7,
+        13
+      ],
+      "summary": "Status-check handler that verifies session auth and reports whether the Slack integration is enabled.",
+      "tags": [
+        "api-handler",
+        "webhook",
+        "slack",
+        "route"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/api/webhook/slack/route.ts:POST",
+      "type": "function",
+      "name": "POST",
+      "filePath": "src/app/api/webhook/slack/route.ts",
+      "lineRange": [
+        16,
+        38
+      ],
+      "summary": "Authenticates the session, checks the Slack feature flag, and forwards a payload to sendSlackMessage, returning a JSON success or error response.",
+      "tags": [
+        "api-handler",
+        "webhook",
+        "slack",
+        "route"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ingest.ts:runIngest",
+      "type": "function",
+      "name": "runIngest",
+      "filePath": "src/lib/ingest.ts",
+      "lineRange": [
+        37,
+        176
+      ],
+      "summary": "Main ingest pipeline function that fetches raw feedback, deduplicates against the database, batches items through LLM analysis, atomically persists items and analyses, and triggers Slack alerts for high-severity results.",
+      "tags": [
+        "service",
+        "ingest",
+        "data-pipeline",
+        "orchestration",
+        "serialization"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/lib/ingest.ts:persistLog",
+      "type": "function",
+      "name": "persistLog",
+      "filePath": "src/lib/ingest.ts",
+      "lineRange": [
+        178,
+        195
+      ],
+      "summary": "Persists an ingest run log entry to the database via Prisma, swallowing and logging errors so logging failures never break the pipeline.",
+      "tags": [
+        "utility",
+        "logging",
+        "persistence",
+        "ingest"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/slack.ts:isSlackEnabled",
+      "type": "function",
+      "name": "isSlackEnabled",
+      "filePath": "src/lib/slack.ts",
+      "lineRange": [
+        9,
+        11
+      ],
+      "summary": "Returns whether Slack notifications are enabled based on the presence of the Slack webhook URL environment variable.",
+      "tags": [
+        "utility",
+        "slack",
+        "feature-flag",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/slack.ts:sendSlackMessage",
+      "type": "function",
+      "name": "sendSlackMessage",
+      "filePath": "src/lib/slack.ts",
+      "lineRange": [
+        13,
+        27
+      ],
+      "summary": "Posts an arbitrary payload to the configured Slack incoming webhook URL via fetch and returns a success boolean with error logging on failure.",
+      "tags": [
+        "service",
+        "slack",
+        "notification",
+        "serialization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/slack.ts:notifyHighSeverity",
+      "type": "function",
+      "name": "notifyHighSeverity",
+      "filePath": "src/lib/slack.ts",
+      "lineRange": [
+        29,
+        45
+      ],
+      "summary": "Formats a high-severity feedback alert (topics and sentiment) and sends it to Slack when the integration is enabled.",
+      "tags": [
+        "event-handler",
+        "slack",
+        "notification",
+        "alerting"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/(app)/dashboard/page.tsx",
+      "type": "file",
+      "name": "page.tsx",
+      "filePath": "src/app/(app)/dashboard/page.tsx",
+      "summary": "Server-rendered dashboard page that aggregates feedback analysis metrics (sentiment, severity, topic distribution, trend) via Prisma and renders KPI cards, Recharts visualizations, and a high-severity feedback list.",
+      "tags": [
+        "entry-point",
+        "component",
+        "api-handler",
+        "data-model",
+        "dashboard"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Next.js App Router server component using getServerSession for auth and dynamic import for client-side chart rendering."
+    },
+    {
+      "id": "function:src/app/(app)/dashboard/page.tsx:getDashboardData",
+      "type": "function",
+      "name": "getDashboardData",
+      "filePath": "src/app/(app)/dashboard/page.tsx",
+      "lineRange": [
+        18,
+        86
+      ],
+      "summary": "Server-side data loader that queries Prisma for sentiment/severity groupings, topic counts, daily sentiment trends, high-severity items, and ingest status to feed the dashboard.",
+      "tags": [
+        "data-model",
+        "service",
+        "aggregation",
+        "prisma"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/(app)/dashboard/page.tsx:DashboardPage",
+      "type": "function",
+      "name": "DashboardPage",
+      "filePath": "src/app/(app)/dashboard/page.tsx",
+      "lineRange": [
+        88,
+        194
+      ],
+      "summary": "Default-exported React server component that authenticates the session, loads dashboard data, and renders KPI cards, chart components, and a high-severity feedback list.",
+      "tags": [
+        "component",
+        "entry-point",
+        "dashboard",
+        "server-component"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/(app)/dashboard/page.tsx:KpiCard",
+      "type": "function",
+      "name": "KpiCard",
+      "filePath": "src/app/(app)/dashboard/page.tsx",
+      "lineRange": [
+        196,
+        211
+      ],
+      "summary": "Presentational helper component rendering a labeled KPI metric card with an accent color.",
+      "tags": [
+        "component",
+        "utility",
+        "dashboard"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/charts/SentimentDonutChart.tsx",
+      "type": "file",
+      "name": "SentimentDonutChart.tsx",
+      "filePath": "src/components/charts/SentimentDonutChart.tsx",
+      "summary": "Recharts-based donut chart component visualizing the distribution of positive, neutral, and negative sentiment counts.",
+      "tags": [
+        "component",
+        "visualization",
+        "recharts",
+        "dashboard"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/components/charts/SentimentDonutChart.tsx:SentimentDonutChart",
+      "type": "function",
+      "name": "SentimentDonutChart",
+      "filePath": "src/components/charts/SentimentDonutChart.tsx",
+      "lineRange": [
+        18,
+        60
+      ],
+      "summary": "Exported React component that normalizes sentiment group data into positive/neutral/negative series and renders a Recharts PieChart with a donut layout and legend.",
+      "tags": [
+        "component",
+        "visualization",
+        "recharts",
+        "sentiment"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/components/charts/SentimentTrendChart.tsx",
+      "type": "file",
+      "name": "SentimentTrendChart.tsx",
+      "filePath": "src/components/charts/SentimentTrendChart.tsx",
+      "summary": "Recharts line chart component displaying daily sentiment trend counts over time for the dashboard.",
+      "tags": [
+        "component",
+        "visualization",
+        "recharts",
+        "dashboard"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/components/charts/SentimentTrendChart.tsx:SentimentTrendChart",
+      "type": "function",
+      "name": "SentimentTrendChart",
+      "filePath": "src/components/charts/SentimentTrendChart.tsx",
+      "lineRange": [
+        21,
+        40
+      ],
+      "summary": "Exported React component that slices trend data and renders a Recharts line chart of daily sentiment counts.",
+      "tags": [
+        "component",
+        "visualization",
+        "recharts",
+        "trend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/charts/SeverityChart.tsx",
+      "type": "file",
+      "name": "SeverityChart.tsx",
+      "filePath": "src/components/charts/SeverityChart.tsx",
+      "summary": "Recharts bar chart component visualizing feedback counts grouped by severity level (1-5) for the dashboard.",
+      "tags": [
+        "component",
+        "visualization",
+        "recharts",
+        "dashboard"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/components/charts/SeverityChart.tsx:SeverityChart",
+      "type": "function",
+      "name": "SeverityChart",
+      "filePath": "src/components/charts/SeverityChart.tsx",
+      "lineRange": [
+        25,
+        58
+      ],
+      "summary": "Exported React component that normalizes severity group data across levels 1-5 and renders a Recharts bar chart with colored bars and a legend.",
+      "tags": [
+        "component",
+        "visualization",
+        "recharts",
+        "severity"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/components/charts/TopicDistributionChart.tsx",
+      "type": "file",
+      "name": "TopicDistributionChart.tsx",
+      "filePath": "src/components/charts/TopicDistributionChart.tsx",
+      "summary": "Recharts bar chart component showing the distribution of feedback items across detected topics for the dashboard.",
+      "tags": [
+        "component",
+        "visualization",
+        "recharts",
+        "dashboard"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/components/charts/TopicDistributionChart.tsx:TopicDistributionChart",
+      "type": "function",
+      "name": "TopicDistributionChart",
+      "filePath": "src/components/charts/TopicDistributionChart.tsx",
+      "lineRange": [
+        18,
+        40
+      ],
+      "summary": "Exported React component that slices topic count data and renders a Recharts horizontal bar chart of topic distribution.",
+      "tags": [
+        "component",
+        "visualization",
+        "recharts",
+        "topic"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:.env.example",
+      "type": "config",
+      "name": ".env.example",
+      "filePath": ".env.example",
+      "summary": "Template of all runtime environment variables for FeedbackFlow AI, including NextAuth secrets, the Postgres DATABASE_URL, OpenAI API key and model, GitHub Issues source repo and token, ingest tuning knobs, and optional Slack/SMTP digest settings.",
+      "tags": [
+        "configuration",
+        "security",
+        "environment",
+        "secrets"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Placeholder-only values (.env is gitignored); groups variables by concern with comment headers."
+    },
+    {
+      "id": "document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "README.md",
+      "summary": "Comprehensive project documentation covering features, tech stack, architecture, local quick-start, data model, LLM output format, project structure, AWS deployment, security, and acceptance-criteria mapping for FeedbackFlow AI.",
+      "tags": [
+        "documentation",
+        "entry-point",
+        "overview",
+        "architecture",
+        "deployment"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "config:amplify.yml",
+      "type": "config",
+      "name": "amplify.yml",
+      "filePath": "amplify.yml",
+      "summary": "AWS Amplify build specification for the Next.js frontend, running npm ci, prisma generate, and next build, then publishing the .next directory as build artifacts with node_modules and .next/cache caching.",
+      "tags": [
+        "configuration",
+        "deployment",
+        "ci-cd",
+        "build-system"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Amplify auto-discovers this file at the repo root; uses the frontend.phases build model."
+    },
+    {
+      "id": "service:docker-compose.yml",
+      "type": "service",
+      "name": "docker-compose.yml",
+      "filePath": "docker-compose.yml",
+      "summary": "Local development Docker Compose file defining a single postgres:16-alpine service (feedbackflow-db) on port 5432 with a persistent volume and a pg_isready healthcheck, used by the npm run db:up script.",
+      "tags": [
+        "infrastructure",
+        "containerization",
+        "database",
+        "orchestration"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Uses the Compose v2 top-level services key (no version field) with a healthcheck for readiness gating."
+    },
+    {
+      "id": "config:package.json",
+      "type": "config",
+      "name": "package.json",
+      "filePath": "package.json",
+      "summary": "Root package manifest for the feedbackflow-ai Next.js 14 app, declaring scripts for dev/build/lint/typecheck, Prisma workflows, local db compose control, seed and ingest runners, Lambda bundling, and SAM validate/build/deploy, plus all runtime and dev dependencies.",
+      "tags": [
+        "configuration",
+        "build-system",
+        "dependencies",
+        "scripts"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Engines field pins Node >=18.17.0; uses tsx for running TypeScript scripts and esbuild for Lambda bundling."
+    },
+    {
+      "id": "config:tsconfig.json",
+      "type": "config",
+      "name": "tsconfig.json",
+      "filePath": "tsconfig.json",
+      "summary": "TypeScript compiler configuration for the project targeting ES2022 with strict mode, bundler module resolution, JSX preserve, incremental builds, the Next.js plugin, and an @/* path alias mapping to ./src/*.",
+      "tags": [
+        "configuration",
+        "typescript",
+        "build-system",
+        "path-alias"
+      ],
+      "complexity": "simple",
+      "languageNotes": "moduleResolution 'bundler' aligns with Next.js 14; noEmit lets next build handle emission."
+    },
+    {
+      "id": "file:.understand-anything/.understandignore",
+      "type": "file",
+      "name": ".understandignore",
+      "filePath": ".understand-anything/.understandignore",
+      "summary": "Ignore-pattern file listing paths excluded from the understand-anything codebase analysis pipeline.",
+      "tags": [
+        "configuration",
+        "build-system",
+        "ignore-patterns"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:aws/README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "aws/README.md",
+      "summary": "AWS deployment guide covering backend provisioning (RDS, Lambda, EventBridge), schema migration, frontend Amplify deployment, and cost notes.",
+      "tags": [
+        "documentation",
+        "deployment",
+        "infrastructure",
+        "aws"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "config:aws/template.yaml",
+      "type": "config",
+      "name": "template.yaml",
+      "filePath": "aws/template.yaml",
+      "summary": "AWS SAM/CloudFormation template provisioning VPC networking, an RDS Postgres instance, Secrets Manager credentials, and an EventBridge-scheduled Lambda ingest function.",
+      "tags": [
+        "configuration",
+        "infrastructure",
+        "aws",
+        "cloudformation",
+        "deployment"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Uses CloudFormation shorthand intrinsics (!Ref, !GetAtt, !Sub, !GetAZs, !Select) throughout."
+    },
+    {
+      "id": "file:next.config.mjs",
+      "type": "file",
+      "name": "next.config.mjs",
+      "filePath": "next.config.mjs",
+      "summary": "Next.js configuration enabling React strict mode and standalone output builds for containerized deployment.",
+      "tags": [
+        "configuration",
+        "nextjs",
+        "build-system"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:postcss.config.js",
+      "type": "file",
+      "name": "postcss.config.js",
+      "filePath": "postcss.config.js",
+      "summary": "PostCSS configuration registering Tailwind CSS and Autoprefixer plugins for the project's styling pipeline.",
+      "tags": [
+        "configuration",
+        "css",
+        "build-system"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "table:prisma/migrations/20260625150915_init/migration.sql",
+      "type": "table",
+      "name": "migration.sql",
+      "filePath": "prisma/migrations/20260625150915_init/migration.sql",
+      "summary": "Initial Prisma migration creating the core PostgreSQL tables (users, feedback_items, feedback_analyses, ingest_logs) with unique constraints and query indexes.",
+      "tags": [
+        "database",
+        "migration",
+        "schema-definition",
+        "postgresql"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "table:prisma/migrations/20260625150915_init/migration.sql:users",
+      "type": "table",
+      "name": "users",
+      "filePath": "prisma/migrations/20260625150915_init/migration.sql",
+      "lineRange": [
+        8,
+        17
+      ],
+      "summary": "Auth users table storing email, hashed password, name, and audit timestamps with a unique email constraint.",
+      "tags": [
+        "database",
+        "auth",
+        "schema-definition"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "table:prisma/migrations/20260625150915_init/migration.sql:feedback_items",
+      "type": "table",
+      "name": "feedback_items",
+      "filePath": "prisma/migrations/20260625150915_init/migration.sql",
+      "lineRange": [
+        20,
+        32
+      ],
+      "summary": "Ingested raw feedback table keyed by source and external id for idempotent ingestion, with indexes on source and original timestamp.",
+      "tags": [
+        "database",
+        "feedback",
+        "schema-definition"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "table:prisma/migrations/20260625150915_init/migration.sql:feedback_analyses",
+      "type": "table",
+      "name": "feedback_analyses",
+      "filePath": "prisma/migrations/20260625150915_init/migration.sql",
+      "lineRange": [
+        35,
+        47
+      ],
+      "summary": "LLM analysis table linked 1:1 to feedback items via foreign key, storing sentiment, topics, severity score, summary, and triage status.",
+      "tags": [
+        "database",
+        "analysis",
+        "schema-definition"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "table:prisma/migrations/20260625150915_init/migration.sql:ingest_logs",
+      "type": "table",
+      "name": "ingest_logs",
+      "filePath": "prisma/migrations/20260625150915_init/migration.sql",
+      "lineRange": [
+        50,
+        62
+      ],
+      "summary": "Observability log table recording each cron ingest run's source, status, item counts, and error details.",
+      "tags": [
+        "database",
+        "logging",
+        "observability",
+        "schema-definition"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:prisma/migrations/migration_lock.toml",
+      "type": "config",
+      "name": "migration_lock.toml",
+      "filePath": "prisma/migrations/migration_lock.toml",
+      "summary": "Prisma migration lock file pinning the database provider to postgresql to prevent cross-provider migrations.",
+      "tags": [
+        "configuration",
+        "database",
+        "migration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "schema:prisma/schema.prisma",
+      "type": "schema",
+      "name": "schema.prisma",
+      "filePath": "prisma/schema.prisma",
+      "summary": "Prisma schema defining the PostgreSQL data model with User, FeedbackItem, FeedbackAnalysis, and IngestLog models plus enums for triage and run statuses.",
+      "tags": [
+        "schema-definition",
+        "database",
+        "prisma",
+        "data-model"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Uses @@map to map camelCase model fields to snake_case table columns and @@index for query optimization."
+    },
+    {
+      "id": "file:scripts/build-lambda.ts",
+      "type": "file",
+      "name": "build-lambda.ts",
+      "filePath": "scripts/build-lambda.ts",
+      "summary": "Build script that compiles the Lambda handler and bundles the Prisma client into the AWS Lambda deployment package.",
+      "tags": [
+        "build-system",
+        "script",
+        "lambda",
+        "deployment"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:scripts/build-lambda.ts:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "scripts/build-lambda.ts",
+      "lineRange": [
+        17,
+        58
+      ],
+      "summary": "Entry point that runs the TypeScript build, copies the generated Prisma client into the Lambda output directory, and logs progress.",
+      "tags": [
+        "build-system",
+        "script",
+        "lambda"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/(app)/layout.tsx",
+      "type": "file",
+      "name": "layout.tsx",
+      "filePath": "src/app/(app)/layout.tsx",
+      "summary": "Authenticated app route-group layout that gates access via a server-side session check and renders the Navbar around nested pages.",
+      "tags": [
+        "component",
+        "middleware",
+        "entry-point",
+        "auth"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/(app)/layout.tsx:AppLayout",
+      "type": "function",
+      "name": "AppLayout",
+      "filePath": "src/app/(app)/layout.tsx",
+      "lineRange": [
+        6,
+        21
+      ],
+      "summary": "Server component that verifies the user session with getServerSession, redirecting unauthenticated visitors to login, then renders the Navbar and children.",
+      "tags": [
+        "component",
+        "auth",
+        "middleware"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/globals.css",
+      "type": "file",
+      "name": "globals.css",
+      "filePath": "src/app/globals.css",
+      "summary": "Global stylesheet with Tailwind CSS directives and base layer customizations for the application theme.",
+      "tags": [
+        "css",
+        "styling",
+        "tailwind"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/layout.tsx",
+      "type": "file",
+      "name": "layout.tsx",
+      "filePath": "src/app/layout.tsx",
+      "summary": "Root Next.js App Router layout that sets HTML metadata and wraps the application in the session Providers component.",
+      "tags": [
+        "component",
+        "entry-point",
+        "layout"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/layout.tsx:RootLayout",
+      "type": "function",
+      "name": "RootLayout",
+      "filePath": "src/app/layout.tsx",
+      "lineRange": [
+        11,
+        23
+      ],
+      "summary": "Root layout component rendering the HTML shell, metadata, and wrapping children in the NextAuth Providers wrapper.",
+      "tags": [
+        "component",
+        "layout",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/login/page.tsx",
+      "type": "file",
+      "name": "page.tsx",
+      "filePath": "src/app/login/page.tsx",
+      "summary": "Login page rendering a credentials sign-in form with email/password fields, loading and error states, and post-login redirect handling.",
+      "tags": [
+        "component",
+        "auth",
+        "form",
+        "page"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/login/page.tsx:LoginPage",
+      "type": "function",
+      "name": "LoginPage",
+      "filePath": "src/app/login/page.tsx",
+      "lineRange": [
+        9,
+        15
+      ],
+      "summary": "Login route page component that renders the LoginForm client component.",
+      "tags": [
+        "component",
+        "page",
+        "auth"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/login/page.tsx:LoginForm",
+      "type": "function",
+      "name": "LoginForm",
+      "filePath": "src/app/login/page.tsx",
+      "lineRange": [
+        17,
+        114
+      ],
+      "summary": "Client component managing email/password state and submitting credentials via NextAuth signIn, handling errors and redirecting to the callback URL on success.",
+      "tags": [
+        "component",
+        "form",
+        "auth",
+        "client-component"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/page.tsx",
+      "type": "file",
+      "name": "page.tsx",
+      "filePath": "src/app/page.tsx",
+      "summary": "Root home page that immediately redirects visitors to the authenticated dashboard route.",
+      "tags": [
+        "entry-point",
+        "page",
+        "redirect"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/page.tsx:Home",
+      "type": "function",
+      "name": "Home",
+      "filePath": "src/app/page.tsx",
+      "lineRange": [
+        3,
+        6
+      ],
+      "summary": "Home page component that redirects the user to the dashboard on render.",
+      "tags": [
+        "entry-point",
+        "redirect",
+        "page"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/signup/page.tsx",
+      "type": "file",
+      "name": "page.tsx",
+      "filePath": "src/app/signup/page.tsx",
+      "summary": "Signup page rendering a registration form that posts to the signup API, signs the new user in, and redirects to the dashboard.",
+      "tags": [
+        "component",
+        "auth",
+        "form",
+        "page"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/signup/page.tsx:SignupPage",
+      "type": "function",
+      "name": "SignupPage",
+      "filePath": "src/app/signup/page.tsx",
+      "lineRange": [
+        9,
+        132
+      ],
+      "summary": "Client component managing name/email/password state, submitting the registration request via fetch, then signing in and redirecting to the dashboard on success.",
+      "tags": [
+        "component",
+        "form",
+        "auth",
+        "client-component"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/components/Navbar.tsx",
+      "type": "file",
+      "name": "Navbar.tsx",
+      "filePath": "src/components/Navbar.tsx",
+      "summary": "Navigation bar component showing active-route links and a sign-out button, adapting to the current session state.",
+      "tags": [
+        "component",
+        "navigation",
+        "auth",
+        "client-component"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/components/Navbar.tsx:Navbar",
+      "type": "function",
+      "name": "Navbar",
+      "filePath": "src/components/Navbar.tsx",
+      "lineRange": [
+        14,
+        67
+      ],
+      "summary": "Client component rendering navigation links with active-route highlighting via the cn utility and a sign-out action using the current session.",
+      "tags": [
+        "component",
+        "navigation",
+        "auth",
+        "client-component"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/components/Providers.tsx",
+      "type": "file",
+      "name": "Providers.tsx",
+      "filePath": "src/components/Providers.tsx",
+      "summary": "Client-side wrapper component that mounts the NextAuth SessionProvider around the React tree.",
+      "tags": [
+        "component",
+        "auth",
+        "provider",
+        "client-component"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/Providers.tsx:Providers",
+      "type": "function",
+      "name": "Providers",
+      "filePath": "src/components/Providers.tsx",
+      "lineRange": [
+        6,
+        8
+      ],
+      "summary": "Wrapper component that renders the NextAuth SessionProvider around its children.",
+      "tags": [
+        "component",
+        "auth",
+        "provider"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/middleware.ts",
+      "type": "file",
+      "name": "middleware.ts",
+      "filePath": "src/middleware.ts",
+      "summary": "NextAuth middleware that protects authenticated routes by validating the session token on each request.",
+      "tags": [
+        "middleware",
+        "auth",
+        "security"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/types/next-auth.d.ts",
+      "type": "file",
+      "name": "next-auth.d.ts",
+      "filePath": "src/types/next-auth.d.ts",
+      "summary": "TypeScript module augmentation extending the NextAuth session and JWT types with a custom userId field.",
+      "tags": [
+        "type-definition",
+        "auth",
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tailwind.config.ts",
+      "type": "file",
+      "name": "tailwind.config.ts",
+      "filePath": "tailwind.config.ts",
+      "summary": "Tailwind CSS configuration defining the content scan paths, theme extensions, and the project's design tokens.",
+      "tags": [
+        "configuration",
+        "css",
+        "tailwind",
+        "build-system"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tsconfig.tsbuildinfo",
+      "type": "file",
+      "name": "tsconfig.tsbuildinfo",
+      "filePath": "tsconfig.tsbuildinfo",
+      "summary": "Auto-generated TypeScript incremental build cache storing compiler state for faster rebuilds.",
+      "tags": [
+        "build-system",
+        "typescript",
+        "generated"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/digest.ts",
+      "type": "file",
+      "name": "digest.ts",
+      "filePath": "src/lib/digest.ts",
+      "summary": "Email digest module (Cron Pattern B) that aggregates feedback by status/sentiment/severity, renders an HTML email summary, and sends it via SMTP. Feature-flagged via DIGEST_SMTP_URL and DIGEST_FROM env vars.",
+      "tags": [
+        "service",
+        "digest",
+        "email",
+        "cron-pattern-b"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Uses Node net/tls for SMTP without nodemailer dependency. Includes buildDigestSummary (Prisma groupBy), renderDigestHtml, sendEmail (raw SMTP), and runDigest orchestrator."
+    },
+    {
+      "id": "file:src/app/api/digest/route.ts",
+      "type": "file",
+      "name": "digest/route.ts",
+      "filePath": "src/app/api/digest/route.ts",
+      "summary": "API route for the email digest: GET returns whether digest is configured, POST triggers a digest email run (session-protected).",
+      "tags": [
+        "api",
+        "digest",
+        "endpoint"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:aws/lambda/digest-handler.ts",
+      "type": "file",
+      "name": "digest-handler.ts",
+      "filePath": "aws/lambda/digest-handler.ts",
+      "summary": "AWS Lambda entry point for the daily digest email cron (Cron Pattern B), triggered by EventBridge. Calls runDigest and returns JSON status.",
+      "tags": [
+        "infrastructure",
+        "lambda",
+        "digest",
+        "cron"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:scripts/digest.ts",
+      "type": "file",
+      "name": "digest.ts",
+      "filePath": "scripts/digest.ts",
+      "summary": "Local command-line runner for the digest email cron. Loads dotenv and calls runDigest, exiting with code 1 on failure.",
+      "tags": [
+        "infrastructure",
+        "script",
+        "digest"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:scripts/build-digest-lambda.ts",
+      "type": "file",
+      "name": "build-digest-lambda.ts",
+      "filePath": "scripts/build-digest-lambda.ts",
+      "summary": "esbuild bundler that compiles the digest Lambda handler into a single file with the Prisma client, output to aws/lambda/dist/digest.js.",
+      "tags": [
+        "infrastructure",
+        "build",
+        "lambda",
+        "digest"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/lib/digest.ts:isDigestEnabled",
+      "type": "function",
+      "name": "isDigestEnabled",
+      "filePath": "src/lib/digest.ts",
+      "summary": "Returns whether the email digest is enabled based on DIGEST_SMTP_URL and DIGEST_FROM env vars.",
+      "tags": [
+        "service",
+        "digest",
+        "feature-flag"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/digest.ts:buildDigestSummary",
+      "type": "function",
+      "name": "buildDigestSummary",
+      "filePath": "src/lib/digest.ts",
+      "summary": "Queries Prisma for feedback analysis aggregates (status, sentiment groups), high-severity items, and recent new feedback to build the digest summary object.",
+      "tags": [
+        "service",
+        "digest",
+        "data-aggregation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/lib/digest.ts:renderDigestHtml",
+      "type": "function",
+      "name": "renderDigestHtml",
+      "filePath": "src/lib/digest.ts",
+      "summary": "Renders the DigestSummary into a styled HTML email body with tables for status/sentiment breakdown, high-severity items, and recent feedback.",
+      "tags": [
+        "service",
+        "digest",
+        "rendering"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/lib/digest.ts:sendEmail",
+      "type": "function",
+      "name": "sendEmail",
+      "filePath": "src/lib/digest.ts",
+      "summary": "Sends an email via a raw SMTP connection using Node net/tls modules. Parses smtp(s):// URLs, handles AUTH LOGIN, and sends DATA payload.",
+      "tags": [
+        "service",
+        "digest",
+        "smtp",
+        "email"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/lib/digest.ts:runDigest",
+      "type": "function",
+      "name": "runDigest",
+      "filePath": "src/lib/digest.ts",
+      "summary": "Orchestrates the digest: checks enabled flag, builds summary, renders HTML, sends email. Returns DigestResult with status/itemsIncluded/error.",
+      "tags": [
+        "service",
+        "digest",
+        "orchestration"
+      ],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/app/(app)/inbox/[id]/page.tsx",
+      "target": "file:src/components/Badges.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/inbox/[id]/page.tsx",
+      "target": "file:src/components/StatusSelect.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/inbox/[id]/page.tsx",
+      "target": "file:src/lib/prisma.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/inbox/[id]/page.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/inbox/page.tsx",
+      "target": "file:src/components/Badges.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/inbox/page.tsx",
+      "target": "file:src/components/Filters.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/inbox/page.tsx",
+      "target": "file:src/lib/prisma.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/inbox/page.tsx",
+      "target": "file:src/lib/types.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/inbox/page.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/Badges.tsx",
+      "target": "file:src/lib/types.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/Badges.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/Filters.tsx",
+      "target": "file:src/lib/types.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/StatusSelect.tsx",
+      "target": "file:src/components/Badges.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/StatusSelect.tsx",
+      "target": "file:src/lib/types.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/lib/github.ts",
+      "target": "file:src/lib/types.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/lib/github.ts",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/lib/llm.ts",
+      "target": "file:src/lib/types.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/lib/llm.ts",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/inbox/[id]/page.tsx",
+      "target": "function:src/app/(app)/inbox/[id]/page.tsx:FeedbackDetailPage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/(app)/inbox/page.tsx",
+      "target": "function:src/app/(app)/inbox/page.tsx:InboxPage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/(app)/inbox/page.tsx",
+      "target": "function:src/app/(app)/inbox/page.tsx:qs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/components/Badges.tsx",
+      "target": "function:src/components/Badges.tsx:SentimentBadge",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/components/Badges.tsx",
+      "target": "function:src/components/Badges.tsx:SeverityBadge",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/components/Badges.tsx",
+      "target": "function:src/components/Badges.tsx:StatusBadge",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/components/Badges.tsx",
+      "target": "function:src/components/Badges.tsx:TopicChip",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/components/Filters.tsx",
+      "target": "function:src/components/Filters.tsx:Filters",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/components/Filters.tsx",
+      "target": "function:src/components/Filters.tsx:Toggle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/components/StatusSelect.tsx",
+      "target": "function:src/components/StatusSelect.tsx:StatusSelect",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/github.ts",
+      "target": "function:src/lib/github.ts:parseRateLimit",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/github.ts",
+      "target": "function:src/lib/github.ts:waitForRateLimit",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/github.ts",
+      "target": "function:src/lib/github.ts:fetchGitHubIssues",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/llm.ts",
+      "target": "function:src/lib/llm.ts:buildUserPrompt",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/llm.ts",
+      "target": "function:src/lib/llm.ts:analyzeFeedback",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/llm.ts",
+      "target": "function:src/lib/llm.ts:analyzeBatch",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/utils.ts",
+      "target": "function:src/lib/utils.ts:cn",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/utils.ts",
+      "target": "function:src/lib/utils.ts:formatDate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/utils.ts",
+      "target": "function:src/lib/utils.ts:formatDay",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/utils.ts",
+      "target": "function:src/lib/utils.ts:truncate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/utils.ts",
+      "target": "function:src/lib/utils.ts:sleep",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/utils.ts",
+      "target": "function:src/lib/utils.ts:backoffDelay",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/(app)/inbox/[id]/page.tsx",
+      "target": "function:src/app/(app)/inbox/[id]/page.tsx:FeedbackDetailPage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/(app)/inbox/page.tsx",
+      "target": "function:src/app/(app)/inbox/page.tsx:InboxPage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/Badges.tsx",
+      "target": "function:src/components/Badges.tsx:SentimentBadge",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/Badges.tsx",
+      "target": "function:src/components/Badges.tsx:SeverityBadge",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/Badges.tsx",
+      "target": "function:src/components/Badges.tsx:StatusBadge",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/Badges.tsx",
+      "target": "function:src/components/Badges.tsx:TopicChip",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/Filters.tsx",
+      "target": "function:src/components/Filters.tsx:Filters",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/StatusSelect.tsx",
+      "target": "function:src/components/StatusSelect.tsx:StatusSelect",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/lib/github.ts",
+      "target": "function:src/lib/github.ts:fetchGitHubIssues",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/lib/llm.ts",
+      "target": "function:src/lib/llm.ts:analyzeFeedback",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/lib/llm.ts",
+      "target": "function:src/lib/llm.ts:analyzeBatch",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/lib/utils.ts",
+      "target": "function:src/lib/utils.ts:cn",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/lib/utils.ts",
+      "target": "function:src/lib/utils.ts:formatDate",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/lib/utils.ts",
+      "target": "function:src/lib/utils.ts:formatDay",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/lib/utils.ts",
+      "target": "function:src/lib/utils.ts:truncate",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/lib/utils.ts",
+      "target": "function:src/lib/utils.ts:sleep",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/lib/utils.ts",
+      "target": "function:src/lib/utils.ts:backoffDelay",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/app/(app)/inbox/[id]/page.tsx:FeedbackDetailPage",
+      "target": "function:src/lib/utils.ts:formatDate",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/app/(app)/inbox/page.tsx:InboxPage",
+      "target": "function:src/lib/utils.ts:formatDate",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/app/(app)/inbox/page.tsx:InboxPage",
+      "target": "function:src/lib/utils.ts:truncate",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/components/Badges.tsx:SentimentBadge",
+      "target": "function:src/lib/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/components/Badges.tsx:SeverityBadge",
+      "target": "function:src/lib/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/components/Badges.tsx:StatusBadge",
+      "target": "function:src/lib/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/github.ts:fetchGitHubIssues",
+      "target": "function:src/lib/utils.ts:sleep",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/github.ts:fetchGitHubIssues",
+      "target": "function:src/lib/utils.ts:backoffDelay",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/llm.ts:analyzeFeedback",
+      "target": "function:src/lib/utils.ts:backoffDelay",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/llm.ts:analyzeFeedback",
+      "target": "function:src/lib/utils.ts:sleep",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:scripts/seed.ts",
+      "target": "function:scripts/seed.ts:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:scripts/seed.ts",
+      "target": "function:scripts/seed.ts:seedSamples",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/api/auth/signup/route.ts",
+      "target": "function:src/app/api/auth/signup/route.ts:POST",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/api/dashboard/route.ts",
+      "target": "function:src/app/api/dashboard/route.ts:GET",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/api/feedback/[id]/route.ts",
+      "target": "function:src/app/api/feedback/[id]/route.ts:GET",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/api/feedback/[id]/route.ts",
+      "target": "function:src/app/api/feedback/[id]/route.ts:PATCH",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/api/feedback/route.ts",
+      "target": "function:src/app/api/feedback/route.ts:GET",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/api/auth/signup/route.ts",
+      "target": "function:src/app/api/auth/signup/route.ts:POST",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/api/dashboard/route.ts",
+      "target": "function:src/app/api/dashboard/route.ts:GET",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/api/feedback/[id]/route.ts",
+      "target": "function:src/app/api/feedback/[id]/route.ts:GET",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/api/feedback/[id]/route.ts",
+      "target": "function:src/app/api/feedback/[id]/route.ts:PATCH",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/api/feedback/route.ts",
+      "target": "function:src/app/api/feedback/route.ts:GET",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:scripts/seed.ts",
+      "target": "file:src/lib/prisma.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/auth/[...nextauth]/route.ts",
+      "target": "file:src/lib/auth.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/auth/signup/route.ts",
+      "target": "file:src/lib/prisma.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/dashboard/route.ts",
+      "target": "file:src/lib/auth.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/dashboard/route.ts",
+      "target": "file:src/lib/prisma.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/feedback/[id]/route.ts",
+      "target": "file:src/lib/auth.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/feedback/[id]/route.ts",
+      "target": "file:src/lib/prisma.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/feedback/[id]/route.ts",
+      "target": "file:src/lib/types.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/feedback/route.ts",
+      "target": "file:src/lib/auth.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/feedback/route.ts",
+      "target": "file:src/lib/prisma.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/feedback/route.ts",
+      "target": "file:src/lib/types.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/lib/auth.ts",
+      "target": "file:src/lib/prisma.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:aws/lambda/handler.ts",
+      "target": "function:aws/lambda/handler.ts:handler",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/api/ingest/route.ts",
+      "target": "function:src/app/api/ingest/route.ts:POST",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/api/webhook/slack/route.ts",
+      "target": "function:src/app/api/webhook/slack/route.ts:GET",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/api/webhook/slack/route.ts",
+      "target": "function:src/app/api/webhook/slack/route.ts:POST",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/ingest.ts",
+      "target": "function:src/lib/ingest.ts:runIngest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/ingest.ts",
+      "target": "function:src/lib/ingest.ts:persistLog",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/slack.ts",
+      "target": "function:src/lib/slack.ts:isSlackEnabled",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/slack.ts",
+      "target": "function:src/lib/slack.ts:sendSlackMessage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/slack.ts",
+      "target": "function:src/lib/slack.ts:notifyHighSeverity",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:aws/lambda/handler.ts",
+      "target": "function:aws/lambda/handler.ts:handler",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/api/ingest/route.ts",
+      "target": "function:src/app/api/ingest/route.ts:POST",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/api/webhook/slack/route.ts",
+      "target": "function:src/app/api/webhook/slack/route.ts:GET",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/api/webhook/slack/route.ts",
+      "target": "function:src/app/api/webhook/slack/route.ts:POST",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/lib/ingest.ts",
+      "target": "function:src/lib/ingest.ts:runIngest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/lib/slack.ts",
+      "target": "function:src/lib/slack.ts:isSlackEnabled",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/lib/slack.ts",
+      "target": "function:src/lib/slack.ts:sendSlackMessage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/lib/slack.ts",
+      "target": "function:src/lib/slack.ts:notifyHighSeverity",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:aws/lambda/handler.ts",
+      "target": "file:src/lib/ingest.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:scripts/ingest.ts",
+      "target": "file:src/lib/ingest.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/ingest/route.ts",
+      "target": "file:src/lib/auth.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/ingest/route.ts",
+      "target": "file:src/lib/ingest.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/webhook/slack/route.ts",
+      "target": "file:src/lib/auth.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/webhook/slack/route.ts",
+      "target": "file:src/lib/slack.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/lib/ingest.ts",
+      "target": "file:src/lib/github.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/lib/ingest.ts",
+      "target": "file:src/lib/llm.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/lib/ingest.ts",
+      "target": "file:src/lib/prisma.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/lib/ingest.ts",
+      "target": "file:src/lib/slack.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/lib/ingest.ts",
+      "target": "file:src/lib/types.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:aws/lambda/handler.ts:handler",
+      "target": "function:src/lib/ingest.ts:runIngest",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/app/api/ingest/route.ts:POST",
+      "target": "function:src/lib/ingest.ts:runIngest",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/app/api/webhook/slack/route.ts:GET",
+      "target": "function:src/lib/slack.ts:isSlackEnabled",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/app/api/webhook/slack/route.ts:POST",
+      "target": "function:src/lib/slack.ts:isSlackEnabled",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/app/api/webhook/slack/route.ts:POST",
+      "target": "function:src/lib/slack.ts:sendSlackMessage",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/ingest.ts:runIngest",
+      "target": "function:src/lib/llm.ts:analyzeBatch",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/lib/ingest.ts:runIngest",
+      "target": "function:src/lib/slack.ts:notifyHighSeverity",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "file:src/components/Badges.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "file:src/components/charts/SentimentDonutChart.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "file:src/components/charts/SentimentTrendChart.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "file:src/components/charts/SeverityChart.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "file:src/components/charts/TopicDistributionChart.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "file:src/lib/auth.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "file:src/lib/prisma.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "function:src/app/(app)/dashboard/page.tsx:getDashboardData",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "function:src/app/(app)/dashboard/page.tsx:DashboardPage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "function:src/app/(app)/dashboard/page.tsx:KpiCard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "function:src/app/(app)/dashboard/page.tsx:DashboardPage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/app/(app)/dashboard/page.tsx:DashboardPage",
+      "target": "function:src/lib/utils.ts:formatDate",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/app/(app)/dashboard/page.tsx:DashboardPage",
+      "target": "function:src/lib/utils.ts:truncate",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/charts/SentimentDonutChart.tsx",
+      "target": "function:src/components/charts/SentimentDonutChart.tsx:SentimentDonutChart",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/components/charts/SentimentDonutChart.tsx",
+      "target": "function:src/components/charts/SentimentDonutChart.tsx:SentimentDonutChart",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/charts/SentimentTrendChart.tsx",
+      "target": "function:src/components/charts/SentimentTrendChart.tsx:SentimentTrendChart",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/components/charts/SentimentTrendChart.tsx",
+      "target": "function:src/components/charts/SentimentTrendChart.tsx:SentimentTrendChart",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/charts/SeverityChart.tsx",
+      "target": "function:src/components/charts/SeverityChart.tsx:SeverityChart",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/components/charts/SeverityChart.tsx",
+      "target": "function:src/components/charts/SeverityChart.tsx:SeverityChart",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/charts/TopicDistributionChart.tsx",
+      "target": "function:src/components/charts/TopicDistributionChart.tsx:TopicDistributionChart",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/components/charts/TopicDistributionChart.tsx",
+      "target": "function:src/components/charts/TopicDistributionChart.tsx:TopicDistributionChart",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "config:tsconfig.json",
+      "target": "file:src/app/layout.tsx",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:tsconfig.json",
+      "target": "file:src/middleware.ts",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:package.json",
+      "target": "file:src/app/layout.tsx",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:package.json",
+      "target": "file:scripts/ingest.ts",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:package.json",
+      "target": "config:tsconfig.json",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "config:.env.example",
+      "target": "file:src/lib/auth.ts",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:.env.example",
+      "target": "file:src/lib/llm.ts",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:.env.example",
+      "target": "file:src/lib/github.ts",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:.env.example",
+      "target": "file:src/lib/ingest.ts",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:amplify.yml",
+      "target": "file:src/app/layout.tsx",
+      "type": "deploys",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "config:amplify.yml",
+      "target": "config:package.json",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "service:docker-compose.yml",
+      "target": "config:.env.example",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:src/app/layout.tsx",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:src/middleware.ts",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:src/lib/auth.ts",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:src/lib/github.ts",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:src/lib/ingest.ts",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:src/lib/llm.ts",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:scripts/ingest.ts",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:src/app/(app)/layout.tsx",
+      "target": "file:src/components/Navbar.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/layout.tsx",
+      "target": "file:src/lib/auth.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/layout.tsx",
+      "target": "file:src/app/globals.css",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/layout.tsx",
+      "target": "file:src/components/Providers.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/components/Navbar.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:scripts/build-lambda.ts",
+      "target": "function:scripts/build-lambda.ts:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/(app)/layout.tsx",
+      "target": "function:src/app/(app)/layout.tsx:AppLayout",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/layout.tsx",
+      "target": "function:src/app/layout.tsx:RootLayout",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/login/page.tsx",
+      "target": "function:src/app/login/page.tsx:LoginPage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/login/page.tsx",
+      "target": "function:src/app/login/page.tsx:LoginForm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/page.tsx",
+      "target": "function:src/app/page.tsx:Home",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/signup/page.tsx",
+      "target": "function:src/app/signup/page.tsx:SignupPage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/components/Navbar.tsx",
+      "target": "function:src/components/Navbar.tsx:Navbar",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/components/Providers.tsx",
+      "target": "function:src/components/Providers.tsx:Providers",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "table:prisma/migrations/20260625150915_init/migration.sql",
+      "target": "table:prisma/migrations/20260625150915_init/migration.sql:users",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "table:prisma/migrations/20260625150915_init/migration.sql",
+      "target": "table:prisma/migrations/20260625150915_init/migration.sql:feedback_items",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "table:prisma/migrations/20260625150915_init/migration.sql",
+      "target": "table:prisma/migrations/20260625150915_init/migration.sql:feedback_analyses",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "table:prisma/migrations/20260625150915_init/migration.sql",
+      "target": "table:prisma/migrations/20260625150915_init/migration.sql:ingest_logs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/(app)/layout.tsx",
+      "target": "function:src/app/(app)/layout.tsx:AppLayout",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/layout.tsx",
+      "target": "function:src/app/layout.tsx:RootLayout",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/login/page.tsx",
+      "target": "function:src/app/login/page.tsx:LoginPage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/page.tsx",
+      "target": "function:src/app/page.tsx:Home",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/signup/page.tsx",
+      "target": "function:src/app/signup/page.tsx:SignupPage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/Navbar.tsx",
+      "target": "function:src/components/Navbar.tsx:Navbar",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/Providers.tsx",
+      "target": "function:src/components/Providers.tsx:Providers",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/components/Navbar.tsx:Navbar",
+      "target": "function:src/lib/utils.ts:cn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "document:aws/README.md",
+      "target": "config:aws/template.yaml",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:aws/README.md",
+      "target": "file:scripts/build-lambda.ts",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "config:aws/template.yaml",
+      "target": "file:scripts/build-lambda.ts",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "config:aws/template.yaml",
+      "target": "schema:prisma/schema.prisma",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "config:prisma/migrations/migration_lock.toml",
+      "target": "table:prisma/migrations/20260625150915_init/migration.sql",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "table:prisma/migrations/20260625150915_init/migration.sql",
+      "target": "schema:prisma/schema.prisma",
+      "type": "migrates",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "service:docker-compose.yml",
+      "target": "schema:prisma/schema.prisma",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "config:aws/template.yaml",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "schema:prisma/schema.prisma",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:src/lib/digest.ts",
+      "target": "function:src/lib/digest.ts:isDigestEnabled",
+      "type": "contains",
+      "direction": "out",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/digest.ts",
+      "target": "function:src/lib/digest.ts:buildDigestSummary",
+      "type": "contains",
+      "direction": "out",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/digest.ts",
+      "target": "function:src/lib/digest.ts:renderDigestHtml",
+      "type": "contains",
+      "direction": "out",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/digest.ts",
+      "target": "function:src/lib/digest.ts:sendEmail",
+      "type": "contains",
+      "direction": "out",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/digest.ts",
+      "target": "function:src/lib/digest.ts:runDigest",
+      "type": "contains",
+      "direction": "out",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/digest.ts",
+      "target": "file:src/lib/prisma.ts",
+      "type": "imports",
+      "direction": "out",
+      "weight": 2
+    },
+    {
+      "source": "function:src/lib/digest.ts:runDigest",
+      "target": "function:src/lib/digest.ts:buildDigestSummary",
+      "type": "calls",
+      "direction": "out",
+      "weight": 2
+    },
+    {
+      "source": "function:src/lib/digest.ts:runDigest",
+      "target": "function:src/lib/digest.ts:renderDigestHtml",
+      "type": "calls",
+      "direction": "out",
+      "weight": 2
+    },
+    {
+      "source": "function:src/lib/digest.ts:runDigest",
+      "target": "function:src/lib/digest.ts:sendEmail",
+      "type": "calls",
+      "direction": "out",
+      "weight": 2
+    },
+    {
+      "source": "function:src/lib/digest.ts:runDigest",
+      "target": "function:src/lib/digest.ts:isDigestEnabled",
+      "type": "calls",
+      "direction": "out",
+      "weight": 1
+    },
+    {
+      "source": "function:src/lib/digest.ts:buildDigestSummary",
+      "target": "file:src/lib/prisma.ts",
+      "type": "calls",
+      "direction": "out",
+      "weight": 2
+    },
+    {
+      "source": "file:src/app/api/digest/route.ts",
+      "target": "file:src/lib/digest.ts",
+      "type": "imports",
+      "direction": "out",
+      "weight": 2
+    },
+    {
+      "source": "file:src/app/api/digest/route.ts",
+      "target": "function:src/lib/digest.ts:runDigest",
+      "type": "calls",
+      "direction": "out",
+      "weight": 2
+    },
+    {
+      "source": "file:src/app/api/digest/route.ts",
+      "target": "function:src/lib/digest.ts:isDigestEnabled",
+      "type": "calls",
+      "direction": "out",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/api/digest/route.ts",
+      "target": "file:src/lib/auth.ts",
+      "type": "imports",
+      "direction": "out",
+      "weight": 1
+    },
+    {
+      "source": "file:aws/lambda/digest-handler.ts",
+      "target": "file:src/lib/digest.ts",
+      "type": "imports",
+      "direction": "out",
+      "weight": 2
+    },
+    {
+      "source": "file:aws/lambda/digest-handler.ts",
+      "target": "function:src/lib/digest.ts:runDigest",
+      "type": "calls",
+      "direction": "out",
+      "weight": 2
+    },
+    {
+      "source": "file:scripts/digest.ts",
+      "target": "file:src/lib/digest.ts",
+      "type": "imports",
+      "direction": "out",
+      "weight": 2
+    },
+    {
+      "source": "file:scripts/digest.ts",
+      "target": "function:src/lib/digest.ts:runDigest",
+      "type": "calls",
+      "direction": "out",
+      "weight": 2
+    },
+    {
+      "source": "file:scripts/build-digest-lambda.ts",
+      "target": "file:aws/lambda/digest-handler.ts",
+      "type": "depends_on",
+      "direction": "out",
+      "weight": 1
+    },
+    {
+      "source": "config:aws/template.yaml",
+      "target": "file:aws/lambda/digest-handler.ts",
+      "type": "deploys",
+      "direction": "out",
+      "weight": 2
+    },
+    {
+      "source": "config:.env.example",
+      "target": "file:src/lib/digest.ts",
+      "type": "configures",
+      "direction": "out",
+      "weight": 1
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:src/lib/digest.ts",
+      "type": "documents",
+      "direction": "out",
+      "weight": 1
+    },
+    {
+      "source": "function:src/lib/digest.ts:runDigest",
+      "target": "file:src/lib/digest.ts",
+      "type": "exports",
+      "direction": "out",
+      "weight": 1
+    },
+    {
+      "source": "function:src/lib/digest.ts:isDigestEnabled",
+      "target": "file:src/lib/digest.ts",
+      "type": "exports",
+      "direction": "out",
+      "weight": 1
+    },
+    {
+      "source": "function:src/lib/digest.ts:buildDigestSummary",
+      "target": "file:src/lib/digest.ts",
+      "type": "exports",
+      "direction": "out",
+      "weight": 1
+    },
+    {
+      "source": "function:src/lib/digest.ts:renderDigestHtml",
+      "target": "file:src/lib/digest.ts",
+      "type": "exports",
+      "direction": "out",
+      "weight": 1
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:ui",
+      "name": "UI Layer",
+      "description": "Next.js App Router pages, root and authenticated layouts, and global styles that form the presentation and routing shell of the application (excluding API route handlers).",
+      "nodeIds": [
+        "file:src/app/(app)/inbox/[id]/page.tsx",
+        "file:src/app/(app)/inbox/page.tsx",
+        "file:src/app/(app)/dashboard/page.tsx",
+        "file:src/app/(app)/layout.tsx",
+        "file:src/app/layout.tsx",
+        "file:src/app/page.tsx",
+        "file:src/app/login/page.tsx",
+        "file:src/app/signup/page.tsx",
+        "file:src/app/globals.css"
+      ]
+    },
+    {
+      "id": "layer:components",
+      "name": "Component Layer",
+      "description": "Reusable React UI components including navigation, providers, badges, filters, status controls, and Recharts-based dashboard visualizations.",
+      "nodeIds": [
+        "file:src/components/Badges.tsx",
+        "file:src/components/Filters.tsx",
+        "file:src/components/StatusSelect.tsx",
+        "file:src/components/Navbar.tsx",
+        "file:src/components/Providers.tsx",
+        "file:src/components/charts/SentimentDonutChart.tsx",
+        "file:src/components/charts/SentimentTrendChart.tsx",
+        "file:src/components/charts/SeverityChart.tsx",
+        "file:src/components/charts/TopicDistributionChart.tsx"
+      ]
+    },
+    {
+      "id": "layer:api",
+      "name": "API Layer",
+      "description": "Next.js App Router API route handlers exposing REST endpoints for authentication, dashboard analytics, feedback CRUD, ingest triggering, and Slack webhooks.",
+      "nodeIds": [
+        "file:src/app/api/auth/[...nextauth]/route.ts",
+        "file:src/app/api/auth/signup/route.ts",
+        "file:src/app/api/dashboard/route.ts",
+        "file:src/app/api/feedback/[id]/route.ts",
+        "file:src/app/api/feedback/route.ts",
+        "file:src/app/api/ingest/route.ts",
+        "file:src/app/api/webhook/slack/route.ts",
+        "file:src/app/api/digest/route.ts"
+      ]
+    },
+    {
+      "id": "layer:service",
+      "name": "Service Layer",
+      "description": "Core business logic and domain services in src/lib: the ingest pipeline orchestrator, LLM analysis, GitHub ingestion adapter, Slack notifications, NextAuth configuration, the Prisma client singleton, and request-protection middleware.",
+      "nodeIds": [
+        "file:src/lib/ingest.ts",
+        "file:src/lib/llm.ts",
+        "file:src/lib/github.ts",
+        "file:src/lib/slack.ts",
+        "file:src/lib/auth.ts",
+        "file:src/lib/prisma.ts",
+        "file:src/middleware.ts",
+        "file:src/lib/digest.ts"
+      ]
+    },
+    {
+      "id": "layer:utility",
+      "name": "Shared Utility & Types Layer",
+      "description": "Foundational shared helpers and type definitions with high fan-in used across UI, API, and service layers: className/date/format/backoff utilities, sentiment/topic/status constants, and NextAuth type augmentations.",
+      "nodeIds": [
+        "file:src/lib/utils.ts",
+        "file:src/lib/types.ts",
+        "file:src/types/next-auth.d.ts"
+      ]
+    },
+    {
+      "id": "layer:data",
+      "name": "Data Layer",
+      "description": "Database schema and persistence definitions: the Prisma schema, initial PostgreSQL migration SQL, individual table definitions, and the migration lock file.",
+      "nodeIds": [
+        "schema:prisma/schema.prisma",
+        "table:prisma/migrations/20260625150915_init/migration.sql",
+        "table:prisma/migrations/20260625150915_init/migration.sql:users",
+        "table:prisma/migrations/20260625150915_init/migration.sql:feedback_items",
+        "table:prisma/migrations/20260625150915_init/migration.sql:feedback_analyses",
+        "table:prisma/migrations/20260625150915_init/migration.sql:ingest_logs",
+        "config:prisma/migrations/migration_lock.toml"
+      ]
+    },
+    {
+      "id": "layer:infrastructure",
+      "name": "Infrastructure & Operations Layer",
+      "description": "Deployment and operational tooling: AWS SAM/CloudFormation template, the Lambda ingest handler, Docker Compose for local Postgres, the Amplify build spec, and build/seed/ingest CLI scripts.",
+      "nodeIds": [
+        "config:aws/template.yaml",
+        "file:aws/lambda/handler.ts",
+        "service:docker-compose.yml",
+        "config:amplify.yml",
+        "file:scripts/build-lambda.ts",
+        "file:scripts/seed.ts",
+        "file:scripts/ingest.ts",
+        "file:aws/lambda/digest-handler.ts",
+        "file:scripts/digest.ts",
+        "file:scripts/build-digest-lambda.ts"
+      ]
+    },
+    {
+      "id": "layer:config",
+      "name": "Configuration Layer",
+      "description": "Project-level configuration and build settings: package manifest, TypeScript compiler config, environment variable template, Next.js/PostCSS/Tailwind configs, the incremental build cache, and analysis ignore patterns.",
+      "nodeIds": [
+        "config:package.json",
+        "config:tsconfig.json",
+        "config:.env.example",
+        "file:next.config.mjs",
+        "file:postcss.config.js",
+        "file:tailwind.config.ts",
+        "file:tsconfig.tsbuildinfo",
+        "file:.understand-anything/.understandignore"
+      ]
+    },
+    {
+      "id": "layer:documentation",
+      "name": "Documentation Layer",
+      "description": "Project documentation including the root README covering architecture and deployment, and the AWS deployment guide.",
+      "nodeIds": [
+        "document:README.md",
+        "document:aws/README.md"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Project Overview",
+      "description": "Start with the README to grasp what FeedbackFlow AI is and why it exists. It is an automated micro-SaaS that ingests real customer feedback from GitHub Issues, runs multi-task LLM analysis (sentiment, topics, severity, summary) on each item, stores raw + structured results in Postgres, and exposes a dashboard, inbox, and detail UI for triage. The README maps features to architecture and gives you the vocabulary for the rest of the tour.",
+      "nodeIds": [
+        "document:README.md"
+      ],
+      "languageLesson": "A good README doubles as an architecture map: it lists features, the tech stack, the data model, and deployment, so newcomers can anchor every later code reading back to a documented purpose."
+    },
+    {
+      "order": 2,
+      "title": "Application Entry Point",
+      "description": "The Next.js App Router boots from the root layout, which sets HTML metadata and wraps the whole tree in the SessionProvider. The root page simply redirects visitors to the authenticated dashboard. Together these two files define the runtime shell: every route renders inside the root layout, and unauthenticated traffic is bounced toward login before reaching the app.",
+      "nodeIds": [
+        "file:src/app/layout.tsx",
+        "file:src/app/page.tsx",
+        "file:src/components/Providers.tsx"
+      ],
+      "languageLesson": "Next.js App Router uses file-based routing: layout.tsx wraps nested routes and persists across navigations, while page.tsx is the leaf route component. The (app) route group in parentheses is a pathless grouping that lets the authenticated layout share a URL prefix with public routes."
+    },
+    {
+      "order": 3,
+      "title": "Authentication & Route Protection",
+      "description": "Security is enforced at two levels. The middleware validates the NextAuth session token on every request to protected paths, while the auth library configures the credentials provider with a JWT session strategy and an authorize callback that checks email/password against the Prisma user table. The catch-all NextAuth route wires these options into the auth endpoints, and the signup route hashes passwords and creates users. This is the gate everything behind it depends on.",
+      "nodeIds": [
+        "file:src/middleware.ts",
+        "file:src/lib/auth.ts",
+        "file:src/app/api/auth/[...nextauth]/route.ts",
+        "file:src/app/api/auth/signup/route.ts",
+        "file:src/types/next-auth.d.ts"
+      ],
+      "languageLesson": "NextAuth.js separates configuration (authOptions) from the route handler. The next-auth.d.ts file uses TypeScript module augmentation to extend the Session and JWT types with a custom userId field, so the augmented type flows through the app without runtime cost."
+    },
+    {
+      "order": 4,
+      "title": "Data Model & Schema",
+      "description": "The Prisma schema is the single source of truth for the Postgres data model, defining User, FeedbackItem, FeedbackAnalysis, and IngestLog models plus enums for triage and run statuses. The initial migration SQL creates the corresponding tables with unique constraints and query indexes. The feedback_items table is keyed by source + external id for idempotent ingestion, and feedback_analyses links 1:1 to it via a foreign key storing the LLM results. This schema is the contract every other layer reads and writes.",
+      "nodeIds": [
+        "schema:prisma/schema.prisma",
+        "table:prisma/migrations/20260625150915_init/migration.sql",
+        "table:prisma/migrations/20260625150915_init/migration.sql:feedback_items",
+        "table:prisma/migrations/20260625150915_init/migration.sql:feedback_analyses"
+      ],
+      "languageLesson": "Prisma uses a declarative schema.prisma that generates a type-safe client. Migrations are versioned SQL files applied in order; the migration_lock.toml pins the provider to postgresql so the same schema cannot be accidentally migrated against a different database engine."
+    },
+    {
+      "order": 5,
+      "title": "Shared Foundation: Client, Types & Utilities",
+      "description": "Three small files have the highest fan-in in the whole codebase because nearly every other module imports them. The Prisma client singleton reuses one connection in development to avoid exhausting the pool. The shared types module defines sentiment labels, the topic taxonomy, and triage statuses used by both the UI and the pipeline. The utils module provides className concatenation, date formatting, truncation, and the sleep/backoff helpers the ingestion and LLM modules rely on for reliability.",
+      "nodeIds": [
+        "file:src/lib/prisma.ts",
+        "file:src/lib/types.ts",
+        "file:src/lib/utils.ts"
+      ],
+      "languageLesson": "A Prisma client singleton pattern prevents exhausting database connections during Next.js hot-reload in development, where globalThis is reused across reloads. Centralizing constants in one types module keeps the UI and pipeline vocabularies in sync."
+    },
+    {
+      "order": 6,
+      "title": "Ingest Pipeline Orchestrator",
+      "description": "The ingest module is the heart of the product: its runIngest function fetches raw feedback from a source, deduplicates against existing records by source + external id, batches items through LLM analysis, persists raw + analysis rows in a Prisma transaction, logs the run to ingest_logs, and notifies Slack on high-severity findings. It ties together the github, llm, prisma, and slack modules introduced next, and is the single function invoked by the CLI, the API route, and the Lambda handler.",
+      "nodeIds": [
+        "file:src/lib/ingest.ts"
+      ],
+      "languageLesson": "Wrapping multi-step side effects in a Prisma transaction ensures atomicity: either the raw item and its analysis are both persisted, or neither is, preventing partial state when the LLM call or database write fails mid-run."
+    },
+    {
+      "order": 7,
+      "title": "GitHub Issues Ingestion Adapter",
+      "description": "The github module is the real-world data source. It builds an Octokit client, paginates issues from a configurable public repo via the GitHub Issues REST API, parses rate-limit headers, and applies exponential backoff with the shared sleep/backoff helpers before normalizing each issue into the internal feedback item shape. This is what makes the pipeline ingest genuine customer feedback rather than seeded demo data.",
+      "nodeIds": [
+        "file:src/lib/github.ts"
+      ],
+      "languageLesson": "The GitHub REST API returns rate-limit headers (X-RateLimit-Remaining, X-RateLimit-Reset). A robust client parses these and proactively sleeps before the limit is hit, rather than reacting to 403s, which keeps long paginated ingests from being cut off mid-run."
+    },
+    {
+      "order": 8,
+      "title": "LLM Analysis with Structured Output",
+      "description": "The llm module turns raw text into structured insight. It builds a prompt from each feedback item, calls OpenAI chat completions, and validates the response against a Zod schema enforcing sentiment, topics, severity, and summary fields. analyzeBatch iterates with retry/backoff so a single bad response does not abort the whole run. This is where the README's multi-task analysis promise is actually fulfilled.",
+      "nodeIds": [
+        "file:src/lib/llm.ts"
+      ],
+      "languageLesson": "Pairing an LLM with a Zod schema gives you runtime validation of structured JSON output: the model is prompted to return JSON, and Zod parses it into a typed object, rejecting malformed responses and triggering a retry instead of silently corrupting downstream data."
+    },
+    {
+      "order": 9,
+      "title": "Slack Notifications",
+      "description": "The slack module provides the bonus alerting layer. A feature-flag check gates whether Slack is enabled, a generic sender posts to the incoming webhook, and notifyHighSeverity formats topics and sentiment for items with severity >= 4. The ingest orchestrator calls this after persisting results, closing the loop from raw GitHub issue to a PM's Slack channel.",
+      "nodeIds": [
+        "file:src/lib/slack.ts",
+        "file:src/app/api/webhook/slack/route.ts"
+      ],
+      "languageLesson": "Feature flags via environment variables let optional integrations be deployed but dormant. Gating the Slack webhook route behind both a session check and the isSlackEnabled flag means the endpoint stays secure and no-op when Slack is not configured."
+    },
+    {
+      "order": 10,
+      "title": "API Routes",
+      "description": "The App Router API layer exposes REST endpoints over the service and data layers. The dashboard route aggregates analyses by sentiment, status, severity, and topic plus a daily volume time series. The feedback list and detail routes provide filtering, sorting, pagination, and PATCH-based triage updates. The ingest route authenticates the session and triggers runIngest on demand. Each route imports the high-fan-in auth and prisma modules from earlier steps.",
+      "nodeIds": [
+        "file:src/app/api/dashboard/route.ts",
+        "file:src/app/api/feedback/route.ts",
+        "file:src/app/api/feedback/[id]/route.ts",
+        "file:src/app/api/ingest/route.ts"
+      ],
+      "languageLesson": "Next.js App Router API routes use file-based HTTP method exports: exporting GET, POST, PATCH from route.ts maps directly to those verbs. Dynamic segments like [id] become params on the request, enabling REST-style resource endpoints without a separate framework."
+    },
+    {
+      "order": 11,
+      "title": "Dashboard & Inbox UI",
+      "description": "The UI is where Product Managers and Customer Success teams actually triage. The dashboard page server-renders KPI cards and four Recharts visualizations (sentiment donut, sentiment trend, severity bar, topic distribution) plus a high-severity list. The inbox page parses URL search params into filters and renders a paginated, sortable table. The detail page shows raw content alongside the AI analysis and a status selector. Reusable Badges, Filters, and StatusSelect components keep the presentation consistent.",
+      "nodeIds": [
+        "file:src/app/(app)/dashboard/page.tsx",
+        "file:src/app/(app)/inbox/page.tsx",
+        "file:src/app/(app)/inbox/[id]/page.tsx",
+        "file:src/components/Badges.tsx",
+        "file:src/components/charts/SentimentDonutChart.tsx"
+      ],
+      "languageLesson": "Server Components can query Prisma directly and pass serializable props to client components like the Recharts charts. Keeping filter state in URL search params (not React state) makes the inbox view shareable and bookmarkable, and the back button works for free."
+    },
+    {
+      "order": 12,
+      "title": "Infrastructure & Deployment",
+      "description": "The tour closes with how the app runs in production. The AWS SAM template provisions VPC networking, an RDS Postgres instance, Secrets Manager credentials, and an EventBridge-scheduled Lambda that invokes the same runIngest function on a daily cron. The Lambda handler imports the shared ingest module, and the build-lambda script bundles the Prisma client into the deployment package. Locally, docker-compose spins up Postgres, and the Amplify build spec deploys the Next.js frontend. The same ingest pipeline thus runs from npm, an API route, or Lambda without code changes. A second Lambda + EventBridge schedule runs the daily email digest (Cron Pattern B), summarizing triage status and high-severity items via SMTP.",
+      "nodeIds": [
+        "config:aws/template.yaml",
+        "file:aws/lambda/handler.ts",
+        "file:scripts/build-lambda.ts",
+        "config:amplify.yml",
+        "service:docker-compose.yml",
+        "file:scripts/ingest.ts",
+        "file:aws/lambda/digest-handler.ts",
+        "file:src/lib/digest.ts"
+      ],
+      "languageLesson": "AWS SAM templates are CloudFormation with shortcuts: an AWS::Serverless::Function with an EventBridge Schedule event creates the Lambda plus its cron trigger in one resource. Bundling the Prisma client into the Lambda zip is required because Lambda cannot run prisma generate at runtime."
+    }
+  ]
+}

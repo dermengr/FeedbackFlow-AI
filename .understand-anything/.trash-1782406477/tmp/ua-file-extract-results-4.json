@@ -1,0 +1,443 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 5,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "src/app/(app)/dashboard/page.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 228,
+      "nonEmptyLines": 210,
+      "functions": [
+        {
+          "name": "getDashboardData",
+          "startLine": 18,
+          "endLine": 86,
+          "params": []
+        },
+        {
+          "name": "DashboardPage",
+          "startLine": 88,
+          "endLine": 194,
+          "params": []
+        },
+        {
+          "name": "KpiCard",
+          "startLine": 196,
+          "endLine": 211,
+          "params": [
+            "{\n  label,\n  value,\n  accent,\n}"
+          ]
+        },
+        {
+          "name": "Card",
+          "startLine": 213,
+          "endLine": 220,
+          "params": [
+            "{ title, children }"
+          ]
+        },
+        {
+          "name": "EmptyState",
+          "startLine": 222,
+          "endLine": 228,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "dynamic",
+          "line": 16,
+          "isDefault": false
+        },
+        {
+          "name": "DashboardPage",
+          "line": 88,
+          "isDefault": true
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "getDashboardData",
+          "callee": "prisma.feedbackAnalysis.groupBy",
+          "lineNumber": 19
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "prisma.feedbackAnalysis.groupBy",
+          "lineNumber": 24
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "prisma.feedbackAnalysis.findMany",
+          "lineNumber": 29
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "Array.isArray",
+          "lineNumber": 34
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "topicCounts.set",
+          "lineNumber": 36
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "topicCounts.get",
+          "lineNumber": 36
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "since.setDate",
+          "lineNumber": 41
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "since.getDate",
+          "lineNumber": 41
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "since.setHours",
+          "lineNumber": 42
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "prisma.feedbackItem.findMany",
+          "lineNumber": 43
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "d.setDate",
+          "lineNumber": 50
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "d.getDate",
+          "lineNumber": 50
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "d.setHours",
+          "lineNumber": 51
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "days.push",
+          "lineNumber": 52
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "d.toISOString().slice",
+          "lineNumber": 52
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "d.toISOString",
+          "lineNumber": 52
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "days.map",
+          "lineNumber": 54
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "new Date(it.originalTimestamp).toISOString().slice",
+          "lineNumber": 56
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "new Date(it.originalTimestamp).toISOString",
+          "lineNumber": 56
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "dayMap.get",
+          "lineNumber": 57
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "prisma.feedbackItem.findMany",
+          "lineNumber": 63
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "prisma.feedbackAnalysis.count",
+          "lineNumber": 70
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "prisma.ingestLog.findFirst",
+          "lineNumber": 71
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "Array.from(topicCounts.entries())\n      .map(([topic, count]) => ({ topic, count }))\n      .sort",
+          "lineNumber": 78
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "Array.from(topicCounts.entries())\n      .map",
+          "lineNumber": 78
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "Array.from",
+          "lineNumber": 78
+        },
+        {
+          "caller": "getDashboardData",
+          "callee": "topicCounts.entries",
+          "lineNumber": 78
+        },
+        {
+          "caller": "DashboardPage",
+          "callee": "getServerSession",
+          "lineNumber": 89
+        },
+        {
+          "caller": "DashboardPage",
+          "callee": "getDashboardData",
+          "lineNumber": 90
+        },
+        {
+          "caller": "DashboardPage",
+          "callee": "data.sentimentGroups.map",
+          "lineNumber": 92
+        },
+        {
+          "caller": "DashboardPage",
+          "callee": "data.severityGroups.map",
+          "lineNumber": 96
+        },
+        {
+          "caller": "DashboardPage",
+          "callee": "sentimentData.find",
+          "lineNumber": 101
+        },
+        {
+          "caller": "DashboardPage",
+          "callee": "sentimentData.find",
+          "lineNumber": 102
+        },
+        {
+          "caller": "DashboardPage",
+          "callee": "sentimentData.find",
+          "lineNumber": 103
+        },
+        {
+          "caller": "DashboardPage",
+          "callee": "formatDate",
+          "lineNumber": 119
+        },
+        {
+          "caller": "DashboardPage",
+          "callee": "data.highSeverity.map",
+          "lineNumber": 158
+        },
+        {
+          "caller": "DashboardPage",
+          "callee": "truncate",
+          "lineNumber": 176
+        },
+        {
+          "caller": "DashboardPage",
+          "callee": "(item.analysis?.topics as string[] | undefined)?.map",
+          "lineNumber": 180
+        },
+        {
+          "caller": "DashboardPage",
+          "callee": "formatDate",
+          "lineNumber": 184
+        }
+      ],
+      "metrics": {
+        "importCount": 8,
+        "exportCount": 2,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/components/charts/SentimentDonutChart.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 60,
+      "nonEmptyLines": 55,
+      "functions": [
+        {
+          "name": "SentimentDonutChart",
+          "startLine": 18,
+          "endLine": 60,
+          "params": [
+            "{\n  data,\n}"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "SentimentDonutChart",
+          "line": 18,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "SentimentDonutChart",
+          "callee": "([\"positive\", \"neutral\", \"negative\"] as const)\n    .map((s) => ({\n      name: s,\n      count: data.find((d) => d.sentiment === s)?.count ?? 0,\n    }))\n    .filter",
+          "lineNumber": 23
+        },
+        {
+          "caller": "SentimentDonutChart",
+          "callee": "([\"positive\", \"neutral\", \"negative\"] as const)\n    .map",
+          "lineNumber": 23
+        },
+        {
+          "caller": "SentimentDonutChart",
+          "callee": "data.find",
+          "lineNumber": 26
+        },
+        {
+          "caller": "SentimentDonutChart",
+          "callee": "chartData.map",
+          "lineNumber": 51
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/components/charts/SentimentTrendChart.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 40,
+      "nonEmptyLines": 37,
+      "functions": [
+        {
+          "name": "SentimentTrendChart",
+          "startLine": 21,
+          "endLine": 40,
+          "params": [
+            "{ data }"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "SentimentTrendChart",
+          "line": 21,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "SentimentTrendChart",
+          "callee": "d.slice",
+          "lineNumber": 28
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/components/charts/SeverityChart.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 58,
+      "nonEmptyLines": 53,
+      "functions": [
+        {
+          "name": "SeverityChart",
+          "startLine": 25,
+          "endLine": 58,
+          "params": [
+            "{ data }"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "SeverityChart",
+          "line": 25,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "SeverityChart",
+          "callee": "[1, 2, 3, 4, 5].map",
+          "lineNumber": 27
+        },
+        {
+          "caller": "SeverityChart",
+          "callee": "data.find",
+          "lineNumber": 28
+        },
+        {
+          "caller": "SeverityChart",
+          "callee": "full.map",
+          "lineNumber": 31
+        },
+        {
+          "caller": "SeverityChart",
+          "callee": "chartData.map",
+          "lineNumber": 49
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/components/charts/TopicDistributionChart.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 40,
+      "nonEmptyLines": 37,
+      "functions": [
+        {
+          "name": "TopicDistributionChart",
+          "startLine": 18,
+          "endLine": 40,
+          "params": [
+            "{ data }"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "TopicDistributionChart",
+          "line": 18,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "TopicDistributionChart",
+          "callee": "data.slice",
+          "lineNumber": 19
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,954 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 21,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": ".understand-anything/.understandignore",
+      "language": "unknown",
+      "fileCategory": "code",
+      "totalLines": 52,
+      "nonEmptyLines": 46,
+      "metrics": {}
+    },
+    {
+      "path": "aws/README.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 152,
+      "nonEmptyLines": 123,
+      "sections": [
+        {
+          "heading": "FeedbackFlow AI - AWS Deployment",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Architecture",
+          "level": 2,
+          "line": 6
+        },
+        {
+          "heading": "Prerequisites",
+          "level": 2,
+          "line": 46
+        },
+        {
+          "heading": "1. Deploy the backend (RDS + Lambda + EventBridge)",
+          "level": 2,
+          "line": 55
+        },
+        {
+          "heading": "Run the schema migration against RDS",
+          "level": 3,
+          "line": 83
+        },
+        {
+          "heading": "Test the Lambda manually",
+          "level": 3,
+          "line": 96
+        },
+        {
+          "heading": "2. Deploy the frontend on Amplify",
+          "level": 2,
+          "line": 106
+        },
+        {
+          "heading": "3. Demo video checklist",
+          "level": 2,
+          "line": 129
+        },
+        {
+          "heading": "Cost notes",
+          "level": 2,
+          "line": 145
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 9
+      }
+    },
+    {
+      "path": "aws/template.yaml",
+      "language": "yaml",
+      "fileCategory": "config",
+      "totalLines": 308,
+      "nonEmptyLines": 286,
+      "sections": [
+        {
+          "heading": "AWSTemplateFormatVersion",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Transform",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "Description",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "Parameters",
+          "level": 1,
+          "line": 21
+        },
+        {
+          "heading": "Globals",
+          "level": 1,
+          "line": 66
+        },
+        {
+          "heading": "Resources",
+          "level": 1,
+          "line": 72
+        },
+        {
+          "heading": "Outputs",
+          "level": 1,
+          "line": 297
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 7
+      }
+    },
+    {
+      "path": "next.config.mjs",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 17,
+      "nonEmptyLines": 16,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "postcss.config.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 6,
+      "nonEmptyLines": 6,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "prisma/migrations/20260625150915_init/migration.sql",
+      "language": "sql",
+      "fileCategory": "data",
+      "totalLines": 95,
+      "nonEmptyLines": 75,
+      "definitions": [
+        {
+          "name": "users",
+          "kind": "table",
+          "fields": [
+            "id",
+            "email",
+            "hashedPassword",
+            "name",
+            "created_at",
+            "updated_at"
+          ],
+          "startLine": 8,
+          "endLine": 17
+        },
+        {
+          "name": "feedback_items",
+          "kind": "table",
+          "fields": [
+            "id",
+            "source",
+            "externalId",
+            "title",
+            "rawContent",
+            "authorLogin",
+            "url",
+            "original_timestamp",
+            "created_at"
+          ],
+          "startLine": 20,
+          "endLine": 32
+        },
+        {
+          "name": "feedback_analyses",
+          "kind": "table",
+          "fields": [
+            "id",
+            "feedback_item_id",
+            "sentiment",
+            "topics",
+            "severity_score",
+            "summary",
+            "status",
+            "created_at",
+            "updated_at"
+          ],
+          "startLine": 35,
+          "endLine": 47
+        },
+        {
+          "name": "ingest_logs",
+          "kind": "table",
+          "fields": [
+            "id",
+            "run_id",
+            "source",
+            "status",
+            "items_fetched",
+            "items_new",
+            "items_skipped",
+            "error",
+            "created_at"
+          ],
+          "startLine": 50,
+          "endLine": 62
+        },
+        {
+          "name": "users_email_key",
+          "kind": "index",
+          "fields": [],
+          "startLine": 65,
+          "endLine": 65
+        },
+        {
+          "name": "feedback_items_externalId_key",
+          "kind": "index",
+          "fields": [],
+          "startLine": 68,
+          "endLine": 68
+        },
+        {
+          "name": "feedback_items_source_idx",
+          "kind": "index",
+          "fields": [],
+          "startLine": 71,
+          "endLine": 71
+        },
+        {
+          "name": "feedback_items_original_timestamp_idx",
+          "kind": "index",
+          "fields": [],
+          "startLine": 74,
+          "endLine": 74
+        },
+        {
+          "name": "feedback_analyses_feedback_item_id_key",
+          "kind": "index",
+          "fields": [],
+          "startLine": 77,
+          "endLine": 77
+        },
+        {
+          "name": "feedback_analyses_sentiment_idx",
+          "kind": "index",
+          "fields": [],
+          "startLine": 80,
+          "endLine": 80
+        },
+        {
+          "name": "feedback_analyses_severity_score_idx",
+          "kind": "index",
+          "fields": [],
+          "startLine": 83,
+          "endLine": 83
+        },
+        {
+          "name": "feedback_analyses_status_idx",
+          "kind": "index",
+          "fields": [],
+          "startLine": 86,
+          "endLine": 86
+        },
+        {
+          "name": "ingest_logs_source_idx",
+          "kind": "index",
+          "fields": [],
+          "startLine": 89,
+          "endLine": 89
+        },
+        {
+          "name": "ingest_logs_created_at_idx",
+          "kind": "index",
+          "fields": [],
+          "startLine": 92,
+          "endLine": 92
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 14
+      }
+    },
+    {
+      "path": "prisma/migrations/migration_lock.toml",
+      "language": "toml",
+      "fileCategory": "config",
+      "totalLines": 3,
+      "nonEmptyLines": 3,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 0
+      }
+    },
+    {
+      "path": "prisma/schema.prisma",
+      "language": "prisma",
+      "fileCategory": "data",
+      "totalLines": 106,
+      "nonEmptyLines": 92,
+      "metrics": {}
+    },
+    {
+      "path": "scripts/build-lambda.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 63,
+      "nonEmptyLines": 55,
+      "functions": [
+        {
+          "name": "main",
+          "startLine": 17,
+          "endLine": 58,
+          "params": []
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "main",
+          "callee": "build",
+          "lineNumber": 18
+        },
+        {
+          "caller": "main",
+          "callee": "join",
+          "lineNumber": 24
+        },
+        {
+          "caller": "main",
+          "callee": "join",
+          "lineNumber": 25
+        },
+        {
+          "caller": "main",
+          "callee": "join",
+          "lineNumber": 39
+        },
+        {
+          "caller": "main",
+          "callee": "existsSync",
+          "lineNumber": 40
+        },
+        {
+          "caller": "main",
+          "callee": "cpSync",
+          "lineNumber": 41
+        },
+        {
+          "caller": "main",
+          "callee": "join",
+          "lineNumber": 41
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 44
+        },
+        {
+          "caller": "main",
+          "callee": "console.warn",
+          "lineNumber": 46
+        },
+        {
+          "caller": "main",
+          "callee": "cpSync",
+          "lineNumber": 52
+        },
+        {
+          "caller": "main",
+          "callee": "join",
+          "lineNumber": 53
+        },
+        {
+          "caller": "main",
+          "callee": "join",
+          "lineNumber": 54
+        },
+        {
+          "caller": "main",
+          "callee": "console.log",
+          "lineNumber": 57
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/(app)/layout.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 21,
+      "nonEmptyLines": 20,
+      "functions": [
+        {
+          "name": "AppLayout",
+          "startLine": 6,
+          "endLine": 21,
+          "params": [
+            "{\n  children,\n}"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "AppLayout",
+          "line": 6,
+          "isDefault": true
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "AppLayout",
+          "callee": "getServerSession",
+          "lineNumber": 11
+        },
+        {
+          "caller": "AppLayout",
+          "callee": "redirect",
+          "lineNumber": 13
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/globals.css",
+      "language": "css",
+      "fileCategory": "markup",
+      "totalLines": 28,
+      "nonEmptyLines": 24,
+      "metrics": {}
+    },
+    {
+      "path": "src/app/layout.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 23,
+      "nonEmptyLines": 21,
+      "functions": [
+        {
+          "name": "RootLayout",
+          "startLine": 11,
+          "endLine": 23,
+          "params": [
+            "{\n  children,\n}"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "metadata",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "RootLayout",
+          "line": 11,
+          "isDefault": true
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/login/page.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 114,
+      "nonEmptyLines": 103,
+      "functions": [
+        {
+          "name": "LoginPage",
+          "startLine": 9,
+          "endLine": 15,
+          "params": []
+        },
+        {
+          "name": "LoginForm",
+          "startLine": 17,
+          "endLine": 114,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "LoginPage",
+          "line": 9,
+          "isDefault": true
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "LoginForm",
+          "callee": "useRouter",
+          "lineNumber": 18
+        },
+        {
+          "caller": "LoginForm",
+          "callee": "useSearchParams",
+          "lineNumber": 19
+        },
+        {
+          "caller": "LoginForm",
+          "callee": "params.get",
+          "lineNumber": 20
+        },
+        {
+          "caller": "LoginForm",
+          "callee": "useState",
+          "lineNumber": 22
+        },
+        {
+          "caller": "LoginForm",
+          "callee": "useState",
+          "lineNumber": 23
+        },
+        {
+          "caller": "LoginForm",
+          "callee": "useState",
+          "lineNumber": 24
+        },
+        {
+          "caller": "LoginForm",
+          "callee": "useState",
+          "lineNumber": 25
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "e.preventDefault",
+          "lineNumber": 28
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setError",
+          "lineNumber": 29
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setLoading",
+          "lineNumber": 30
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "signIn",
+          "lineNumber": 31
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setLoading",
+          "lineNumber": 36
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setError",
+          "lineNumber": 38
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "router.push",
+          "lineNumber": 41
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "router.refresh",
+          "lineNumber": 42
+        },
+        {
+          "caller": "LoginForm",
+          "callee": "setEmail",
+          "lineNumber": 72
+        },
+        {
+          "caller": "LoginForm",
+          "callee": "setPassword",
+          "lineNumber": 86
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/page.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 6,
+      "nonEmptyLines": 5,
+      "functions": [
+        {
+          "name": "Home",
+          "startLine": 3,
+          "endLine": 6,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Home",
+          "line": 3,
+          "isDefault": true
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "Home",
+          "callee": "redirect",
+          "lineNumber": 5
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/signup/page.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 132,
+      "nonEmptyLines": 120,
+      "functions": [
+        {
+          "name": "SignupPage",
+          "startLine": 9,
+          "endLine": 132,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "SignupPage",
+          "line": 9,
+          "isDefault": true
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "SignupPage",
+          "callee": "useRouter",
+          "lineNumber": 10
+        },
+        {
+          "caller": "SignupPage",
+          "callee": "useState",
+          "lineNumber": 11
+        },
+        {
+          "caller": "SignupPage",
+          "callee": "useState",
+          "lineNumber": 12
+        },
+        {
+          "caller": "SignupPage",
+          "callee": "useState",
+          "lineNumber": 13
+        },
+        {
+          "caller": "SignupPage",
+          "callee": "useState",
+          "lineNumber": 14
+        },
+        {
+          "caller": "SignupPage",
+          "callee": "useState",
+          "lineNumber": 15
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "e.preventDefault",
+          "lineNumber": 18
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setError",
+          "lineNumber": 19
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setLoading",
+          "lineNumber": 20
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "fetch",
+          "lineNumber": 22
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "JSON.stringify",
+          "lineNumber": 25
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "res.json().catch",
+          "lineNumber": 29
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "res.json",
+          "lineNumber": 29
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setLoading",
+          "lineNumber": 30
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setError",
+          "lineNumber": 31
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "signIn",
+          "lineNumber": 36
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setLoading",
+          "lineNumber": 41
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setError",
+          "lineNumber": 43
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "router.push",
+          "lineNumber": 44
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "router.push",
+          "lineNumber": 47
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "router.refresh",
+          "lineNumber": 48
+        },
+        {
+          "caller": "SignupPage",
+          "callee": "setName",
+          "lineNumber": 75
+        },
+        {
+          "caller": "SignupPage",
+          "callee": "setEmail",
+          "lineNumber": 89
+        },
+        {
+          "caller": "SignupPage",
+          "callee": "setPassword",
+          "lineNumber": 104
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/components/Navbar.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 67,
+      "nonEmptyLines": 61,
+      "functions": [
+        {
+          "name": "Navbar",
+          "startLine": 14,
+          "endLine": 67,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Navbar",
+          "line": 14,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "Navbar",
+          "callee": "usePathname",
+          "lineNumber": 15
+        },
+        {
+          "caller": "Navbar",
+          "callee": "useSession",
+          "lineNumber": 16
+        },
+        {
+          "caller": "Navbar",
+          "callee": "links.map",
+          "lineNumber": 29
+        },
+        {
+          "caller": "Navbar",
+          "callee": "pathname.startsWith",
+          "lineNumber": 30
+        },
+        {
+          "caller": "Navbar",
+          "callee": "cn",
+          "lineNumber": 36
+        },
+        {
+          "caller": "Navbar",
+          "callee": "signOut",
+          "lineNumber": 57
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/components/Providers.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 8,
+      "nonEmptyLines": 6,
+      "functions": [
+        {
+          "name": "Providers",
+          "startLine": 6,
+          "endLine": 8,
+          "params": [
+            "{ children }"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "Providers",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/middleware.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 11,
+      "nonEmptyLines": 10,
+      "exports": [
+        {
+          "name": "default",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "config",
+          "line": 7,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/types/next-auth.d.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 15,
+      "nonEmptyLines": 13,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "tailwind.config.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 33,
+      "nonEmptyLines": 31,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "tsconfig.tsbuildinfo",
+      "language": "tsbuildinfo",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "metrics": {}
+    }
+  ]
+}

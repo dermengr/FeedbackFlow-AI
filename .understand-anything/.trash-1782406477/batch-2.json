@@ -1,0 +1,320 @@
+{
+  "nodes": [
+    {
+      "id": "file:scripts/seed.ts",
+      "type": "file",
+      "name": "seed.ts",
+      "filePath": "scripts/seed.ts",
+      "summary": "Database seeding script that creates a demo user and populates sample feedback items with analyses for local development and testing.",
+      "tags": ["script", "database", "seeding", "utility", "development"],
+      "complexity": "moderate",
+      "languageNotes": "Uses process.argv to optionally skip sample seeding; relies on Prisma upserts for idempotent inserts."
+    },
+    {
+      "id": "function:scripts/seed.ts:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "scripts/seed.ts",
+      "lineRange": [10, 27],
+      "summary": "Entry point that hashes a demo password, upserts a seed user, and conditionally invokes sample feedback seeding.",
+      "tags": ["entry-point", "seeding", "database"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:scripts/seed.ts:seedSamples",
+      "type": "function",
+      "name": "seedSamples",
+      "filePath": "scripts/seed.ts",
+      "lineRange": [29, 141],
+      "summary": "Populates the database with sample feedback items and associated analyses using Prisma upserts, generating timestamps across past days.",
+      "tags": ["seeding", "database", "utility"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/app/api/auth/[...nextauth]/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/auth/[...nextauth]/route.ts",
+      "summary": "Next.js catch-all route that wires the shared NextAuth authOptions into GET and POST handlers for the authentication endpoints.",
+      "tags": ["api-handler", "authentication", "entry-point", "middleware"],
+      "complexity": "simple",
+      "languageNotes": "Re-exports NextAuth(authOptions) as named GET/POST handlers per Next.js App Router convention."
+    },
+    {
+      "id": "file:src/app/api/auth/signup/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/auth/signup/route.ts",
+      "summary": "Signup API endpoint that validates credentials with a Zod schema, checks for existing users, hashes passwords, and creates new user records.",
+      "tags": ["api-handler", "authentication", "validation", "service"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/api/auth/signup/route.ts:POST",
+      "type": "function",
+      "name": "POST",
+      "filePath": "src/app/api/auth/signup/route.ts",
+      "lineRange": [12, 43],
+      "summary": "Handles user registration by validating the request body, preventing duplicate emails, hashing the password with bcrypt, and persisting the new user via Prisma.",
+      "tags": ["api-handler", "authentication", "validation", "service"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/api/dashboard/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/dashboard/route.ts",
+      "summary": "Dashboard analytics API endpoint that aggregates feedback analyses by sentiment, status, severity, and topic, plus a daily feedback volume time series.",
+      "tags": ["api-handler", "analytics", "service", "data-aggregation"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/api/dashboard/route.ts:GET",
+      "type": "function",
+      "name": "GET",
+      "filePath": "src/app/api/dashboard/route.ts",
+      "lineRange": [13, 118],
+      "summary": "Authenticates the session then returns aggregated dashboard metrics: sentiment/status/severity/topic distributions, recent feedback counts, and a 14-day daily volume series.",
+      "tags": ["api-handler", "analytics", "data-aggregation", "service"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/app/api/feedback/[id]/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/feedback/[id]/route.ts",
+      "summary": "Feedback item API endpoints supporting fetching a single feedback item by id and patching its analysis (status, sentiment, severity, topics).",
+      "tags": ["api-handler", "service", "validation", "crud"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/api/feedback/[id]/route.ts:GET",
+      "type": "function",
+      "name": "GET",
+      "filePath": "src/app/api/feedback/[id]/route.ts",
+      "lineRange": [9, 26],
+      "summary": "Returns a single feedback item by id after verifying the user session via getServerSession.",
+      "tags": ["api-handler", "crud", "service"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/api/feedback/[id]/route.ts:PATCH",
+      "type": "function",
+      "name": "PATCH",
+      "filePath": "src/app/api/feedback/[id]/route.ts",
+      "lineRange": [33, 77],
+      "summary": "Validates and applies partial updates to a feedback item's analysis (status, sentiment, severity, topics) using a Zod patch schema and Prisma.",
+      "tags": ["api-handler", "crud", "validation", "service"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/api/feedback/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/feedback/route.ts",
+      "summary": "Feedback list API endpoint with filtering by sentiment, status, and topic, plus sorting and pagination over feedback items and their analyses.",
+      "tags": ["api-handler", "service", "validation", "crud"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/api/feedback/route.ts:GET",
+      "type": "function",
+      "name": "GET",
+      "filePath": "src/app/api/feedback/route.ts",
+      "lineRange": [17, 98],
+      "summary": "Authenticates the session then returns a paginated, filterable list of feedback items joined with analyses, validating filter values against project enum constants.",
+      "tags": ["api-handler", "crud", "validation", "service"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/lib/auth.ts",
+      "type": "file",
+      "name": "auth.ts",
+      "filePath": "src/lib/auth.ts",
+      "summary": "Configures NextAuth authOptions with credentials provider, JWT session strategy, and an authorize callback that validates email/password against the Prisma user table.",
+      "tags": ["authentication", "middleware", "config", "service"],
+      "complexity": "moderate",
+      "languageNotes": "Exports an authOptions object consumed by NextAuth; the authorize callback is a nested function within the credentials provider config."
+    },
+    {
+      "id": "file:src/lib/prisma.ts",
+      "type": "file",
+      "name": "prisma.ts",
+      "filePath": "src/lib/prisma.ts",
+      "summary": "Prisma client singleton that instantiates a single PrismaClient instance and reuses it in development to avoid exhausting database connections.",
+      "tags": ["singleton", "database", "utility", "service"],
+      "complexity": "simple",
+      "languageNotes": "Attaches the client to globalThis.prisma in development to prevent hot-reload connection leaks."
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:scripts/seed.ts",
+      "target": "function:scripts/seed.ts:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:scripts/seed.ts",
+      "target": "function:scripts/seed.ts:seedSamples",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/app/api/auth/signup/route.ts",
+      "target": "function:src/app/api/auth/signup/route.ts:POST",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/app/api/dashboard/route.ts",
+      "target": "function:src/app/api/dashboard/route.ts:GET",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/app/api/feedback/[id]/route.ts",
+      "target": "function:src/app/api/feedback/[id]/route.ts:GET",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/app/api/feedback/[id]/route.ts",
+      "target": "function:src/app/api/feedback/[id]/route.ts:PATCH",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/app/api/feedback/route.ts",
+      "target": "function:src/app/api/feedback/route.ts:GET",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/app/api/auth/signup/route.ts",
+      "target": "function:src/app/api/auth/signup/route.ts:POST",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/api/dashboard/route.ts",
+      "target": "function:src/app/api/dashboard/route.ts:GET",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/api/feedback/[id]/route.ts",
+      "target": "function:src/app/api/feedback/[id]/route.ts:GET",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/api/feedback/[id]/route.ts",
+      "target": "function:src/app/api/feedback/[id]/route.ts:PATCH",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/app/api/feedback/route.ts",
+      "target": "function:src/app/api/feedback/route.ts:GET",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:scripts/seed.ts",
+      "target": "file:src/lib/prisma.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/auth/[...nextauth]/route.ts",
+      "target": "file:src/lib/auth.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/auth/signup/route.ts",
+      "target": "file:src/lib/prisma.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/dashboard/route.ts",
+      "target": "file:src/lib/auth.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/dashboard/route.ts",
+      "target": "file:src/lib/prisma.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/feedback/[id]/route.ts",
+      "target": "file:src/lib/auth.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/feedback/[id]/route.ts",
+      "target": "file:src/lib/prisma.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/feedback/[id]/route.ts",
+      "target": "file:src/lib/types.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/feedback/route.ts",
+      "target": "file:src/lib/auth.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/feedback/route.ts",
+      "target": "file:src/lib/prisma.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/api/feedback/route.ts",
+      "target": "file:src/lib/types.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/lib/auth.ts",
+      "target": "file:src/lib/prisma.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

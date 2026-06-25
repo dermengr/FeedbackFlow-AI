@@ -1,0 +1,192 @@
+{
+  "nodes": [
+    {
+      "id": "file:aws/lambda/handler.ts",
+      "type": "file",
+      "name": "handler.ts",
+      "filePath": "aws/lambda/handler.ts",
+      "summary": "AWS Lambda entry point that invokes the shared ingest pipeline and returns a JSON summary of the run, with error handling that surfaces failures to the Lambda runtime.",
+      "tags": ["entry-point", "api-handler", "service", "ingest", "lambda"],
+      "complexity": "simple",
+      "languageNotes": "Exports a named `handler` async function conforming to the AWS Lambda signature."
+    },
+    {
+      "id": "file:scripts/ingest.ts",
+      "type": "file",
+      "name": "ingest.ts",
+      "filePath": "scripts/ingest.ts",
+      "summary": "Command-line script that runs the ingest pipeline once and prints the result summary, exiting with a non-zero code on failure for CI integration.",
+      "tags": ["script", "entry-point", "ingest", "cli"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/api/ingest/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/ingest/route.ts",
+      "summary": "Next.js App Router POST handler that authenticates the session via NextAuth and triggers the ingest pipeline, returning JSON status responses.",
+      "tags": ["api-handler", "entry-point", "ingest", "middleware", "route"],
+      "complexity": "simple",
+      "languageNotes": "Uses Next.js App Router route handler conventions (exported POST function)."
+    },
+    {
+      "id": "file:src/app/api/webhook/slack/route.ts",
+      "type": "file",
+      "name": "route.ts",
+      "filePath": "src/app/api/webhook/slack/route.ts",
+      "summary": "Next.js App Router webhook endpoint for Slack integration, exposing GET (status check) and POST (send a Slack message) handlers gated by session auth and a Slack-enabled feature flag.",
+      "tags": ["api-handler", "entry-point", "webhook", "slack", "route"],
+      "complexity": "simple",
+      "languageNotes": "Exports both GET and POST route handlers per Next.js App Router conventions."
+    },
+    {
+      "id": "file:src/lib/ingest.ts",
+      "type": "file",
+      "name": "ingest.ts",
+      "filePath": "src/lib/ingest.ts",
+      "summary": "Core ingest pipeline orchestrator that fetches raw feedback items from a source, deduplicates against existing records, batches them through LLM analysis, persists results in a Prisma transaction, and notifies Slack on high-severity findings.",
+      "tags": ["service", "ingest", "data-pipeline", "orchestration", "serialization"],
+      "complexity": "complex",
+      "languageNotes": "Uses a Prisma $transaction for atomic feedback item and analysis creation, with structured logging via persistLog."
+    },
+    {
+      "id": "file:src/lib/slack.ts",
+      "type": "file",
+      "name": "slack.ts",
+      "filePath": "src/lib/slack.ts",
+      "summary": "Slack notification helper module providing a feature-flag check, a generic message sender via the Slack incoming webhook, and a high-severity feedback notifier that formats topics and sentiment for alerting.",
+      "tags": ["service", "slack", "notification", "utility", "event-handler"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:aws/lambda/handler.ts:handler",
+      "type": "function",
+      "name": "handler",
+      "filePath": "aws/lambda/handler.ts",
+      "lineRange": [15, 38],
+      "summary": "AWS Lambda handler that runs the ingest pipeline, logs progress, and returns a structured JSON response with counts and any failures.",
+      "tags": ["entry-point", "api-handler", "ingest", "lambda"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/api/ingest/route.ts:POST",
+      "type": "function",
+      "name": "POST",
+      "filePath": "src/app/api/ingest/route.ts",
+      "lineRange": [8, 25],
+      "summary": "Authenticates the request session and invokes the ingest pipeline, returning a JSON response with the run result or an error status.",
+      "tags": ["api-handler", "ingest", "middleware", "route"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/api/webhook/slack/route.ts:GET",
+      "type": "function",
+      "name": "GET",
+      "filePath": "src/app/api/webhook/slack/route.ts",
+      "lineRange": [7, 13],
+      "summary": "Status-check handler that verifies session auth and reports whether the Slack integration is enabled.",
+      "tags": ["api-handler", "webhook", "slack", "route"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/api/webhook/slack/route.ts:POST",
+      "type": "function",
+      "name": "POST",
+      "filePath": "src/app/api/webhook/slack/route.ts",
+      "lineRange": [16, 38],
+      "summary": "Authenticates the session, checks the Slack feature flag, and forwards a payload to sendSlackMessage, returning a JSON success or error response.",
+      "tags": ["api-handler", "webhook", "slack", "route"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/ingest.ts:runIngest",
+      "type": "function",
+      "name": "runIngest",
+      "filePath": "src/lib/ingest.ts",
+      "lineRange": [37, 176],
+      "summary": "Main ingest pipeline function that fetches raw feedback, deduplicates against the database, batches items through LLM analysis, atomically persists items and analyses, and triggers Slack alerts for high-severity results.",
+      "tags": ["service", "ingest", "data-pipeline", "orchestration", "serialization"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/lib/ingest.ts:persistLog",
+      "type": "function",
+      "name": "persistLog",
+      "filePath": "src/lib/ingest.ts",
+      "lineRange": [178, 195],
+      "summary": "Persists an ingest run log entry to the database via Prisma, swallowing and logging errors so logging failures never break the pipeline.",
+      "tags": ["utility", "logging", "persistence", "ingest"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/slack.ts:isSlackEnabled",
+      "type": "function",
+      "name": "isSlackEnabled",
+      "filePath": "src/lib/slack.ts",
+      "lineRange": [9, 11],
+      "summary": "Returns whether Slack notifications are enabled based on the presence of the Slack webhook URL environment variable.",
+      "tags": ["utility", "slack", "feature-flag", "validation"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/slack.ts:sendSlackMessage",
+      "type": "function",
+      "name": "sendSlackMessage",
+      "filePath": "src/lib/slack.ts",
+      "lineRange": [13, 27],
+      "summary": "Posts an arbitrary payload to the configured Slack incoming webhook URL via fetch and returns a success boolean with error logging on failure.",
+      "tags": ["service", "slack", "notification", "serialization"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/slack.ts:notifyHighSeverity",
+      "type": "function",
+      "name": "notifyHighSeverity",
+      "filePath": "src/lib/slack.ts",
+      "lineRange": [29, 45],
+      "summary": "Formats a high-severity feedback alert (topics and sentiment) and sends it to Slack when the integration is enabled.",
+      "tags": ["event-handler", "slack", "notification", "alerting"],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {"source": "file:aws/lambda/handler.ts", "target": "function:aws/lambda/handler.ts:handler", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:src/app/api/ingest/route.ts", "target": "function:src/app/api/ingest/route.ts:POST", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:src/app/api/webhook/slack/route.ts", "target": "function:src/app/api/webhook/slack/route.ts:GET", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:src/app/api/webhook/slack/route.ts", "target": "function:src/app/api/webhook/slack/route.ts:POST", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:src/lib/ingest.ts", "target": "function:src/lib/ingest.ts:runIngest", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:src/lib/ingest.ts", "target": "function:src/lib/ingest.ts:persistLog", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:src/lib/slack.ts", "target": "function:src/lib/slack.ts:isSlackEnabled", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:src/lib/slack.ts", "target": "function:src/lib/slack.ts:sendSlackMessage", "type": "contains", "direction": "forward", "weight": 1.0},
+    {"source": "file:src/lib/slack.ts", "target": "function:src/lib/slack.ts:notifyHighSeverity", "type": "contains", "direction": "forward", "weight": 1.0},
+
+    {"source": "file:aws/lambda/handler.ts", "target": "function:aws/lambda/handler.ts:handler", "type": "exports", "direction": "forward", "weight": 0.8},
+    {"source": "file:src/app/api/ingest/route.ts", "target": "function:src/app/api/ingest/route.ts:POST", "type": "exports", "direction": "forward", "weight": 0.8},
+    {"source": "file:src/app/api/webhook/slack/route.ts", "target": "function:src/app/api/webhook/slack/route.ts:GET", "type": "exports", "direction": "forward", "weight": 0.8},
+    {"source": "file:src/app/api/webhook/slack/route.ts", "target": "function:src/app/api/webhook/slack/route.ts:POST", "type": "exports", "direction": "forward", "weight": 0.8},
+    {"source": "file:src/lib/ingest.ts", "target": "function:src/lib/ingest.ts:runIngest", "type": "exports", "direction": "forward", "weight": 0.8},
+    {"source": "file:src/lib/slack.ts", "target": "function:src/lib/slack.ts:isSlackEnabled", "type": "exports", "direction": "forward", "weight": 0.8},
+    {"source": "file:src/lib/slack.ts", "target": "function:src/lib/slack.ts:sendSlackMessage", "type": "exports", "direction": "forward", "weight": 0.8},
+    {"source": "file:src/lib/slack.ts", "target": "function:src/lib/slack.ts:notifyHighSeverity", "type": "exports", "direction": "forward", "weight": 0.8},
+
+    {"source": "file:aws/lambda/handler.ts", "target": "file:src/lib/ingest.ts", "type": "imports", "direction": "forward", "weight": 0.7},
+    {"source": "file:scripts/ingest.ts", "target": "file:src/lib/ingest.ts", "type": "imports", "direction": "forward", "weight": 0.7},
+    {"source": "file:src/app/api/ingest/route.ts", "target": "file:src/lib/auth.ts", "type": "imports", "direction": "forward", "weight": 0.7},
+    {"source": "file:src/app/api/ingest/route.ts", "target": "file:src/lib/ingest.ts", "type": "imports", "direction": "forward", "weight": 0.7},
+    {"source": "file:src/app/api/webhook/slack/route.ts", "target": "file:src/lib/auth.ts", "type": "imports", "direction": "forward", "weight": 0.7},
+    {"source": "file:src/app/api/webhook/slack/route.ts", "target": "file:src/lib/slack.ts", "type": "imports", "direction": "forward", "weight": 0.7},
+    {"source": "file:src/lib/ingest.ts", "target": "file:src/lib/github.ts", "type": "imports", "direction": "forward", "weight": 0.7},
+    {"source": "file:src/lib/ingest.ts", "target": "file:src/lib/llm.ts", "type": "imports", "direction": "forward", "weight": 0.7},
+    {"source": "file:src/lib/ingest.ts", "target": "file:src/lib/prisma.ts", "type": "imports", "direction": "forward", "weight": 0.7},
+    {"source": "file:src/lib/ingest.ts", "target": "file:src/lib/slack.ts", "type": "imports", "direction": "forward", "weight": 0.7},
+    {"source": "file:src/lib/ingest.ts", "target": "file:src/lib/types.ts", "type": "imports", "direction": "forward", "weight": 0.7},
+
+    {"source": "function:aws/lambda/handler.ts:handler", "target": "function:src/lib/ingest.ts:runIngest", "type": "calls", "direction": "forward", "weight": 0.8},
+    {"source": "function:src/app/api/ingest/route.ts:POST", "target": "function:src/lib/ingest.ts:runIngest", "type": "calls", "direction": "forward", "weight": 0.8},
+    {"source": "function:src/app/api/webhook/slack/route.ts:GET", "target": "function:src/lib/slack.ts:isSlackEnabled", "type": "calls", "direction": "forward", "weight": 0.8},
+    {"source": "function:src/app/api/webhook/slack/route.ts:POST", "target": "function:src/lib/slack.ts:isSlackEnabled", "type": "calls", "direction": "forward", "weight": 0.8},
+    {"source": "function:src/app/api/webhook/slack/route.ts:POST", "target": "function:src/lib/slack.ts:sendSlackMessage", "type": "calls", "direction": "forward", "weight": 0.8},
+    {"source": "function:src/lib/ingest.ts:runIngest", "target": "function:src/lib/llm.ts:analyzeBatch", "type": "calls", "direction": "forward", "weight": 0.8},
+    {"source": "function:src/lib/ingest.ts:runIngest", "target": "function:src/lib/slack.ts:notifyHighSeverity", "type": "calls", "direction": "forward", "weight": 0.8}
+  ]
+}

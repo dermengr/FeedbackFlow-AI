@@ -1,0 +1,276 @@
+{
+  "nodes": [
+    {
+      "id": "file:src/app/(app)/dashboard/page.tsx",
+      "type": "file",
+      "name": "page.tsx",
+      "filePath": "src/app/(app)/dashboard/page.tsx",
+      "summary": "Server-rendered dashboard page that aggregates feedback analysis metrics (sentiment, severity, topic distribution, trend) via Prisma and renders KPI cards, Recharts visualizations, and a high-severity feedback list.",
+      "tags": ["entry-point", "component", "api-handler", "data-model", "dashboard"],
+      "complexity": "complex",
+      "languageNotes": "Next.js App Router server component using getServerSession for auth and dynamic import for client-side chart rendering."
+    },
+    {
+      "id": "function:src/app/(app)/dashboard/page.tsx:getDashboardData",
+      "type": "function",
+      "name": "getDashboardData",
+      "filePath": "src/app/(app)/dashboard/page.tsx",
+      "lineRange": [18, 86],
+      "summary": "Server-side data loader that queries Prisma for sentiment/severity groupings, topic counts, daily sentiment trends, high-severity items, and ingest status to feed the dashboard.",
+      "tags": ["data-model", "service", "aggregation", "prisma"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/(app)/dashboard/page.tsx:DashboardPage",
+      "type": "function",
+      "name": "DashboardPage",
+      "filePath": "src/app/(app)/dashboard/page.tsx",
+      "lineRange": [88, 194],
+      "summary": "Default-exported React server component that authenticates the session, loads dashboard data, and renders KPI cards, chart components, and a high-severity feedback list.",
+      "tags": ["component", "entry-point", "dashboard", "server-component"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/(app)/dashboard/page.tsx:KpiCard",
+      "type": "function",
+      "name": "KpiCard",
+      "filePath": "src/app/(app)/dashboard/page.tsx",
+      "lineRange": [196, 211],
+      "summary": "Presentational helper component rendering a labeled KPI metric card with an accent color.",
+      "tags": ["component", "utility", "dashboard"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/charts/SentimentDonutChart.tsx",
+      "type": "file",
+      "name": "SentimentDonutChart.tsx",
+      "filePath": "src/components/charts/SentimentDonutChart.tsx",
+      "summary": "Recharts-based donut chart component visualizing the distribution of positive, neutral, and negative sentiment counts.",
+      "tags": ["component", "visualization", "recharts", "dashboard"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/components/charts/SentimentDonutChart.tsx:SentimentDonutChart",
+      "type": "function",
+      "name": "SentimentDonutChart",
+      "filePath": "src/components/charts/SentimentDonutChart.tsx",
+      "lineRange": [18, 60],
+      "summary": "Exported React component that normalizes sentiment group data into positive/neutral/negative series and renders a Recharts PieChart with a donut layout and legend.",
+      "tags": ["component", "visualization", "recharts", "sentiment"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/components/charts/SentimentTrendChart.tsx",
+      "type": "file",
+      "name": "SentimentTrendChart.tsx",
+      "filePath": "src/components/charts/SentimentTrendChart.tsx",
+      "summary": "Recharts line chart component displaying daily sentiment trend counts over time for the dashboard.",
+      "tags": ["component", "visualization", "recharts", "dashboard"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/components/charts/SentimentTrendChart.tsx:SentimentTrendChart",
+      "type": "function",
+      "name": "SentimentTrendChart",
+      "filePath": "src/components/charts/SentimentTrendChart.tsx",
+      "lineRange": [21, 40],
+      "summary": "Exported React component that slices trend data and renders a Recharts line chart of daily sentiment counts.",
+      "tags": ["component", "visualization", "recharts", "trend"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/charts/SeverityChart.tsx",
+      "type": "file",
+      "name": "SeverityChart.tsx",
+      "filePath": "src/components/charts/SeverityChart.tsx",
+      "summary": "Recharts bar chart component visualizing feedback counts grouped by severity level (1-5) for the dashboard.",
+      "tags": ["component", "visualization", "recharts", "dashboard"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/components/charts/SeverityChart.tsx:SeverityChart",
+      "type": "function",
+      "name": "SeverityChart",
+      "filePath": "src/components/charts/SeverityChart.tsx",
+      "lineRange": [25, 58],
+      "summary": "Exported React component that normalizes severity group data across levels 1-5 and renders a Recharts bar chart with colored bars and a legend.",
+      "tags": ["component", "visualization", "recharts", "severity"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/components/charts/TopicDistributionChart.tsx",
+      "type": "file",
+      "name": "TopicDistributionChart.tsx",
+      "filePath": "src/components/charts/TopicDistributionChart.tsx",
+      "summary": "Recharts bar chart component showing the distribution of feedback items across detected topics for the dashboard.",
+      "tags": ["component", "visualization", "recharts", "dashboard"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/components/charts/TopicDistributionChart.tsx:TopicDistributionChart",
+      "type": "function",
+      "name": "TopicDistributionChart",
+      "filePath": "src/components/charts/TopicDistributionChart.tsx",
+      "lineRange": [18, 40],
+      "summary": "Exported React component that slices topic count data and renders a Recharts horizontal bar chart of topic distribution.",
+      "tags": ["component", "visualization", "recharts", "topic"],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "file:src/components/Badges.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "file:src/components/charts/SentimentDonutChart.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "file:src/components/charts/SentimentTrendChart.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "file:src/components/charts/SeverityChart.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "file:src/components/charts/TopicDistributionChart.tsx",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "file:src/lib/auth.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "file:src/lib/prisma.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "file:src/lib/utils.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "function:src/app/(app)/dashboard/page.tsx:getDashboardData",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "function:src/app/(app)/dashboard/page.tsx:DashboardPage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "function:src/app/(app)/dashboard/page.tsx:KpiCard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/app/(app)/dashboard/page.tsx",
+      "target": "function:src/app/(app)/dashboard/page.tsx:DashboardPage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/app/(app)/dashboard/page.tsx:DashboardPage",
+      "target": "function:src/lib/utils.ts:formatDate",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:src/app/(app)/dashboard/page.tsx:DashboardPage",
+      "target": "function:src/lib/utils.ts:truncate",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/charts/SentimentDonutChart.tsx",
+      "target": "function:src/components/charts/SentimentDonutChart.tsx:SentimentDonutChart",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/charts/SentimentDonutChart.tsx",
+      "target": "function:src/components/charts/SentimentDonutChart.tsx:SentimentDonutChart",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/charts/SentimentTrendChart.tsx",
+      "target": "function:src/components/charts/SentimentTrendChart.tsx:SentimentTrendChart",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/charts/SentimentTrendChart.tsx",
+      "target": "function:src/components/charts/SentimentTrendChart.tsx:SentimentTrendChart",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/charts/SeverityChart.tsx",
+      "target": "function:src/components/charts/SeverityChart.tsx:SeverityChart",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/charts/SeverityChart.tsx",
+      "target": "function:src/components/charts/SeverityChart.tsx:SeverityChart",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:src/components/charts/TopicDistributionChart.tsx",
+      "target": "function:src/components/charts/TopicDistributionChart.tsx:TopicDistributionChart",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:src/components/charts/TopicDistributionChart.tsx",
+      "target": "function:src/components/charts/TopicDistributionChart.tsx:TopicDistributionChart",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

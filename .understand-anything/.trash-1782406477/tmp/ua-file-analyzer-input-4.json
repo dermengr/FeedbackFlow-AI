@@ -1,0 +1,26 @@
+{
+  "projectRoot": "/workspaces/FeedbackFlow-AI",
+  "batchFiles": [
+    {"path": "src/app/(app)/dashboard/page.tsx", "language": "typescript", "sizeLines": 228, "fileCategory": "code"},
+    {"path": "src/components/charts/SentimentDonutChart.tsx", "language": "typescript", "sizeLines": 60, "fileCategory": "code"},
+    {"path": "src/components/charts/SentimentTrendChart.tsx", "language": "typescript", "sizeLines": 40, "fileCategory": "code"},
+    {"path": "src/components/charts/SeverityChart.tsx", "language": "typescript", "sizeLines": 58, "fileCategory": "code"},
+    {"path": "src/components/charts/TopicDistributionChart.tsx", "language": "typescript", "sizeLines": 40, "fileCategory": "code"}
+  ],
+  "batchImportData": {
+    "src/app/(app)/dashboard/page.tsx": [
+      "src/components/Badges.tsx",
+      "src/components/charts/SentimentDonutChart.tsx",
+      "src/components/charts/SentimentTrendChart.tsx",
+      "src/components/charts/SeverityChart.tsx",
+      "src/components/charts/TopicDistributionChart.tsx",
+      "src/lib/auth.ts",
+      "src/lib/prisma.ts",
+      "src/lib/utils.ts"
+    ],
+    "src/components/charts/SentimentDonutChart.tsx": [],
+    "src/components/charts/SentimentTrendChart.tsx": [],
+    "src/components/charts/SeverityChart.tsx": [],
+    "src/components/charts/TopicDistributionChart.tsx": []
+  }
+}

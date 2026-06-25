@@ -1,0 +1,134 @@
+[
+  {
+    "order": 1,
+    "title": "Project Overview",
+    "description": "Start with the README to grasp what FeedbackFlow AI is and why it exists. It is an automated micro-SaaS that ingests real customer feedback from GitHub Issues, runs multi-task LLM analysis (sentiment, topics, severity, summary) on each item, stores raw + structured results in Postgres, and exposes a dashboard, inbox, and detail UI for triage. The README maps features to architecture and gives you the vocabulary for the rest of the tour.",
+    "nodeIds": [
+      "document:README.md"
+    ],
+    "languageLesson": "A good README doubles as an architecture map: it lists features, the tech stack, the data model, and deployment, so newcomers can anchor every later code reading back to a documented purpose."
+  },
+  {
+    "order": 2,
+    "title": "Application Entry Point",
+    "description": "The Next.js App Router boots from the root layout, which sets HTML metadata and wraps the whole tree in the SessionProvider. The root page simply redirects visitors to the authenticated dashboard. Together these two files define the runtime shell: every route renders inside the root layout, and unauthenticated traffic is bounced toward login before reaching the app.",
+    "nodeIds": [
+      "file:src/app/layout.tsx",
+      "file:src/app/page.tsx",
+      "file:src/components/Providers.tsx"
+    ],
+    "languageLesson": "Next.js App Router uses file-based routing: layout.tsx wraps nested routes and persists across navigations, while page.tsx is the leaf route component. The (app) route group in parentheses is a pathless grouping that lets the authenticated layout share a URL prefix with public routes."
+  },
+  {
+    "order": 3,
+    "title": "Authentication & Route Protection",
+    "description": "Security is enforced at two levels. The middleware validates the NextAuth session token on every request to protected paths, while the auth library configures the credentials provider with a JWT session strategy and an authorize callback that checks email/password against the Prisma user table. The catch-all NextAuth route wires these options into the auth endpoints, and the signup route hashes passwords and creates users. This is the gate everything behind it depends on.",
+    "nodeIds": [
+      "file:src/middleware.ts",
+      "file:src/lib/auth.ts",
+      "file:src/app/api/auth/[...nextauth]/route.ts",
+      "file:src/app/api/auth/signup/route.ts",
+      "file:src/types/next-auth.d.ts"
+    ],
+    "languageLesson": "NextAuth.js separates configuration (authOptions) from the route handler. The next-auth.d.ts file uses TypeScript module augmentation to extend the Session and JWT types with a custom userId field, so the augmented type flows through the app without runtime cost."
+  },
+  {
+    "order": 4,
+    "title": "Data Model & Schema",
+    "description": "The Prisma schema is the single source of truth for the Postgres data model, defining User, FeedbackItem, FeedbackAnalysis, and IngestLog models plus enums for triage and run statuses. The initial migration SQL creates the corresponding tables with unique constraints and query indexes. The feedback_items table is keyed by source + external id for idempotent ingestion, and feedback_analyses links 1:1 to it via a foreign key storing the LLM results. This schema is the contract every other layer reads and writes.",
+    "nodeIds": [
+      "schema:prisma/schema.prisma",
+      "table:prisma/migrations/20260625150915_init/migration.sql",
+      "table:prisma/migrations/20260625150915_init/migration.sql:feedback_items",
+      "table:prisma/migrations/20260625150915_init/migration.sql:feedback_analyses"
+    ],
+    "languageLesson": "Prisma uses a declarative schema.prisma that generates a type-safe client. Migrations are versioned SQL files applied in order; the migration_lock.toml pins the provider to postgresql so the same schema cannot be accidentally migrated against a different database engine."
+  },
+  {
+    "order": 5,
+    "title": "Shared Foundation: Client, Types & Utilities",
+    "description": "Three small files have the highest fan-in in the whole codebase because nearly every other module imports them. The Prisma client singleton reuses one connection in development to avoid exhausting the pool. The shared types module defines sentiment labels, the topic taxonomy, and triage statuses used by both the UI and the pipeline. The utils module provides className concatenation, date formatting, truncation, and the sleep/backoff helpers the ingestion and LLM modules rely on for reliability.",
+    "nodeIds": [
+      "file:src/lib/prisma.ts",
+      "file:src/lib/types.ts",
+      "file:src/lib/utils.ts"
+    ],
+    "languageLesson": "A Prisma client singleton pattern prevents exhausting database connections during Next.js hot-reload in development, where globalThis is reused across reloads. Centralizing constants in one types module keeps the UI and pipeline vocabularies in sync."
+  },
+  {
+    "order": 6,
+    "title": "Ingest Pipeline Orchestrator",
+    "description": "The ingest module is the heart of the product: its runIngest function fetches raw feedback from a source, deduplicates against existing records by source + external id, batches items through LLM analysis, persists raw + analysis rows in a Prisma transaction, logs the run to ingest_logs, and notifies Slack on high-severity findings. It ties together the github, llm, prisma, and slack modules introduced next, and is the single function invoked by the CLI, the API route, and the Lambda handler.",
+    "nodeIds": [
+      "file:src/lib/ingest.ts"
+    ],
+    "languageLesson": "Wrapping multi-step side effects in a Prisma transaction ensures atomicity: either the raw item and its analysis are both persisted, or neither is, preventing partial state when the LLM call or database write fails mid-run."
+  },
+  {
+    "order": 7,
+    "title": "GitHub Issues Ingestion Adapter",
+    "description": "The github module is the real-world data source. It builds an Octokit client, paginates issues from a configurable public repo via the GitHub Issues REST API, parses rate-limit headers, and applies exponential backoff with the shared sleep/backoff helpers before normalizing each issue into the internal feedback item shape. This is what makes the pipeline ingest genuine customer feedback rather than seeded demo data.",
+    "nodeIds": [
+      "file:src/lib/github.ts"
+    ],
+    "languageLesson": "The GitHub REST API returns rate-limit headers (X-RateLimit-Remaining, X-RateLimit-Reset). A robust client parses these and proactively sleeps before the limit is hit, rather than reacting to 403s, which keeps long paginated ingests from being cut off mid-run."
+  },
+  {
+    "order": 8,
+    "title": "LLM Analysis with Structured Output",
+    "description": "The llm module turns raw text into structured insight. It builds a prompt from each feedback item, calls OpenAI chat completions, and validates the response against a Zod schema enforcing sentiment, topics, severity, and summary fields. analyzeBatch iterates with retry/backoff so a single bad response does not abort the whole run. This is where the README's multi-task analysis promise is actually fulfilled.",
+    "nodeIds": [
+      "file:src/lib/llm.ts"
+    ],
+    "languageLesson": "Pairing an LLM with a Zod schema gives you runtime validation of structured JSON output: the model is prompted to return JSON, and Zod parses it into a typed object, rejecting malformed responses and triggering a retry instead of silently corrupting downstream data."
+  },
+  {
+    "order": 9,
+    "title": "Slack Notifications",
+    "description": "The slack module provides the bonus alerting layer. A feature-flag check gates whether Slack is enabled, a generic sender posts to the incoming webhook, and notifyHighSeverity formats topics and sentiment for items with severity >= 4. The ingest orchestrator calls this after persisting results, closing the loop from raw GitHub issue to a PM's Slack channel.",
+    "nodeIds": [
+      "file:src/lib/slack.ts",
+      "file:src/app/api/webhook/slack/route.ts"
+    ],
+    "languageLesson": "Feature flags via environment variables let optional integrations be deployed but dormant. Gating the Slack webhook route behind both a session check and the isSlackEnabled flag means the endpoint stays secure and no-op when Slack is not configured."
+  },
+  {
+    "order": 10,
+    "title": "API Routes",
+    "description": "The App Router API layer exposes REST endpoints over the service and data layers. The dashboard route aggregates analyses by sentiment, status, severity, and topic plus a daily volume time series. The feedback list and detail routes provide filtering, sorting, pagination, and PATCH-based triage updates. The ingest route authenticates the session and triggers runIngest on demand. Each route imports the high-fan-in auth and prisma modules from earlier steps.",
+    "nodeIds": [
+      "file:src/app/api/dashboard/route.ts",
+      "file:src/app/api/feedback/route.ts",
+      "file:src/app/api/feedback/[id]/route.ts",
+      "file:src/app/api/ingest/route.ts"
+    ],
+    "languageLesson": "Next.js App Router API routes use file-based HTTP method exports: exporting GET, POST, PATCH from route.ts maps directly to those verbs. Dynamic segments like [id] become params on the request, enabling REST-style resource endpoints without a separate framework."
+  },
+  {
+    "order": 11,
+    "title": "Dashboard & Inbox UI",
+    "description": "The UI is where Product Managers and Customer Success teams actually triage. The dashboard page server-renders KPI cards and four Recharts visualizations (sentiment donut, sentiment trend, severity bar, topic distribution) plus a high-severity list. The inbox page parses URL search params into filters and renders a paginated, sortable table. The detail page shows raw content alongside the AI analysis and a status selector. Reusable Badges, Filters, and StatusSelect components keep the presentation consistent.",
+    "nodeIds": [
+      "file:src/app/(app)/dashboard/page.tsx",
+      "file:src/app/(app)/inbox/page.tsx",
+      "file:src/app/(app)/inbox/[id]/page.tsx",
+      "file:src/components/Badges.tsx",
+      "file:src/components/charts/SentimentDonutChart.tsx"
+    ],
+    "languageLesson": "Server Components can query Prisma directly and pass serializable props to client components like the Recharts charts. Keeping filter state in URL search params (not React state) makes the inbox view shareable and bookmarkable, and the back button works for free."
+  },
+  {
+    "order": 12,
+    "title": "Infrastructure & Deployment",
+    "description": "The tour closes with how the app runs in production. The AWS SAM template provisions VPC networking, an RDS Postgres instance, Secrets Manager credentials, and an EventBridge-scheduled Lambda that invokes the same runIngest function on a daily cron. The Lambda handler imports the shared ingest module, and the build-lambda script bundles the Prisma client into the deployment package. Locally, docker-compose spins up Postgres, and the Amplify build spec deploys the Next.js frontend. The same ingest pipeline thus runs from npm, an API route, or Lambda without code changes.",
+    "nodeIds": [
+      "config:aws/template.yaml",
+      "file:aws/lambda/handler.ts",
+      "file:scripts/build-lambda.ts",
+      "config:amplify.yml",
+      "service:docker-compose.yml",
+      "file:scripts/ingest.ts"
+    ],
+    "languageLesson": "AWS SAM templates are CloudFormation with shortcuts: an AWS::Serverless::Function with an EventBridge Schedule event creates the Lambda plus its cron trigger in one resource. Bundling the Prisma client into the Lambda zip is required because Lambda cannot run prisma generate at runtime."
+  }
+]
