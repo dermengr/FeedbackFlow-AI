@@ -1,0 +1,417 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: FeedbackFlow AI - daily ingest cron (Lambda + EventBridge) + RDS Postgres
+
+# ---------------------------------------------------------------------------
+# Deploy with:
+#   cd aws
+#   sam build
+#   sam deploy --guided --stack-name feedbackflow-ai
+#
+# Required parameters (provide via --parameter-overrides or the guided prompts):
+#   - DbMasterPassword (NoEcho) - must be >= 8 chars
+#   - OpenAiApiKey (NoEcho)
+#   - GitHubToken (NoEcho, optional but recommended)
+#   - SlackWebhookUrl (optional, bonus)
+#
+# The frontend (Next.js) is deployed separately via AWS Amplify using the
+# amplify.yml at the repo root. See aws/README.md for full instructions.
+# ---------------------------------------------------------------------------
+
+Parameters:
+  DbMasterUsername:
+    Type: String
+    Default: feedbackflow
+    Description: Master username for the RDS Postgres instance.
+  DbMasterPassword:
+    Type: String
+    NoEcho: true
+    Description: Master password for RDS (min 8 chars). REQUIRED.
+    MinLength: 8
+  DbName:
+    Type: String
+    Default: feedbackflow
+  DbInstanceClass:
+    Type: String
+    Default: db.t4g.micro
+    Description: RDS instance class. db.t4g.micro fits the free tier.
+  OpenAiApiKey:
+    Type: String
+    NoEcho: true
+    Description: OpenAI API key for LLM analysis. REQUIRED.
+  OpenAiModel:
+    Type: String
+    Default: gpt-4o-mini
+  GitHubRepo:
+    Type: String
+    Default: vercel/next.js
+    Description: "owner/repo" of the public GitHub repo to ingest issues from.
+  GitHubToken:
+    Type: String
+    NoEcho: true
+    Default: ""
+    Description: GitHub PAT (optional but strongly recommended to avoid 60 req/hr limit).
+  IngestLookbackHours:
+    Type: String
+    Default: "24"
+  IngestMaxItems:
+    Type: String
+    Default: "50"
+  SlackWebhookUrl:
+    Type: String
+    NoEcho: true
+    Default: ""
+    Description: Optional Slack incoming webhook for severity >= 4 alerts.
+  DigestSmtpUrl:
+    Type: String
+    NoEcho: true
+    Default: ""
+    Description: Optional SMTP URL (smtp(s)://user:pass@host:port) for the daily digest email (Cron Pattern B).
+  DigestFrom:
+    Type: String
+    Default: ""
+    Description: From address for the digest email (e.g. feedbackflow@example.com).
+  DigestTo:
+    Type: String
+    Default: ""
+    Description: Recipient address for the daily digest email.
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    MemorySize: 512
+    Timeout: 900
+
+Resources:
+  # ---------------------------------------------------------------------------
+  # Networking
+  # ---------------------------------------------------------------------------
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - { Key: Name, Value: feedbackflow-vpc }
+
+  PrivateSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      Tags:
+        - { Key: Name, Value: feedbackflow-private-a }
+
+  PrivateSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: !Select [1, !GetAZs ""]
+      Tags:
+        - { Key: Name, Value: feedbackflow-private-b }
+
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc
+
+  # NAT Gateway so the Lambda in private subnets can reach GitHub/OpenAI.
+  NatGatewayEip:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+
+  NatGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      SubnetId: !Ref PrivateSubnetA
+      AllocationId: !GetAtt NatGatewayEip.AllocationId
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref RouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway
+
+  SubnetARouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateSubnetA
+      RouteTableId: !Ref RouteTable
+
+  SubnetBRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateSubnetB
+      RouteTableId: !Ref RouteTable
+
+  # Security group for the Lambda -> RDS access (5432).
+  DbSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: RDS Postgres access
+      VpcId: !Ref Vpc
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !GetAtt LambdaSecurityGroup.GroupId
+
+  LambdaSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Lambda ingest function
+      VpcId: !Ref Vpc
+      SecurityGroupEgress:
+        - IpProtocol: "-1"
+          CidrIp: 0.0.0.0/0
+
+  # ---------------------------------------------------------------------------
+  # Database: RDS Postgres
+  # ---------------------------------------------------------------------------
+  DbSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: FeedbackFlow RDS subnets
+      SubnetIds:
+        - !Ref PrivateSubnetA
+        - !Ref PrivateSubnetB
+
+  RdsInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: "20"
+      DBInstanceClass: !Ref DbInstanceClass
+      Engine: postgres
+      EngineVersion: "16"
+      MasterUsername: !Ref DbMasterUsername
+      MasterUserPassword: !Ref DbMasterPassword
+      DBName: !Ref DbName
+      VPCSecurityGroups:
+        - !Ref DbSecurityGroup
+      DBSubnetGroupName: !Ref DbSubnetGroup
+      StorageType: gp3
+      PubliclyAccessible: false
+      DeletionProtection: false
+      DeleteAutomatedBackups: true
+
+  # ---------------------------------------------------------------------------
+  # Secrets Manager: store DB creds so the Lambda (and Next.js on Amplify) can
+  # fetch them without hardcoding.
+  # ---------------------------------------------------------------------------
+  DbSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: feedbackflow/db
+      Description: FeedbackFlow RDS credentials
+      GenerateSecretString:
+        SecretStringTemplate: !Sub
+          - '{"username":"${User}","password":"${Pwd}","dbname":"${Db}","host":"${Host}","port":5432}'
+          - { User: !Ref DbMasterUsername, Pwd: !Ref DbMasterPassword, Db: !Ref DbName, Host: !GetAtt RdsInstance.Endpoint.Address }
+
+  # ---------------------------------------------------------------------------
+  # Lambda: daily ingest
+  # ---------------------------------------------------------------------------
+  IngestFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        EntryPoints: ["handler.ts"]
+        Target: "node20"
+        Format: "cjs"
+        Sourcemap: false
+        External:
+          - "@prisma/client"
+          - "@prisma/client/runtime"
+    Properties:
+      CodeUri: ../aws/lambda
+      Handler: dist/index.handler
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroup
+        SubnetIds:
+          - !Ref PrivateSubnetA
+          - !Ref PrivateSubnetB
+      Environment:
+        Variables:
+          DATABASE_URL: !Sub
+            - "postgresql://${User}:${Pwd}@${Host}:5432/${Db}?schema=public"
+            - { User: !Ref DbMasterUsername, Pwd: !Ref DbMasterPassword, Host: !GetAtt RdsInstance.Endpoint.Address, Db: !Ref DbName }
+          OPENAI_API_KEY: !Ref OpenAiApiKey
+          OPENAI_MODEL: !Ref OpenAiModel
+          GITHUB_REPO: !Ref GitHubRepo
+          GITHUB_TOKEN: !Ref GitHubToken
+          INGEST_LOOKBACK_HOURS: !Ref IngestLookbackHours
+          INGEST_MAX_ITEMS: !Ref IngestMaxItems
+          SLACK_WEBHOOK_URL: !Ref SlackWebhookUrl
+      Policies:
+        - AWSLambdaVPCAccessExecutionRole
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: !Ref DbSecret
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: "*"
+
+  # ---------------------------------------------------------------------------
+  # EventBridge: daily schedule -> Lambda
+  # ---------------------------------------------------------------------------
+  IngestSchedule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Daily FeedbackFlow ingest
+      ScheduleExpression: rate(1 day)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt IngestFunction.Arn
+          Id: IngestScheduleTarget
+
+  SchedulePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref IngestFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt IngestSchedule.Arn
+
+  # ---------------------------------------------------------------------------
+  # CloudWatch alarm: fires if the ingest fails (non-zero exit / error log).
+  # ---------------------------------------------------------------------------
+  IngestFailureAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: FeedbackFlowIngestFailure
+      AlarmDescription: Daily ingest Lambda reported a failure
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref IngestFunction
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+
+  # ---------------------------------------------------------------------------
+  # Lambda: daily digest email (Cron Pattern B)
+  # ---------------------------------------------------------------------------
+  DigestFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        EntryPoints: ["digest-handler.ts"]
+        Target: "node20"
+        Format: "cjs"
+        Sourcemap: false
+        External:
+          - "@prisma/client"
+          - "@prisma/client/runtime"
+    Properties:
+      CodeUri: ../aws/lambda
+      Handler: dist/digest.handler
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroup
+        SubnetIds:
+          - !Ref PrivateSubnetA
+          - !Ref PrivateSubnetB
+      Environment:
+        Variables:
+          DATABASE_URL: !Sub
+            - "postgresql://${User}:${Pwd}@${Host}:5432/${Db}?schema=public"
+            - { User: !Ref DbMasterUsername, Pwd: !Ref DbMasterPassword, Host: !GetAtt RdsInstance.Endpoint.Address, Db: !Ref DbName }
+          DIGEST_SMTP_URL: !Ref DigestSmtpUrl
+          DIGEST_FROM: !Ref DigestFrom
+          DIGEST_TO: !Ref DigestTo
+          NEXTAUTH_URL: "https://feedbackflow.dev"
+      Policies:
+        - AWSLambdaVPCAccessExecutionRole
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: !Ref DbSecret
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: "*"
+
+  # ---------------------------------------------------------------------------
+  # EventBridge: daily schedule -> digest Lambda
+  # ---------------------------------------------------------------------------
+  DigestSchedule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Daily FeedbackFlow digest email
+      ScheduleExpression: rate(1 day)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt DigestFunction.Arn
+          Id: DigestScheduleTarget
+
+  DigestSchedulePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref DigestFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt DigestSchedule.Arn
+
+  # ---------------------------------------------------------------------------
+  # CloudWatch alarm: fires if the digest Lambda fails.
+  # ---------------------------------------------------------------------------
+  DigestFailureAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: FeedbackFlowDigestFailure
+      AlarmDescription: Daily digest Lambda reported a failure
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref DigestFunction
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+
+Outputs:
+  RdsEndpoint:
+    Description: RDS Postgres endpoint (use in Amplify env vars as DATABASE_URL host)
+    Value: !GetAtt RdsInstance.Endpoint.Address
+  DbSecretArn:
+    Description: Secrets Manager ARN for DB credentials
+    Value: !Ref DbSecret
+  IngestFunctionName:
+    Description: Name of the ingest Lambda function
+    Value: !Ref IngestFunction
+  IngestFunctionArn:
+    Value: !GetAtt IngestFunction.Arn
+  DigestFunctionName:
+    Description: Name of the digest Lambda function
+    Value: !Ref DigestFunction
+  DigestFunctionArn:
+    Value: !GetAtt DigestFunction.Arn
