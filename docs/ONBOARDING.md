@@ -187,6 +187,15 @@ response against a **Zod schema**. If validation fails, it retries with a
 bounded backoff. This guarantees the analysis columns (`sentiment`, `topics`,
 `severityScore`, `summary`) are always well-typed before being persisted.
 
+### Prompt Injection Protection
+Raw feedback content is treated as **untrusted data**. Before it is sent to the
+model, `src/lib/llm.ts` wraps it in `<feedback>...</feedback>` tags and prepends
+a **system message** instructing the model to treat the enclosed content as data
+to analyze, not as instructions to follow. Raw content is also **truncated to
+4000 characters** (down from 8000) to bound prompt size and cost. This is the
+primary defense against prompt-injection attacks originating from ingested
+public reviews.
+
 ### Idempotency via `external_id`
 Every ingested `FeedbackItem` carries an `externalId` that is **unique per
 source** (e.g. `vercel/next.js#12345`). The ingest pipeline upserts on this key,
@@ -204,6 +213,18 @@ In production, ingest runs on a schedule. The SAM template (`aws/template.yaml`)
 deploys a **Lambda** function (bundled by `scripts/build-lambda.ts`) triggered
 by an **EventBridge cron** rule, writing to **RDS Postgres** inside a VPC. The
 same `runIngest` orchestrator powers both the local CLI and the Lambda path.
+
+### Email Digest (Cron Pattern B)
+A second scheduled job sends a **daily email digest** summarizing triage
+status, sentiment distribution, high-severity items, and recent feedback via
+SMTP. The logic lives in `src/lib/digest.ts`; `aws/lambda/digest-handler.ts` is
+the Lambda entry point, `scripts/digest.ts` is the local runner, and
+`scripts/build-digest-lambda.ts` is the esbuild bundler. The SAM template
+provisions a **second Lambda** + a second **EventBridge** schedule for this
+job, and `src/app/api/digest/route.ts` exposes an HTTP trigger. Run it locally
+with `npm run digest`. This is the second instance of the "Lambda + EventBridge
+cron" pattern, demonstrating how the same deployment shape is reused for a
+different scheduled workload.
 
 ### Feature-Flagged Slack Notifications
 `src/lib/slack.ts` is **feature-flagged** via `SLACK_WEBHOOK_URL`: if the env var
@@ -230,7 +251,7 @@ order on first read.
 | 9 | **Slack Notifications** | `src/lib/slack.ts` is feature-flagged and sends a webhook when `severityScore >= 4`. |
 | 10 | **API Routes** | `src/app/api/` routes: dashboard analytics, feedback CRUD, ingest trigger, auth, Slack webhook. |
 | 11 | **Dashboard & Inbox UI** | Dashboard (KPI cards, charts), Inbox (filterable/sortable list), Detail view (raw + AI analysis). |
-| 12 | **Infrastructure & Deployment** | AWS SAM template (VPC, RDS Postgres, Lambda, EventBridge), Amplify hosting, Docker Compose for local dev. |
+| 12 | **Infrastructure & Deployment** | AWS SAM template (VPC, RDS Postgres, two Lambdas + EventBridge crons — ingest and daily email digest), Amplify hosting, Docker Compose for local dev. |
 
 ---
 
@@ -247,6 +268,9 @@ What each key file does, organized by layer.
 | `src/app/(app)/dashboard/page.tsx` | Server-rendered dashboard: KPI cards + chart data fetched from Prisma. |
 | `src/app/(app)/inbox/page.tsx` | Inbox listing with filtering, sorting, and pagination. |
 | `src/app/(app)/inbox/[id]/page.tsx` | Detail view showing raw feedback + AI analysis + status control. |
+| `src/app/(app)/dashboard/loading.tsx` | Dashboard route loading state (skeleton/spinner shown while data resolves). |
+| `src/app/(app)/inbox/loading.tsx` | Inbox route loading state. |
+| `src/app/(app)/error.tsx` | Route-level error boundary for the authenticated `(app)` route group. |
 | `src/app/login/page.tsx` | Login form posting to NextAuth credentials provider. |
 | `src/app/signup/page.tsx` | Signup form posting to the signup API route. |
 | `src/app/globals.css` | Tailwind directives and global styles. |
@@ -273,6 +297,7 @@ What each key file does, organized by layer.
 | `src/app/api/feedback/route.ts` | Lists feedback with filtering, sorting, and pagination. |
 | `src/app/api/feedback/[id]/route.ts` | Returns a single feedback item + analysis; accepts status updates. |
 | `src/app/api/ingest/route.ts` | Manually triggers `runIngest` (protected). |
+| `src/app/api/digest/route.ts` | HTTP trigger for the daily email digest (`src/lib/digest.ts`). |
 | `src/app/api/webhook/slack/route.ts` | Receives incoming Slack webhooks. |
 
 ### Service Layer
@@ -282,8 +307,9 @@ What each key file does, organized by layer.
 | `src/lib/prisma.ts` | Prisma client singleton to survive hot-reload. |
 | `src/lib/ingest.ts` | `runIngest` orchestrator: fetch → dedupe → analyze → store → notify, writes `IngestLog`. |
 | `src/lib/github.ts` | Builds Octokit client, paginates issues, handles rate limits with exponential backoff. |
-| `src/lib/llm.ts` | Builds prompts, calls OpenAI `gpt-4o-mini` in JSON mode, validates with Zod, retries on failure. |
+| `src/lib/llm.ts` | Builds prompts, calls OpenAI `gpt-4o-mini` in JSON mode, validates with Zod, retries on failure. Wraps raw feedback in `<feedback>` tags + system message for prompt-injection protection; truncates content to 4000 chars. |
 | `src/lib/slack.ts` | Feature-flagged outgoing webhook for severity >= 4. |
+| `src/lib/digest.ts` | Builds and sends the daily email digest (triage status, sentiment distribution, high-severity items, recent feedback) over SMTP. |
 | `src/middleware.ts` | Validates NextAuth session token; protects `(app)` routes. |
 
 ### Shared Utility & Types Layer
@@ -303,12 +329,15 @@ What each key file does, organized by layer.
 ### Infrastructure & Operations Layer
 | File | Purpose |
 |------|---------|
-| `aws/template.yaml` | SAM/CloudFormation: VPC, RDS Postgres, Lambda, EventBridge cron, IAM. |
+| `aws/template.yaml` | SAM/CloudFormation: VPC, RDS Postgres, two Lambdas (ingest + digest) with EventBridge crons, IAM. |
 | `aws/lambda/handler.ts` | Lambda entry point that invokes `runIngest` with env-driven config. |
+| `aws/lambda/digest-handler.ts` | Lambda entry point that invokes the daily email digest (`src/lib/digest.ts`). |
 | `docker-compose.yml` | Local Postgres service for development. |
 | `amplify.yml` | AWS Amplify hosting build spec for the Next.js frontend. |
-| `scripts/build-lambda.ts` | esbuild-based bundler producing the Lambda artifact. |
+| `scripts/build-lambda.ts` | esbuild-based bundler producing the ingest Lambda artifact. |
+| `scripts/build-digest-lambda.ts` | esbuild-based bundler producing the digest Lambda artifact. |
 | `scripts/ingest.ts` | CLI runner for `runIngest` (local/manual ingest). |
+| `scripts/digest.ts` | CLI runner for the daily email digest (local/manual). |
 | `scripts/seed.ts` | Seeds the database with sample users + feedback for local dev. |
 
 ### Configuration Layer
@@ -321,6 +350,7 @@ What each key file does, organized by layer.
 | `postcss.config.js` | PostCSS pipeline (Tailwind + autoprefixer). |
 | `tailwind.config.ts` | Tailwind theme, content paths, plugins. |
 | `.eslintrc.json` | ESLint config extending `next/core-web-vitals`. |
+| `vitest.config.ts` | Vitest config for the unit test suite (`src/lib/__tests__/`). |
 | `tsconfig.tsbuildinfo` | Incremental TypeScript build cache. |
 
 ### Documentation Layer
@@ -328,6 +358,15 @@ What each key file does, organized by layer.
 |------|---------|
 | `README.md` | Comprehensive project overview, setup, and usage docs. |
 | `aws/README.md` | AWS deployment guide (SAM build/deploy, RDS, Amplify). |
+
+### Testing Layer
+| File | Purpose |
+|------|---------|
+| `src/lib/__tests__/llm.test.ts` | Unit tests for the LLM module: prompt building, `<feedback>` wrapping/truncation, Zod validation, and retry behavior. |
+| `src/lib/__tests__/digest.test.ts` | Unit tests for the digest module: summary aggregation, sentiment distribution, and high-severity selection. |
+| `vitest.config.ts` | Vitest configuration (test environment, include/glob patterns). |
+
+Run the full suite (18 tests) with `npm test`.
 
 ---
 
@@ -347,15 +386,19 @@ them carefully and with tests/examples open alongside.
 | `src/lib/ingest.ts` | Core ingest pipeline orchestrator tying fetch → dedupe → analyze → store → notify together. |
 | `src/app/(app)/dashboard/page.tsx` | Server-rendered dashboard assembling KPIs + chart data. |
 | `README.md` | Comprehensive project documentation — dense, worth a full read. |
-| `aws/template.yaml` | AWS SAM/CloudFormation template (VPC, RDS, Lambda, EventBridge, IAM). |
+| `aws/template.yaml` | AWS SAM/CloudFormation template (VPC, RDS, two Lambdas + EventBridge crons, IAM). |
 
 ### Moderate files (21 files)
 
-These are approachable but non-trivial: the LLM module (`src/lib/llm.ts`),
+These are approachable but non-trivial: the LLM module (`src/lib/llm.ts` — now
+with prompt-injection protection via `<feedback>` wrapping and 4000-char
+truncation), the digest module (`src/lib/digest.ts` — SMTP assembly of triage
+status, sentiment distribution, high-severity items, and recent feedback),
 auth config (`src/lib/auth.ts`), Slack helper (`src/lib/slack.ts`), the four
 chart components, signup/login pages, the seed script (`scripts/seed.ts`), the
 Prisma schema, and the initial migration SQL, among others. Read the relevant
-layer section above before diving in.
+layer section above before diving in. The LLM and digest modules are covered by
+unit tests in `src/lib/__tests__/` — keep those open as worked examples.
 
 ---
 
@@ -413,6 +456,24 @@ npm run ingest         # tsx scripts/ingest.ts  (CLI)
 #   POST http://localhost:3000/api/ingest
 ```
 
+### 7. (Optional) Send a digest email locally
+
+```bash
+npm run digest         # tsx scripts/digest.ts  (CLI)
+# or hit the API route:
+#   POST http://localhost:3000/api/digest
+```
+
+The digest summarizes triage status, sentiment distribution, high-severity
+items, and recent feedback, and sends it over SMTP. Configure SMTP credentials
+in `.env` (see `.env.example`).
+
+### 8. (Optional) Run the unit tests
+
+```bash
+npm test               # vitest — 18 tests in src/lib/__tests__/
+```
+
 ### Useful npm scripts
 
 | Script | Description |
@@ -421,13 +482,16 @@ npm run ingest         # tsx scripts/ingest.ts  (CLI)
 | `npm run build` | Production build |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | `tsc --noEmit` |
+| `npm test` | Run the Vitest unit test suite (18 tests) |
 | `npm run prisma:generate` | Regenerate Prisma client |
 | `npm run prisma:migrate` | Create/apply migrations |
 | `npm run prisma:studio` | Open Prisma Studio DB browser |
 | `npm run db:up` / `db:down` | Start/stop local Postgres |
 | `npm run seed` | Seed sample data |
 | `npm run ingest` | Run ingest from CLI |
-| `npm run ingest:lambda` | Bundle the Lambda handler |
+| `npm run digest` | Run the daily email digest from CLI |
+| `npm run ingest:lambda` | Bundle the ingest Lambda handler |
+| `npm run digest:lambda` | Bundle the digest Lambda handler |
 | `npm run sam:validate` / `sam:build` / `sam:deploy` | AWS SAM workflow |
 
 ### Deployment
@@ -435,6 +499,8 @@ npm run ingest         # tsx scripts/ingest.ts  (CLI)
 - **Frontend:** AWS Amplify (see `amplify.yml`).
 - **Ingest cron:** AWS Lambda + EventBridge (see `aws/template.yaml` and
   `aws/README.md`).
+- **Digest cron:** a second AWS Lambda + EventBridge schedule, also defined in
+  `aws/template.yaml` (bundled by `scripts/build-digest-lambda.ts`).
 - **Database:** RDS Postgres (provisioned by the SAM template).
 
 ```bash
