@@ -1,0 +1,37 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# next
+/.next/
+/out/
+next-env.d.ts
+
+# build
+/dist
+/aws/lambda/dist
+/aws/.aws-sam
+/aws/lambda/package.zip
+
+# typescript incremental build cache
+tsconfig.tsbuildinfo
+
+# env / secrets
+.env
+.env.local
+.env.*.local
+.aws/credentials
+
+# prisma
+/prisma/migrations/dev.db*
+
+# logs
+*.log
+npm-debug.log*
+
+# os
+.DS_Store
+
+# docker
+/docker-data

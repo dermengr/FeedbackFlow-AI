@@ -1,0 +1,106 @@
+// FeedbackFlow AI - Prisma schema
+// Database: PostgreSQL (local docker-compose or AWS RDS in prod)
+
+generator client {
+  provider = "prisma-client-js"
+  // Output to a known location so it can be bundled into Lambda.
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Auth
+// ---------------------------------------------------------------------------
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  hashedPassword String
+  name         String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+// ---------------------------------------------------------------------------
+// Ingested feedback (raw content from the external source)
+// ---------------------------------------------------------------------------
+model FeedbackItem {
+  id                 String   @id @default(cuid())
+  // Source label, e.g. "GitHubIssues", "Trustpilot", "GoogleReviews".
+  source             String
+  // Crucial for idempotency: unique per source. e.g. "vercel/next.js#12345".
+  externalId         String   @unique
+  title              String?
+  rawContent         String   @db.Text
+  authorLogin        String?
+  url                String?
+  originalTimestamp  DateTime @map("original_timestamp")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  analysis           FeedbackAnalysis?
+
+  @@index([source])
+  @@index([originalTimestamp])
+  @@map("feedback_items")
+}
+
+// ---------------------------------------------------------------------------
+// LLM analysis linked 1:1 to a feedback item
+// ---------------------------------------------------------------------------
+enum FeedbackStatus {
+  NEW
+  ACKNOWLEDGED
+  ACTIONED
+}
+
+model FeedbackAnalysis {
+  id               String         @id @default(cuid())
+  feedbackItemId   String         @unique @map("feedback_item_id")
+  feedbackItem     FeedbackItem  @relation(fields: [feedbackItemId], references: [id], onDelete: Cascade)
+
+  // "positive" | "neutral" | "negative"
+  sentiment        String
+  // JSON array of topics, e.g. ["Bug Report","Performance"]
+  topics           Json
+  // 1-5 priority score
+  severityScore    Int            @map("severity_score")
+  summary          String         @db.Text
+  status           FeedbackStatus @default(NEW)
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  @@index([sentiment])
+  @@index([severityScore])
+  @@index([status])
+  @@map("feedback_analyses")
+}
+
+// ---------------------------------------------------------------------------
+// Reliability / observability log for cron runs
+// ---------------------------------------------------------------------------
+enum IngestRunStatus {
+  SUCCESS
+  PARTIAL
+  FAILURE
+}
+
+model IngestLog {
+  id            String          @id @default(cuid())
+  runId         String          @map("run_id")
+  source        String
+  status        IngestRunStatus
+  itemsFetched  Int             @default(0) @map("items_fetched")
+  itemsNew      Int             @default(0) @map("items_new")
+  itemsSkipped  Int             @default(0) @map("items_skipped")
+  error         String?         @db.Text
+  createdAt     DateTime        @default(now()) @map("created_at")
+
+  @@index([source])
+  @@index([createdAt])
+  @@map("ingest_logs")
+}
