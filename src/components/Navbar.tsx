@@ -3,12 +3,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import { LayoutDashboard, Inbox, LogOut, MessageSquareWarning } from "lucide-react";
+import { LayoutDashboard, Inbox, Layers, LogOut, MessageSquareWarning, Plug, ScrollText } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SearchBar } from "@/components/SearchBar";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const links = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/inbox", label: "Inbox", icon: Inbox },
+  { href: "/clusters", label: "Clusters", icon: Layers },
+  { href: "/sources", label: "Sources", icon: Plug },
+  { href: "/admin/logs", label: "Logs", icon: ScrollText },
 ];
 
 export function Navbar() {
@@ -48,8 +53,12 @@ export function Navbar() {
         </nav>
 
         <div className="ml-auto flex items-center gap-3">
+          <div className="hidden sm:block">
+            <SearchBar />
+          </div>
+          <ThemeToggle />
           {session?.user?.email && (
-            <span className="hidden text-sm text-slate-500 sm:inline">
+            <span className="hidden text-sm text-slate-500 lg:inline">
               {session.user.email}
             </span>
           )}

@@ -21,6 +21,17 @@ export const TOPIC_TAXONOMY = [
 
 export type Topic = (typeof TOPIC_TAXONOMY)[number];
 
+export const EMOTIONS = [
+  "angry",
+  "frustrated",
+  "confused",
+  "disappointed",
+  "neutral",
+  "happy",
+  "excited",
+] as const;
+export type Emotion = (typeof EMOTIONS)[number];
+
 export type FeedbackStatus = "NEW" | "ACKNOWLEDGED" | "ACTIONED";
 
 export const FEEDBACK_STATUSES = ["NEW", "ACKNOWLEDGED", "ACTIONED"] as const;
@@ -31,6 +42,10 @@ export interface LlmAnalysisResult {
   topics: string[];
   severity_score: number; // 1-5
   summary: string;
+  language: string; // ISO 639-1 code
+  translatedSummary: string | null; // English translation, null if already English
+  emotion: Emotion;
+  actionItems: string[]; // 0-5 short imperative action items
 }
 
 // A normalized feedback item fetched from an external source, before persistence.

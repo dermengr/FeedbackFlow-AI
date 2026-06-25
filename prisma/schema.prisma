@@ -23,7 +23,38 @@ model User {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
+  // C12: assigned feedback items
+  assignedAnalyses  FeedbackAnalysis[] @relation("Assignee")
+  // C11: comments authored by this user
+  comments          FeedbackComment[]
+  // C16: audit events authored by this user
+  auditEvents       AuditEvent[]
+  // C19: saved views owned by this user
+  savedViews        SavedView[]
+
   @@map("users")
+}
+
+// ---------------------------------------------------------------------------
+// A4: Source registry — configurable ingestion sources (GitHub, Reddit, RSS, CSV)
+// ---------------------------------------------------------------------------
+model SourceConfig {
+  id          String   @id @default(cuid())
+  // Stable identifier, e.g. "github:vercel/next.js", "reddit:r/nextjs", "rss:https://..."
+  sourceKey   String   @unique @map("source_key")
+  // Human-readable label shown in the UI
+  label       String
+  // Adapter type: "github" | "reddit" | "rss" | "csv"
+  adapter     String
+  // Adapter-specific config as JSON, e.g. { "owner": "vercel", "repo": "next.js" }
+  config      Json
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  ingestLogs  IngestLog[]
+
+  @@map("source_configs")
 }
 
 // ---------------------------------------------------------------------------
@@ -43,6 +74,17 @@ model FeedbackItem {
   createdAt          DateTime @default(now()) @map("created_at")
 
   analysis           FeedbackAnalysis?
+  comments           FeedbackComment[]
+  // C13: many-to-many labels
+  labels             FeedbackLabel[]
+  // B9: embedding for semantic clustering
+  embedding          FeedbackEmbedding?
+  // C16: audit events targeting this item
+  auditEvents        AuditEvent[]
+
+  // D20: full-text search on title + rawContent. A GIN index over a
+  // to_tsvector expression is created via raw SQL in the migration (no
+  // generated column, so Prisma sees no extra column to manage).
 
   @@index([source])
   @@index([originalTimestamp])
@@ -74,9 +116,26 @@ model FeedbackAnalysis {
   createdAt        DateTime       @default(now()) @map("created_at")
   updatedAt        DateTime       @updatedAt @map("updated_at")
 
+  // B6: detected language (ISO 639-1 code, e.g. "en", "es", "fr") and
+  // optional English translation of the summary.
+  language         String?
+  translatedSummary String?       @db.Text @map("translated_summary")
+  // B8: emotion label, e.g. "angry" | "frustrated" | "confused" | "happy"
+  emotion          String?
+  // B7: action items extracted by the LLM, JSON array of strings.
+  actionItems      Json?
+  // C12: assignee for triage
+  assignedToId     String?        @map("assigned_to_id")
+  assignedTo       User?          @relation("Assignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  // C15: snooze — when set, item is hidden from default inbox until this time.
+  snoozedUntil     DateTime?      @map("snoozed_until")
+
   @@index([sentiment])
   @@index([severityScore])
   @@index([status])
+  @@index([assignedToId])
+  @@index([snoozedUntil])
+  @@index([emotion])
   @@map("feedback_analyses")
 }
 
@@ -100,7 +159,120 @@ model IngestLog {
   error         String?         @db.Text
   createdAt     DateTime        @default(now()) @map("created_at")
 
+  // A4: optional link to the SourceConfig that produced this run.
+  sourceConfigId String?        @map("source_config_id")
+  sourceConfig   SourceConfig?  @relation(fields: [sourceConfigId], references: [id], onDelete: SetNull)
+
   @@index([source])
   @@index([createdAt])
+  @@index([sourceConfigId])
   @@map("ingest_logs")
+}
+
+// ---------------------------------------------------------------------------
+// C11: Comments / notes on a feedback item
+// ---------------------------------------------------------------------------
+model FeedbackComment {
+  id              String       @id @default(cuid())
+  feedbackItemId  String       @map("feedback_item_id")
+  feedbackItem    FeedbackItem @relation(fields: [feedbackItemId], references: [id], onDelete: Cascade)
+  authorId        String       @map("author_id")
+  author          User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  body            String       @db.Text
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt      @map("updated_at")
+
+  @@index([feedbackItemId])
+  @@index([authorId])
+  @@map("feedback_comments")
+}
+
+// ---------------------------------------------------------------------------
+// C13: Custom labels / tags (many-to-many with feedback items)
+// ---------------------------------------------------------------------------
+model Label {
+  id        String          @id @default(cuid())
+  name      String          @unique
+  color     String          @default("slate")
+  createdAt DateTime        @default(now()) @map("created_at")
+
+  items     FeedbackLabel[]
+
+  @@map("labels")
+}
+
+model FeedbackLabel {
+  feedbackItemId String       @map("feedback_item_id")
+  feedbackItem   FeedbackItem @relation(fields: [feedbackItemId], references: [id], onDelete: Cascade)
+  labelId        String       @map("label_id")
+  label          Label        @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  assignedAt     DateTime     @default(now()) @map("assigned_at")
+
+  @@id([feedbackItemId, labelId])
+  @@index([labelId])
+  @@map("feedback_labels")
+}
+
+// ---------------------------------------------------------------------------
+// B9: Embedding for semantic duplicate clustering
+// ---------------------------------------------------------------------------
+model FeedbackEmbedding {
+  feedbackItemId String       @id @map("feedback_item_id")
+  feedbackItem   FeedbackItem @relation(fields: [feedbackItemId], references: [id], onDelete: Cascade)
+  // 1536-dim vector stored as JSON array of numbers (portable across PG
+  // versions without the pgvector extension). Clustering is done in-app.
+  embedding      Json
+  model          String
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  @@map("feedback_embeddings")
+}
+
+// ---------------------------------------------------------------------------
+// C16: Audit / activity log
+// ---------------------------------------------------------------------------
+enum AuditEventType {
+  STATUS_CHANGE
+  ASSIGN
+  UNASSIGN
+  COMMENT
+  LABEL_ADD
+  LABEL_REMOVE
+  SNOOZE
+  UNSNOOZE
+  BULK_UPDATE
+}
+
+model AuditEvent {
+  id              String          @id @default(cuid())
+  feedbackItemId  String          @map("feedback_item_id")
+  feedbackItem    FeedbackItem    @relation(fields: [feedbackItemId], references: [id], onDelete: Cascade)
+  actorId         String          @map("actor_id")
+  actor           User            @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  type            AuditEventType
+  // Free-form metadata, e.g. { from: "NEW", to: "ACTIONED" }
+  meta            Json?
+  createdAt       DateTime        @default(now()) @map("created_at")
+
+  @@index([feedbackItemId])
+  @@index([actorId])
+  @@index([type])
+  @@map("audit_events")
+}
+
+// ---------------------------------------------------------------------------
+// C19: Saved filter views
+// ---------------------------------------------------------------------------
+model SavedView {
+  id        String   @id @default(cuid())
+  ownerId   String   @map("owner_id")
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name      String
+  // URL search-params string, e.g. "sentiment=negative&topic=Bug+Report&sort=severity"
+  query     String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([ownerId])
+  @@map("saved_views")
 }

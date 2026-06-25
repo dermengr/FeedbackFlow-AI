@@ -6,6 +6,8 @@ import { SentimentTrendChart } from "@/components/charts/SentimentTrendChart";
 import { TopicDistributionChart } from "@/components/charts/TopicDistributionChart";
 import { SeverityChart } from "@/components/charts/SeverityChart";
 import { SentimentDonutChart } from "@/components/charts/SentimentDonutChart";
+import { EmotionDonutChart } from "@/components/charts/EmotionDonutChart";
+import { RisingTopics } from "@/components/RisingTopics";
 import {
   SentimentBadge,
   SeverityBadge,
@@ -24,6 +26,13 @@ async function getDashboardData() {
   const severityGroups = await prisma.feedbackAnalysis.groupBy({
     by: ["severityScore"],
     _count: { _all: true },
+  });
+
+  // B8: emotion distribution
+  const emotionGroups = await prisma.feedbackAnalysis.groupBy({
+    by: ["emotion"],
+    _count: { _all: true },
+    where: { emotion: { not: null } },
   });
 
   const allTopics = await prisma.feedbackAnalysis.findMany({
@@ -75,6 +84,7 @@ async function getDashboardData() {
   return {
     sentimentGroups,
     severityGroups,
+    emotionGroups,
     topicDistribution: Array.from(topicCounts.entries())
       .map(([topic, count]) => ({ topic, count }))
       .sort((a, b) => b.count - a.count),
@@ -97,6 +107,9 @@ export default async function DashboardPage() {
     severity: g.severityScore,
     count: g._count._all,
   }));
+  const emotionData = data.emotionGroups
+    .filter((g) => g.emotion !== null)
+    .map((g) => ({ emotion: g.emotion as string, count: g._count._all }));
 
   const positive = sentimentData.find((s) => s.sentiment === "positive")?.count ?? 0;
   const negative = sentimentData.find((s) => s.sentiment === "negative")?.count ?? 0;
@@ -146,6 +159,14 @@ export default async function DashboardPage() {
         </Card>
         <Card title="Severity distribution">
           <SeverityChart data={severityData} />
+        </Card>
+        {emotionData.length > 0 && (
+          <Card title="Emotion distribution">
+            <EmotionDonutChart data={emotionData} />
+          </Card>
+        )}
+        <Card title="Rising topics (week over week)">
+          <RisingTopics />
         </Card>
       </div>
 

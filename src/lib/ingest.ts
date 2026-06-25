@@ -125,6 +125,10 @@ export async function runIngest(opts: IngestOptions = {}): Promise<IngestResult>
             topics: analysis.topics,
             severityScore: analysis.severity_score,
             summary: analysis.summary,
+            language: analysis.language,
+            translatedSummary: analysis.translatedSummary,
+            emotion: analysis.emotion,
+            actionItems: analysis.actionItems,
             status: "NEW",
           },
         });

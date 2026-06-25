@@ -52,10 +52,25 @@ function mockResponse(content: string) {
   });
 }
 
+// Helper to build a complete valid LLM response with the extended schema fields.
+function validResponse(overrides: Record<string, unknown> = {}): string {
+  return JSON.stringify({
+    sentiment: "neutral",
+    topics: ["Other"],
+    severity_score: 2,
+    summary: "Some summary.",
+    language: "en",
+    translated_summary: null,
+    emotion: "neutral",
+    action_items: [],
+    ...overrides,
+  });
+}
+
 describe("LLM module", () => {
   describe("analyzeFeedback", () => {
     it("returns validated analysis on successful LLM response", async () => {
-      mockResponse(JSON.stringify({
+      mockResponse(validResponse({
         sentiment: "negative",
         topics: ["Bug Report", "Performance"],
         severity_score: 4,
@@ -136,7 +151,7 @@ describe("LLM module", () => {
       // First call succeeds, second call returns invalid JSON
       mockCreate
         .mockResolvedValueOnce({
-          choices: [{ message: { content: JSON.stringify({
+          choices: [{ message: { content: validResponse({
             sentiment: "negative",
             topics: ["Bug Report"],
             severity_score: 4,
@@ -161,7 +176,7 @@ describe("LLM module", () => {
       ];
 
       mockCreate.mockResolvedValue({
-        choices: [{ message: { content: JSON.stringify({
+        choices: [{ message: { content: validResponse({
           sentiment: "neutral",
           topics: ["Other"],
           severity_score: 2,

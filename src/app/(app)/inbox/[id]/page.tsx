@@ -8,6 +8,15 @@ import {
   TopicChip,
 } from "@/components/Badges";
 import { StatusSelect } from "@/components/StatusSelect";
+import { EmotionBadge } from "@/components/EmotionBadge";
+import { LanguageBadge } from "@/components/LanguageBadge";
+import { ActionItems } from "@/components/ActionItems";
+import { AssigneeSelect } from "@/components/AssigneeSelect";
+import { SnoozeButton } from "@/components/SnoozeButton";
+import { LabelManager } from "@/components/LabelManager";
+import { Comments } from "@/components/Comments";
+import { ActivityTab } from "@/components/ActivityTab";
+import { SimilarItems } from "@/components/SimilarItems";
 import { formatDate } from "@/lib/utils";
 import { ChevronLeft, ExternalLink } from "lucide-react";
 
@@ -20,12 +29,21 @@ export default async function FeedbackDetailPage({
 }) {
   const item = await prisma.feedbackItem.findUnique({
     where: { id: params.id },
-    include: { analysis: true },
+    include: {
+      analysis: true,
+      labels: { include: { label: true } },
+    },
   });
   if (!item) notFound();
 
   const analysis = item.analysis;
   const topics = (analysis?.topics as string[] | undefined) ?? [];
+  const actionItems = (analysis?.actionItems as string[] | undefined) ?? [];
+  const labels = item.labels.map((fl) => ({
+    id: fl.label.id,
+    name: fl.label.name,
+    color: fl.label.color,
+  }));
 
   return (
     <div className="space-y-4">
@@ -69,7 +87,7 @@ export default async function FeedbackDetailPage({
           </pre>
         </section>
 
-        {/* AI analysis */}
+        {/* AI analysis + triage */}
         <section className="space-y-4">
           <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
             <h2 className="mb-3 text-sm font-semibold text-slate-700">AI analysis</h2>
@@ -108,6 +126,16 @@ export default async function FeedbackDetailPage({
                       <StatusBadge status={analysis.status as never} />
                     </dd>
                   </div>
+                  {analysis.emotion && (
+                    <div>
+                      <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                        Emotion
+                      </dt>
+                      <dd className="mt-1">
+                        <EmotionBadge emotion={analysis.emotion} />
+                      </dd>
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -120,6 +148,31 @@ export default async function FeedbackDetailPage({
                     ))}
                   </dd>
                 </div>
+
+                {analysis.language && (
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                      Language
+                    </dt>
+                    <dd className="mt-1">
+                      <LanguageBadge
+                        language={analysis.language}
+                        translatedSummary={analysis.translatedSummary}
+                      />
+                    </dd>
+                  </div>
+                )}
+
+                {actionItems.length > 0 && (
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                      Action items
+                    </dt>
+                    <dd className="mt-1">
+                      <ActionItems items={actionItems} />
+                    </dd>
+                  </div>
+                )}
               </dl>
             ) : (
               <p className="text-sm text-slate-400">
@@ -131,10 +184,71 @@ export default async function FeedbackDetailPage({
           {analysis && (
             <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
               <h2 className="mb-3 text-sm font-semibold text-slate-700">Triage</h2>
-              <StatusSelect itemId={item.id} status={analysis.status as never} />
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                    Status
+                  </label>
+                  <div className="mt-1">
+                    <StatusSelect itemId={item.id} status={analysis.status as never} />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                    Assignee
+                  </label>
+                  <div className="mt-1">
+                    <AssigneeSelect
+                      feedbackItemId={item.id}
+                      currentAssigneeId={analysis.assignedToId}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                    Snooze
+                  </label>
+                  <div className="mt-1">
+                    <SnoozeButton
+                      feedbackItemId={item.id}
+                      snoozedUntil={
+                        analysis.snoozedUntil
+                          ? analysis.snoozedUntil.toISOString()
+                          : null
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           )}
+
+          {/* Labels */}
+          <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <h2 className="mb-3 text-sm font-semibold text-slate-700">Labels</h2>
+            <LabelManager feedbackItemId={item.id} />
+          </div>
+
+          {/* Similar items (semantic) */}
+          <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <h2 className="mb-3 text-sm font-semibold text-slate-700">
+              Similar items
+            </h2>
+            <SimilarItems feedbackItemId={item.id} />
+          </div>
         </section>
+      </div>
+
+      {/* Bottom row: comments + activity */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 className="mb-3 text-sm font-semibold text-slate-700">Comments</h2>
+          <Comments feedbackItemId={item.id} />
+        </div>
+        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 className="mb-3 text-sm font-semibold text-slate-700">Activity</h2>
+          <ActivityTab feedbackItemId={item.id} />
+        </div>
       </div>
     </div>
   );

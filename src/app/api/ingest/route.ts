@@ -2,16 +2,33 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { runIngest } from "@/lib/ingest";
+import { fetchAllSources, ensureDefaultSourceConfig } from "@/lib/sources/registry";
 
 // POST /api/ingest - manually trigger an ingest run (protected).
-// Useful for testing / demos without waiting for the daily cron.
-export async function POST() {
+// Query param ?multi=1 runs all enabled SourceConfigs; otherwise runs the
+// legacy default GitHub source for backward compatibility.
+export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const url = new URL(req.url);
+  const multi = url.searchParams.get("multi") === "1";
+
   try {
+    if (multi) {
+      await ensureDefaultSourceConfig();
+      const { items, summary } = await fetchAllSources();
+      const result = await runIngest({
+        fetcher: async () => items,
+        source: "MultiSource",
+      });
+      const status =
+        result.status === "FAILURE" ? 500 : result.status === "PARTIAL" ? 207 : 200;
+      return NextResponse.json({ ...result, sourceSummary: summary }, { status });
+    }
+
     const result = await runIngest();
     const status =
       result.status === "FAILURE" ? 500 : result.status === "PARTIAL" ? 207 : 200;
