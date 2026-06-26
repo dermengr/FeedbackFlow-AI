@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { authOptions } from "@/lib/auth";
 import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
 import { detectAnomalies } from "@/lib/anomaly";
 
