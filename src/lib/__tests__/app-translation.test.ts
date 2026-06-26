@@ -40,15 +40,34 @@ describe("app-translation", () => {
     expect(messages["nav.inbox"]).toBe("Inbox");
   });
 
-  it("translates UI catalog via LLM for other locales", async () => {
+  it("returns static Spanish catalog without LLM", async () => {
+    const messages = await translateUiMessages("es");
+    expect(mockChatJson).not.toHaveBeenCalled();
+    expect(messages["nav.inbox"]).toBe("Bandeja de entrada");
+    expect(messages["nav.dashboard"]).toBe("Panel");
+  });
+
+  it("uses LLM for keyed subset even when static catalog exists", async () => {
     mockChatJson.mockResolvedValue({
-      "nav.inbox": "Bandeja de entrada",
-      "nav.dashboard": "Panel",
+      "nav.inbox": "Bandeja LLM",
+      "nav.dashboard": "Panel LLM",
     });
 
     const messages = await translateUiMessages("es", ["nav.inbox", "nav.dashboard"]);
-    expect(mockChatJson).toHaveBeenCalledTimes(1);
-    expect(messages["nav.inbox"]).toBe("Bandeja de entrada");
-    expect(messages["nav.dashboard"]).toBe("Panel");
+    expect(mockChatJson).toHaveBeenCalled();
+    expect(messages["nav.inbox"]).toBe("Bandeja LLM");
+    expect(messages["nav.dashboard"]).toBe("Panel LLM");
+  });
+
+  it("preserves sourceLanguage as detectedLanguage when provided", async () => {
+    mockChatJson.mockResolvedValue({
+      translatedText: "Hola",
+      detectedLanguage: "es",
+      confidence: 0.9,
+    });
+
+    const result = await translateText("Hello", "es", "en");
+    expect(result.detectedLanguage).toBe("en");
+    expect(result.translatedText).toBe("Hola");
   });
 });

@@ -9,12 +9,17 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { enMessages, type MessageKey } from "@/lib/i18n/messages/en";
 import {
   DEFAULT_LOCALE,
   SUPPORTED_LANGUAGES,
   type LanguageOption,
 } from "@/lib/i18n/languages";
+import {
+  enMessages,
+  getStaticMessages,
+  hasStaticMessages,
+  type MessageKey,
+} from "@/lib/i18n/messages";
 
 const STORAGE_KEY = "ff_locale";
 const CACHE_PREFIX = "ff_ui_messages_";
@@ -56,9 +61,12 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
 
   const loadUiMessages = useCallback(async (code: string) => {
-    if (code === DEFAULT_LOCALE) {
-      setMessages({ ...enMessages });
-      return;
+    if (hasStaticMessages(code)) {
+      const staticMessages = getStaticMessages(code);
+      if (staticMessages) {
+        setMessages(staticMessages);
+        return;
+      }
     }
 
     const cached = readCachedMessages(code);
