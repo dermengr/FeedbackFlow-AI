@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { cn, truncate } from "@/lib/utils";
 import { SearchSuggestions } from "@/components/SearchSuggestions";
+import { useTranslation } from "@/contexts/LocaleContext";
 
 type SearchResult = {
   id: string;
@@ -29,6 +30,7 @@ function sentimentDotClass(sentiment: string | null): string {
 }
 
 export function SearchBar({ className }: { className?: string }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -172,8 +174,8 @@ export function SearchBar({ className }: { className?: string }) {
           onFocus={handleFocus}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          placeholder="Search feedback..."
-          aria-label="Search feedback"
+          placeholder={t("search.placeholder")}
+          aria-label={t("search.placeholder")}
           className={cn(
             "w-full rounded-md border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-900",
             "placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"

@@ -185,16 +185,17 @@ export default async function FeedbackDetailPage({
                   </div>
                 )}
 
-                {analysis.language && analysis.language !== "en" && (
+                {analysis.language && (
                   <div>
                     <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                      Translation
+                      AI Translation
                     </dt>
                     <dd className="mt-1">
                       <TranslationButton
                         feedbackItemId={item.id}
                         language={analysis.language}
                         hasTranslation={Boolean(analysis.translatedSummary)}
+                        initialTranslation={analysis.translatedSummary}
                       />
                     </dd>
                   </div>

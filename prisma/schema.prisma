@@ -155,6 +155,8 @@ model FeedbackAnalysis {
   // optional English translation of the summary.
   language         String?
   translatedSummary String?       @db.Text @map("translated_summary")
+  // Per-language AI translations: { "en": "...", "es": "...", "fr": "..." }
+  translations      Json?          @default("{}")
   // B8: emotion label, e.g. "angry" | "frustrated" | "confused" | "happy"
   emotion          String?
   // B7: action items extracted by the LLM, JSON array of strings.

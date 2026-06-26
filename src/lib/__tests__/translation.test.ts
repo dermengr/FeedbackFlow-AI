@@ -1,18 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-// Mock prisma with mock feedbackItem + feedbackAnalysis models we control.
 const { mockFeedbackItem, mockFeedbackAnalysis } = vi.hoisted(() => ({
-  mockFeedbackItem: {
-    findUnique: vi.fn(),
-  },
-  mockFeedbackAnalysis: {
-    update: vi.fn(),
-  },
+  mockFeedbackItem: { findUnique: vi.fn() },
+  mockFeedbackAnalysis: { update: vi.fn() },
 }));
 
-// Mock the LLM chatJson so no network/provider call is made.
-const { mockChatJson } = vi.hoisted(() => ({
-  mockChatJson: vi.fn(),
+const { mockTranslateText } = vi.hoisted(() => ({
+  mockTranslateText: vi.fn(),
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -22,211 +16,120 @@ vi.mock("@/lib/prisma", () => ({
   },
 }));
 
-vi.mock("@/lib/llm", () => ({
-  chatJson: mockChatJson,
+vi.mock("@/lib/app-translation", () => ({
+  translateText: mockTranslateText,
 }));
 
 import {
   translateFeedback,
   batchTranslate,
   getTranslationStatus,
-  TRANSLATION_SYSTEM_PROMPT,
   FeedbackItemNotFoundError,
 } from "@/lib/translation";
 
 beforeEach(() => {
   mockFeedbackItem.findUnique.mockReset();
   mockFeedbackAnalysis.update.mockReset();
-  mockChatJson.mockReset();
+  mockTranslateText.mockReset();
 });
 
 describe("translation", () => {
   describe("translateFeedback", () => {
-    it("skips the LLM for English items and returns the existing translatedSummary", async () => {
-      const item = {
+    it("returns cached English translation without calling the LLM", async () => {
+      mockFeedbackItem.findUnique.mockResolvedValue({
         id: "fi-1",
-        title: "Login broken",
-        rawContent: "I can't log in.",
-        source: "GitHubIssues",
+        rawContent: "Hola",
         analysis: {
-          language: "en",
-          translatedSummary: "Existing English summary",
+          language: "es",
+          translatedSummary: "Hello",
+          translations: { en: "Hello" },
         },
-      };
-      mockFeedbackItem.findUnique.mockResolvedValue(item);
-
-      const result = await translateFeedback("fi-1");
-
-      expect(mockFeedbackItem.findUnique).toHaveBeenCalledWith({
-        where: { id: "fi-1" },
-        include: { analysis: true },
       });
-      expect(mockChatJson).not.toHaveBeenCalled();
-      expect(mockFeedbackAnalysis.update).not.toHaveBeenCalled();
+
+      const result = await translateFeedback("fi-1", "en");
+
+      expect(mockTranslateText).not.toHaveBeenCalled();
       expect(result).toEqual({
-        translatedText: "Existing English summary",
-        detectedLanguage: "en",
+        translatedText: "Hello",
+        detectedLanguage: "es",
+        targetLanguage: "en",
         confidence: 1,
       });
     });
 
-    it("returns null translatedText for English items with no stored translation", async () => {
+    it("translates to Spanish and persists in translations JSON", async () => {
       mockFeedbackItem.findUnique.mockResolvedValue({
-        id: "fi-1",
-        rawContent: "Hello",
-        analysis: { language: "en", translatedSummary: null },
-      });
-
-      const result = await translateFeedback("fi-1");
-      expect(mockChatJson).not.toHaveBeenCalled();
-      expect(result.translatedText).toBeNull();
-      expect(result.detectedLanguage).toBe("en");
-    });
-
-    it("calls the LLM for non-English items and persists the translation", async () => {
-      const item = {
         id: "fi-2",
-        title: "Problema de inicio de sesión",
-        rawContent: "No puedo iniciar sesión, sigue redirigiendo.",
-        source: "Reddit",
-        analysis: { language: "es", translatedSummary: null },
-      };
-      mockFeedbackItem.findUnique.mockResolvedValue(item);
-      mockFeedbackAnalysis.update.mockResolvedValue({});
-      mockChatJson.mockResolvedValue({
-        translatedText: "I can't log in, it keeps redirecting.",
-        detectedLanguage: "es",
-        confidence: 0.97,
-      });
-
-      const result = await translateFeedback("fi-2");
-
-      expect(mockChatJson).toHaveBeenCalledTimes(1);
-      const [systemPrompt, userPrompt] = mockChatJson.mock.calls[0];
-      expect(systemPrompt).toBe(TRANSLATION_SYSTEM_PROMPT);
-      expect(userPrompt).toContain("No puedo iniciar sesión");
-      expect(mockFeedbackAnalysis.update).toHaveBeenCalledWith({
-        where: { feedbackItemId: "fi-2" },
-        data: {
-          translatedSummary: "I can't log in, it keeps redirecting.",
-          language: "es",
+        rawContent: "Login is broken",
+        analysis: {
+          language: "en",
+          translatedSummary: null,
+          translations: {},
         },
       });
-      expect(result).toEqual({
-        translatedText: "I can't log in, it keeps redirecting.",
-        detectedLanguage: "es",
-        confidence: 0.97,
-      });
-    });
-
-    it("throws FeedbackItemNotFoundError when the item does not exist", async () => {
-      mockFeedbackItem.findUnique.mockResolvedValue(null);
-
-      await expect(translateFeedback("missing")).rejects.toBeInstanceOf(
-        FeedbackItemNotFoundError
-      );
-      expect(mockChatJson).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("batchTranslate", () => {
-    it("translates all items successfully", async () => {
-      mockFeedbackItem.findUnique
-        .mockResolvedValueOnce({
-          id: "fi-1",
-          rawContent: "Hello",
-          analysis: { language: "en", translatedSummary: "Hello" },
-        })
-        .mockResolvedValueOnce({
-          id: "fi-2",
-          rawContent: "Bonjour",
-          analysis: { language: "fr", translatedSummary: null },
-        });
       mockFeedbackAnalysis.update.mockResolvedValue({});
-      mockChatJson.mockResolvedValue({
-        translatedText: "Hello",
-        detectedLanguage: "fr",
-        confidence: 0.9,
-      });
-
-      const results = await batchTranslate(["fi-1", "fi-2"]);
-
-      expect(results).toHaveLength(2);
-      expect(results[0].id).toBe("fi-1");
-      expect(results[0].result?.translatedText).toBe("Hello");
-      expect(results[1].id).toBe("fi-2");
-      expect(results[1].result?.translatedText).toBe("Hello");
-      expect(results[0].error).toBeUndefined();
-      expect(results[1].error).toBeUndefined();
-    });
-
-    it("isolates failures so one missing item does not abort the batch", async () => {
-      mockFeedbackItem.findUnique
-        .mockResolvedValueOnce(null) // fi-1 missing -> error
-        .mockResolvedValueOnce({
-          id: "fi-2",
-          rawContent: "Hola",
-          analysis: { language: "es", translatedSummary: null },
-        });
-      mockFeedbackAnalysis.update.mockResolvedValue({});
-      mockChatJson.mockResolvedValue({
-        translatedText: "Hello",
-        detectedLanguage: "es",
+      mockTranslateText.mockResolvedValue({
+        translatedText: "El inicio de sesión está roto",
+        detectedLanguage: "en",
+        targetLanguage: "es",
         confidence: 0.95,
       });
 
-      const results = await batchTranslate(["fi-1", "fi-2"]);
+      const result = await translateFeedback("fi-2", "es");
 
-      expect(results).toHaveLength(2);
-      expect(results[0].id).toBe("fi-1");
-      expect(results[0].error).toBeTruthy();
-      expect(results[0].result).toBeUndefined();
-      expect(results[1].id).toBe("fi-2");
-      expect(results[1].result?.translatedText).toBe("Hello");
-      expect(results[1].error).toBeUndefined();
+      expect(mockTranslateText).toHaveBeenCalledWith(
+        "Login is broken",
+        "es",
+        "en"
+      );
+      expect(mockFeedbackAnalysis.update).toHaveBeenCalledWith({
+        where: { feedbackItemId: "fi-2" },
+        data: {
+          translations: { es: "El inicio de sesión está roto" },
+          language: "en",
+        },
+      });
+      expect(result.targetLanguage).toBe("es");
+    });
+
+    it("throws FeedbackItemNotFoundError when missing", async () => {
+      mockFeedbackItem.findUnique.mockResolvedValue(null);
+      await expect(translateFeedback("missing")).rejects.toBeInstanceOf(
+        FeedbackItemNotFoundError
+      );
     });
   });
 
   describe("getTranslationStatus", () => {
-    it("reports language and translation presence from the analysis", async () => {
+    it("returns translations map from analysis", async () => {
       mockFeedbackItem.findUnique.mockResolvedValue({
         id: "fi-1",
-        rawContent: "Hola",
-        analysis: { language: "es", translatedSummary: "Hello" },
+        analysis: {
+          language: "es",
+          translatedSummary: "Hello",
+          translations: { en: "Hello", fr: "Bonjour" },
+        },
       });
 
-      const status = await getTranslationStatus("fi-1");
-      expect(status).toEqual({
-        language: "es",
-        hasTranslation: true,
-        translatedSummary: "Hello",
-      });
+      const status = await getTranslationStatus("fi-1", "fr");
+      expect(status.hasTranslation).toBe(true);
+      expect(status.translations.fr).toBe("Bonjour");
     });
+  });
 
-    it("returns hasTranslation false when no translatedSummary is stored", async () => {
-      mockFeedbackItem.findUnique.mockResolvedValue({
-        id: "fi-2",
-        rawContent: "Hola",
-        analysis: { language: "es", translatedSummary: null },
-      });
+  describe("batchTranslate", () => {
+    it("isolates failures per item", async () => {
+      mockFeedbackItem.findUnique
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({
+          id: "fi-2",
+          rawContent: "Hola",
+          analysis: { language: "es", translations: { en: "Hello" } },
+        });
 
-      const status = await getTranslationStatus("fi-2");
-      expect(status).toEqual({
-        language: "es",
-        hasTranslation: false,
-        translatedSummary: null,
-      });
-    });
-
-    it("returns null language and false hasTranslation when the item is missing", async () => {
-      mockFeedbackItem.findUnique.mockResolvedValue(null);
-
-      const status = await getTranslationStatus("missing");
-      expect(status).toEqual({
-        language: null,
-        hasTranslation: false,
-        translatedSummary: null,
-      });
+      const results = await batchTranslate(["fi-1", "fi-2"], "en");
+      expect(results[0].error).toBeTruthy();
+      expect(results[1].result?.translatedText).toBe("Hello");
     });
   });
 });

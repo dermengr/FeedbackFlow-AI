@@ -28,29 +28,32 @@ import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { SearchBar } from "@/components/SearchBar";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { LanguageSelector } from "@/components/LanguageSelector";
+import { useTranslation } from "@/contexts/LocaleContext";
+import type { MessageKey } from "@/lib/i18n/messages/en";
 
 type NavLink = {
   href: string;
-  label: string;
+  labelKey: MessageKey;
   icon: LucideIcon;
 };
 
 const primaryLinks: NavLink[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/inbox", label: "Inbox", icon: Inbox },
-  { href: "/clusters", label: "Clusters", icon: Layers },
-  { href: "/sources", label: "Sources", icon: Plug },
+  { href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
+  { href: "/inbox", labelKey: "nav.inbox", icon: Inbox },
+  { href: "/clusters", labelKey: "nav.clusters", icon: Layers },
+  { href: "/sources", labelKey: "nav.sources", icon: Plug },
 ];
 
 const moreLinks: NavLink[] = [
-  { href: "/team", label: "Team", icon: Users },
-  { href: "/routing", label: "Routing", icon: Route },
-  { href: "/health", label: "Health", icon: HeartPulse },
-  { href: "/webhooks", label: "Webhooks", icon: Webhook },
-  { href: "/api-keys", label: "API Keys", icon: KeyRound },
-  { href: "/onboarding", label: "Onboarding", icon: GraduationCap },
-  { href: "/settings", label: "Settings", icon: Settings },
-  { href: "/admin/logs", label: "Logs", icon: ScrollText },
+  { href: "/team", labelKey: "nav.team", icon: Users },
+  { href: "/routing", labelKey: "nav.routing", icon: Route },
+  { href: "/health", labelKey: "nav.health", icon: HeartPulse },
+  { href: "/webhooks", labelKey: "nav.webhooks", icon: Webhook },
+  { href: "/api-keys", labelKey: "nav.apiKeys", icon: KeyRound },
+  { href: "/onboarding", labelKey: "nav.onboarding", icon: GraduationCap },
+  { href: "/settings", labelKey: "nav.settings", icon: Settings },
+  { href: "/admin/logs", labelKey: "nav.logs", icon: ScrollText },
 ];
 
 const allLinks = [...primaryLinks, ...moreLinks];
@@ -61,11 +64,13 @@ function isActive(pathname: string, href: string) {
 
 function NavItem({
   link,
+  label,
   pathname,
   onNavigate,
   compact,
 }: {
   link: NavLink;
+  label: string;
   pathname: string;
   onNavigate?: () => void;
   compact?: boolean;
@@ -86,7 +91,7 @@ function NavItem({
       )}
     >
       <Icon className={compact ? "h-3.5 w-3.5" : "h-4 w-4"} />
-      {link.label}
+      {label}
     </Link>
   );
 }
@@ -94,6 +99,7 @@ function NavItem({
 export function Navbar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const { t } = useTranslation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
@@ -125,13 +131,12 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
-      {/* Top bar: logo, search, user actions */}
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:gap-4 sm:px-6">
         <button
           type="button"
           onClick={() => setMobileOpen((v) => !v)}
           className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-slate-600 hover:bg-slate-100 lg:hidden"
-          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          aria-label={mobileOpen ? t("nav.closeMenu") : t("nav.openMenu")}
           aria-expanded={mobileOpen}
         >
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -144,7 +149,7 @@ export function Navbar() {
           <span className="flex h-8 w-8 items-center justify-center rounded-md bg-brand-600 text-white">
             <MessageSquareWarning className="h-4 w-4" />
           </span>
-          <span className="hidden sm:inline">FeedbackFlow AI</span>
+          <span className="hidden sm:inline">{t("app.name")}</span>
         </Link>
 
         <div className="hidden min-w-0 flex-1 md:block md:max-w-md lg:max-w-lg">
@@ -152,6 +157,7 @@ export function Navbar() {
         </div>
 
         <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
+          <LanguageSelector compact />
           <ThemeToggle />
           {session?.user?.email && (
             <span
@@ -165,20 +171,24 @@ export function Navbar() {
             type="button"
             onClick={() => signOut({ callbackUrl: "/login" })}
             className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-            aria-label="Sign out"
+            aria-label={t("nav.signOut")}
           >
             <LogOut className="h-4 w-4" />
-            <span className="hidden sm:inline">Sign out</span>
+            <span className="hidden sm:inline">{t("nav.signOut")}</span>
           </button>
         </div>
       </div>
 
-      {/* Desktop navigation row */}
       <div className="hidden border-t border-slate-100 lg:block">
         <div className="mx-auto flex max-w-7xl items-center gap-1 px-4 py-1.5 sm:px-6">
           <nav className="flex items-center gap-0.5" aria-label="Main navigation">
             {primaryLinks.map((link) => (
-              <NavItem key={link.href} link={link} pathname={pathname} />
+              <NavItem
+                key={link.href}
+                link={link}
+                label={t(link.labelKey)}
+                pathname={pathname}
+              />
             ))}
           </nav>
 
@@ -196,7 +206,7 @@ export function Navbar() {
               aria-expanded={moreOpen}
             >
               <MoreHorizontal className="h-4 w-4" />
-              More
+              {t("nav.more")}
               <ChevronDown
                 className={cn("h-3.5 w-3.5 transition-transform", moreOpen && "rotate-180")}
               />
@@ -224,7 +234,7 @@ export function Navbar() {
                       )}
                     >
                       <Icon className="h-4 w-4 shrink-0" />
-                      {link.label}
+                      {t(link.labelKey)}
                     </Link>
                   );
                 })}
@@ -234,7 +244,6 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Mobile / tablet navigation drawer */}
       {mobileOpen && (
         <>
           <div
@@ -243,8 +252,11 @@ export function Navbar() {
             aria-hidden="true"
           />
           <div className="fixed inset-x-0 top-14 z-50 max-h-[calc(100vh-3.5rem)] overflow-y-auto border-b border-slate-200 bg-white shadow-lg lg:hidden">
-            <div className="border-b border-slate-100 p-4 md:hidden">
-              <SearchBar />
+            <div className="space-y-3 border-b border-slate-100 p-4">
+              <div className="md:hidden">
+                <SearchBar />
+              </div>
+              <LanguageSelector />
             </div>
             <nav className="space-y-1 p-3" aria-label="Mobile navigation">
               {allLinks.map((link) => {
@@ -263,7 +275,7 @@ export function Navbar() {
                     )}
                   >
                     <Icon className="h-4 w-4 shrink-0" />
-                    {link.label}
+                    {t(link.labelKey)}
                   </Link>
                 );
               })}

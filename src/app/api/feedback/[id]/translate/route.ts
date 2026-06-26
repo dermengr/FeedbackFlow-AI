@@ -1,21 +1,40 @@
 import { NextResponse } from "next/server";
-import { authOptions } from "@/lib/auth";
+import { z } from "zod";
 import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
 import {
   translateFeedback,
   FeedbackItemNotFoundError,
 } from "@/lib/translation";
+import { DEFAULT_LOCALE, isSupportedLanguage } from "@/lib/i18n/languages";
 
-// POST /api/feedback/:id/translate - translate a non-English feedback item to
-// English using the local LLM. Requires authentication.
+const BodySchema = z.object({
+  targetLanguage: z.string().min(2).max(5).optional(),
+});
+
+// POST /api/feedback/:id/translate — AI-translate feedback to a target language.
 export async function POST(req: Request,
   { params }: { params: { id: string } }
 ) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
 
+  let targetLanguage = DEFAULT_LOCALE;
   try {
-    const result = await translateFeedback(params.id);
+    const body = await req.json();
+    const parsed = BodySchema.safeParse(body);
+    if (parsed.success && parsed.data.targetLanguage) {
+      targetLanguage = parsed.data.targetLanguage.trim().toLowerCase();
+    }
+  } catch {
+    // Empty body defaults to English.
+  }
+
+  if (!isSupportedLanguage(targetLanguage)) {
+    return NextResponse.json({ error: "Unsupported target language" }, { status: 400 });
+  }
+
+  try {
+    const result = await translateFeedback(params.id, targetLanguage);
     return NextResponse.json(result);
   } catch (err) {
     if (err instanceof FeedbackItemNotFoundError) {

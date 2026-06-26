@@ -1,10 +1,7 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { chatJson } from "@/lib/llm";
-
-// System prompt instructing the local LLM to act as a professional translator.
-// Kept as a module-level constant so tests can assert against it.
-export const TRANSLATION_SYSTEM_PROMPT =
-  "You are a professional translator. Translate the text to English. Return JSON with {translatedText, detectedLanguage, confidence}";
+import { translateText } from "@/lib/app-translation";
+import { DEFAULT_LOCALE, isSupportedLanguage } from "@/lib/i18n/languages";
 
 export class FeedbackItemNotFoundError extends Error {
   constructor(id: string) {
@@ -13,41 +10,54 @@ export class FeedbackItemNotFoundError extends Error {
   }
 }
 
-/** Shape returned by the LLM translation call and by `translateFeedback`. */
 export interface TranslationResult {
   translatedText: string | null;
   detectedLanguage: string;
+  targetLanguage: string;
   confidence: number;
 }
 
-/** Shape returned by `getTranslationStatus`. */
 export interface TranslationStatus {
   language: string | null;
   hasTranslation: boolean;
   translatedSummary: string | null;
+  translations: Record<string, string>;
 }
 
-interface LlmTranslationResponse {
-  translatedText: string;
-  detectedLanguage: string;
-  confidence: number;
+function parseTranslations(value: unknown): Record<string, string> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+    if (typeof v === "string" && v.trim()) out[k] = v;
+  }
+  return out;
+}
+
+function getCachedTranslation(
+  translations: Record<string, string>,
+  targetLanguage: string,
+  translatedSummary: string | null
+): string | null {
+  if (translations[targetLanguage]) return translations[targetLanguage];
+  if (targetLanguage === DEFAULT_LOCALE && translatedSummary) {
+    return translatedSummary;
+  }
+  return null;
 }
 
 /**
- * Translate a single feedback item's content to English using the local LLM.
- *
- * Fetches the FeedbackItem together with its FeedbackAnalysis from Prisma.
- * If the analysis already reports the language as English ("en"), no LLM call
- * is made and the existing `translatedSummary` (or null) is returned. Otherwise
- * the raw feedback content is sent to `chatJson` for translation and the
- * resulting English text is persisted back onto the analysis record.
- *
- * @returns The translation result ({translatedText, detectedLanguage, confidence}).
- * @throws {FeedbackItemNotFoundError} if no FeedbackItem exists for the id.
+ * Translate feedback content to a target language using the configured LLM.
+ * Caches per-language results in `analysis.translations` JSON.
  */
 export async function translateFeedback(
-  feedbackItemId: string
+  feedbackItemId: string,
+  targetLanguage: string = DEFAULT_LOCALE
 ): Promise<TranslationResult> {
+  const target = targetLanguage.trim().toLowerCase();
+  if (!isSupportedLanguage(target)) {
+    throw new Error(`Unsupported target language: ${targetLanguage}`);
+  }
+
   const item = await prisma.feedbackItem.findUnique({
     where: { id: feedbackItemId },
     include: { analysis: true },
@@ -57,73 +67,65 @@ export async function translateFeedback(
     throw new FeedbackItemNotFoundError(feedbackItemId);
   }
 
-  const language = item.analysis?.language ?? null;
-
-  // Already English: skip the LLM and return any existing translation.
-  if (language === "en") {
-    return {
-      translatedText: item.analysis?.translatedSummary ?? null,
-      detectedLanguage: "en",
-      confidence: 1,
-    };
-  }
-
-  // Reuse a persisted translation when available.
-  if (item.analysis?.translatedSummary) {
-    return {
-      translatedText: item.analysis.translatedSummary,
-      detectedLanguage: language ?? "en",
-      confidence: 1,
-    };
-  }
-
-  // Truncate raw content to limit prompt size / cost.
-  const userPrompt = item.rawContent.slice(0, 4000);
-
-  const result = await chatJson<LlmTranslationResponse>(
-    TRANSLATION_SYSTEM_PROMPT,
-    userPrompt,
-    { temperature: 0.2 }
+  const sourceLanguage = item.analysis?.language ?? null;
+  const existingTranslations = parseTranslations(item.analysis?.translations);
+  const cached = getCachedTranslation(
+    existingTranslations,
+    target,
+    item.analysis?.translatedSummary ?? null
   );
 
-  const translatedText =
-    typeof result.translatedText === "string" ? result.translatedText : "";
-  const detectedLanguage =
-    typeof result.detectedLanguage === "string" ? result.detectedLanguage : "en";
-  const confidence =
-    typeof result.confidence === "number" && !Number.isNaN(result.confidence)
-      ? result.confidence
-      : 0;
+  if (cached) {
+    return {
+      translatedText: cached,
+      detectedLanguage: sourceLanguage ?? DEFAULT_LOCALE,
+      targetLanguage: target,
+      confidence: 1,
+    };
+  }
 
-  // Persist the translation so subsequent status checks reflect it.
+  const sourceText = item.rawContent.slice(0, 4000);
+  const result = await translateText(
+    sourceText,
+    target,
+    sourceLanguage ?? undefined
+  );
+
   if (item.analysis) {
+    const nextTranslations = {
+      ...existingTranslations,
+      [target]: result.translatedText,
+    };
+    const updateData: Prisma.FeedbackAnalysisUpdateInput = {
+      translations: nextTranslations as Prisma.InputJsonValue,
+      language: result.detectedLanguage,
+    };
+    if (target === DEFAULT_LOCALE) {
+      updateData.translatedSummary = result.translatedText;
+    }
     await prisma.feedbackAnalysis.update({
       where: { feedbackItemId },
-      data: {
-        translatedSummary: translatedText,
-        language: detectedLanguage,
-      },
+      data: updateData,
     });
   }
 
-  return { translatedText, detectedLanguage, confidence };
+  return {
+    translatedText: result.translatedText,
+    detectedLanguage: result.detectedLanguage,
+    targetLanguage: target,
+    confidence: result.confidence,
+  };
 }
 
-/**
- * Translate multiple feedback items, isolating failures so one bad item does
- * not abort the whole batch.
- *
- * @returns An array of results aligned to the input ids. Items that failed are
- * represented by an entry with an `error` message instead of a translation.
- */
 export async function batchTranslate(
-  feedbackItemIds: string[]
+  feedbackItemIds: string[],
+  targetLanguage: string = DEFAULT_LOCALE
 ): Promise<Array<{ id: string; result?: TranslationResult; error?: string }>> {
   const results: Array<{ id: string; result?: TranslationResult; error?: string }> = [];
 
   for (const id of feedbackItemIds) {
     try {
-      const result = await translateFeedback(id);
+      const result = await translateFeedback(id, targetLanguage);
       results.push({ id, result });
     } catch (err) {
       results.push({
@@ -136,16 +138,9 @@ export async function batchTranslate(
   return results;
 }
 
-/**
- * Report the current translation status for a feedback item without invoking
- * the LLM.
- *
- * @returns {language, hasTranslation, translatedSummary}. If the item or its
- * analysis cannot be found, language and translatedSummary are null and
- * hasTranslation is false.
- */
 export async function getTranslationStatus(
-  feedbackItemId: string
+  feedbackItemId: string,
+  targetLanguage?: string
 ): Promise<TranslationStatus> {
   const item = await prisma.feedbackItem.findUnique({
     where: { id: feedbackItemId },
@@ -154,10 +149,17 @@ export async function getTranslationStatus(
 
   const language = item?.analysis?.language ?? null;
   const translatedSummary = item?.analysis?.translatedSummary ?? null;
+  const translations = parseTranslations(item?.analysis?.translations);
+
+  const target = targetLanguage?.trim().toLowerCase();
+  const hasTranslation = target
+    ? Boolean(getCachedTranslation(translations, target, translatedSummary))
+    : Boolean(translatedSummary) || Object.keys(translations).length > 0;
 
   return {
     language,
-    hasTranslation: Boolean(translatedSummary),
+    hasTranslation,
     translatedSummary,
+    translations,
   };
 }
