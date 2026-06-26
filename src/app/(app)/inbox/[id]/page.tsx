@@ -17,6 +17,12 @@ import { LabelManager } from "@/components/LabelManager";
 import { Comments } from "@/components/Comments";
 import { ActivityTab } from "@/components/ActivityTab";
 import { SimilarItems } from "@/components/SimilarItems";
+import { ReplyGenerator } from "@/components/ReplyGenerator";
+import { TranslationButton } from "@/components/TranslationButton";
+import { ArchiveButton } from "@/components/ArchiveButton";
+import { VoteButtons } from "@/components/VoteButtons";
+import { FeedbackLinks } from "@/components/FeedbackLinks";
+import { SmartCategorization } from "@/components/SmartCategorization";
 import { formatDate } from "@/lib/utils";
 import { ChevronLeft, ExternalLink } from "lucide-react";
 
@@ -32,6 +38,7 @@ export default async function FeedbackDetailPage({
     include: {
       analysis: true,
       labels: { include: { label: true } },
+      archive: true,
     },
   });
   if (!item) notFound();
@@ -58,9 +65,13 @@ export default async function FeedbackDetailPage({
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Raw content */}
         <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="mb-3 flex items-center justify-between">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-sm font-semibold text-slate-700">Raw feedback</h2>
-            <span className="text-xs text-slate-400">{item.source}</span>
+            <div className="flex items-center gap-2">
+              <ArchiveButton feedbackItemId={item.id} isArchived={Boolean(item.archive)} />
+              <VoteButtons feedbackItemId={item.id} />
+              <span className="text-xs text-slate-400">{item.source}</span>
+            </div>
           </div>
           <h3 className="text-lg font-semibold text-slate-900">
             {item.title ?? item.externalId}
@@ -173,6 +184,30 @@ export default async function FeedbackDetailPage({
                     </dd>
                   </div>
                 )}
+
+                {analysis.language && analysis.language !== "en" && (
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                      Translation
+                    </dt>
+                    <dd className="mt-1">
+                      <TranslationButton
+                        feedbackItemId={item.id}
+                        language={analysis.language}
+                        hasTranslation={Boolean(analysis.translatedSummary)}
+                      />
+                    </dd>
+                  </div>
+                )}
+
+                <div>
+                  <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                    Smart categories
+                  </dt>
+                  <dd className="mt-1">
+                    <SmartCategorization feedbackItemId={item.id} />
+                  </dd>
+                </div>
               </dl>
             ) : (
               <p className="text-sm text-slate-400">
@@ -236,6 +271,15 @@ export default async function FeedbackDetailPage({
             </h2>
             <SimilarItems feedbackItemId={item.id} />
           </div>
+
+          <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <h2 className="mb-3 text-sm font-semibold text-slate-700">
+              Related links
+            </h2>
+            <FeedbackLinks feedbackItemId={item.id} />
+          </div>
+
+          <ReplyGenerator feedbackItemId={item.id} />
         </section>
       </div>
 

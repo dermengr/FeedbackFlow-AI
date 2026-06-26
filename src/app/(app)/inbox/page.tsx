@@ -68,7 +68,9 @@ export default async function InboxPage({
   if (statuses.length) analysisWhere.status = { in: statuses };
   if (severityFilter) analysisWhere.severityScore = severityFilter;
 
-  const itemWhere: Record<string, unknown> = {};
+  const itemWhere: Record<string, unknown> = {
+    archive: null,
+  };
   if (topics.length) {
     itemWhere.OR = topics.map((t) => ({
       analysis: { topics: { path: [], string_contains: t } },

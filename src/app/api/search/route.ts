@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
 import { searchFeedback } from "@/lib/search";
 
 // GET /api/search - full-text search over feedback items.
@@ -9,10 +9,8 @@ import { searchFeedback } from "@/lib/search";
 //   page     (default 1)
 //   pageSize (default 20, max 100)
 export async function GET(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await getRequestAuth(req);
+  if (!auth) return unauthorizedResponse();
 
   const url = new URL(req.url);
   const q = url.searchParams.get("q") ?? "";

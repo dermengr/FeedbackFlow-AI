@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
 import { parseCsvUpload } from "@/lib/sources/csv";
 import { runIngest } from "@/lib/ingest";
 
@@ -8,10 +8,8 @@ import { runIngest } from "@/lib/ingest";
 // standard ingest pipeline (dedupe + LLM analysis + persist).
 // Accepts multipart/form-data with a "file" field, or raw CSV body.
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await getRequestAuth(req);
+  if (!auth) return unauthorizedResponse();
 
   const contentType = req.headers.get("content-type") ?? "";
   let csvText = "";

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { MessageSquareWarning } from "lucide-react";
+import { AuthDivider, GoogleSignInButton } from "@/components/GoogleSignInButton";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -62,7 +63,12 @@ export default function SignupPage() {
           <h1 className="text-lg font-semibold text-slate-900">Create your account</h1>
           <p className="mt-1 text-sm text-slate-500">Start analyzing customer feedback.</p>
 
-          <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+          <div className="mt-4">
+            <GoogleSignInButton label="Sign up with Google" />
+          </div>
+          <AuthDivider />
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-slate-700">
                 Name <span className="text-slate-400">(optional)</span>

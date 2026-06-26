@@ -1,15 +1,13 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
+import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
 import { prisma } from "@/lib/prisma";
 
 // GET /api/sources — list all source configs
-export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+export async function GET(req: Request) {
+  const auth = await getRequestAuth(req);
+  if (!auth) return unauthorizedResponse();
   const sources = await prisma.sourceConfig.findMany({
     orderBy: { createdAt: "asc" },
     include: {
@@ -29,10 +27,8 @@ const CreateSchema = z.object({
 
 // POST /api/sources — create a new source config
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await getRequestAuth(req);
+  if (!auth) return unauthorizedResponse();
   let body: unknown;
   try {
     body = await req.json();

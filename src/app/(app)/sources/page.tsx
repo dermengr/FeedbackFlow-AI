@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils";
 import Link from "next/link";
 import { Github, Upload } from "lucide-react";
+import { RunAllButton, SourceRowActions } from "@/components/SourceActions";
 
 export const dynamic = "force-dynamic";
 
@@ -69,16 +70,7 @@ export default async function SourcesPage() {
           >
             + Add source
           </Link>
-          <button
-            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-            onClick={() => {
-              fetch("/api/ingest?multi=1", { method: "POST" }).then(() =>
-                window.location.reload()
-              );
-            }}
-          >
-            Run all
-          </button>
+          <RunAllButton />
         </div>
       </div>
 
@@ -120,20 +112,10 @@ export default async function SourcesPage() {
                     </p>
                   </div>
                   <div className="flex gap-2">
-                    <button
-                      data-source-id={src.id}
-                      data-action="toggle"
-                      className="rounded border border-slate-300 px-2 py-1 text-xs text-slate-600 hover:bg-slate-50"
-                    >
-                      {src.enabled ? "Disable" : "Enable"}
-                    </button>
-                    <button
-                      data-source-id={src.id}
-                      data-action="delete"
-                      className="rounded border border-red-300 px-2 py-1 text-xs text-red-600 hover:bg-red-50"
-                    >
-                      Delete
-                    </button>
+                    <SourceRowActions
+                      sourceId={src.id}
+                      enabled={src.enabled}
+                    />
                   </div>
                 </div>
 
@@ -168,32 +150,6 @@ export default async function SourcesPage() {
           })}
         </div>
       )}
-
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-          document.querySelectorAll('[data-action="toggle"]').forEach(b => {
-            b.addEventListener('click', async () => {
-              const id = b.dataset.sourceId;
-              await fetch('/api/sources/' + id, {
-                method: 'PATCH',
-                headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({ enabled: !b.textContent.includes('Disable') })
-              });
-              window.location.reload();
-            });
-          });
-          document.querySelectorAll('[data-action="delete"]').forEach(b => {
-            b.addEventListener('click', async () => {
-              if (!confirm('Delete this source?')) return;
-              const id = b.dataset.sourceId;
-              await fetch('/api/sources/' + id, { method: 'DELETE' });
-              window.location.reload();
-            });
-          });
-        `,
-        }}
-      />
     </div>
   );
 }

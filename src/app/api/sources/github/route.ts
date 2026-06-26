@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
+import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
 import { prisma } from "@/lib/prisma";
 import {
   parseGitHubUrl,
@@ -22,10 +22,8 @@ const BodySchema = z.object({
 });
 
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await getRequestAuth(req);
+  if (!auth) return unauthorizedResponse();
 
   let body: unknown;
   try {

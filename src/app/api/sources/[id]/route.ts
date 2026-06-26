@@ -1,18 +1,15 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
+import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
 import { prisma } from "@/lib/prisma";
 
 // GET /api/sources/:id — single source config
-export async function GET(
-  _req: Request,
+export async function GET(req: Request,
   { params }: { params: { id: string } }
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await getRequestAuth(req);
+  if (!auth) return unauthorizedResponse();
   const source = await prisma.sourceConfig.findUnique({
     where: { id: params.id },
   });
@@ -33,10 +30,8 @@ export async function PATCH(
   req: Request,
   { params }: { params: { id: string } }
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await getRequestAuth(req);
+  if (!auth) return unauthorizedResponse();
   let body: unknown;
   try {
     body = await req.json();
@@ -62,14 +57,11 @@ export async function PATCH(
 }
 
 // DELETE /api/sources/:id — remove source config
-export async function DELETE(
-  _req: Request,
+export async function DELETE(req: Request,
   { params }: { params: { id: string } }
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await getRequestAuth(req);
+  if (!auth) return unauthorizedResponse();
   await prisma.sourceConfig.delete({ where: { id: params.id } });
   return NextResponse.json({ ok: true });
 }

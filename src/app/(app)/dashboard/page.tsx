@@ -8,6 +8,16 @@ import { SeverityChart } from "@/components/charts/SeverityChart";
 import { SentimentDonutChart } from "@/components/charts/SentimentDonutChart";
 import { EmotionDonutChart } from "@/components/charts/EmotionDonutChart";
 import { RisingTopics } from "@/components/RisingTopics";
+import { RealtimeStats } from "@/components/RealtimeStats";
+import { InsightsPanel } from "@/components/InsightsPanel";
+import { AnomalyAlerts } from "@/components/AnomalyAlerts";
+import { EmergingTrends } from "@/components/EmergingTrends";
+import { FunnelChart } from "@/components/FunnelChart";
+import { SentimentHeatmap } from "@/components/SentimentHeatmap";
+import { WidgetGrid } from "@/components/WidgetGrid";
+import { ComparisonView } from "@/components/ComparisonView";
+import { FeedbackTimeline } from "@/components/FeedbackTimeline";
+import { TopicCorrelation } from "@/components/TopicCorrelation";
 import {
   SentimentBadge,
   SeverityBadge,
@@ -69,12 +79,17 @@ async function getDashboardData() {
     }
   }
 
-  const highSeverity = await prisma.feedbackItem.findMany({
-    where: { analysis: { severityScore: { gte: 4 } } },
-    include: { analysis: true },
-    orderBy: { originalTimestamp: "desc" },
-    take: 5,
-  });
+  const [highSeverity, highSeverityCount] = await Promise.all([
+    prisma.feedbackItem.findMany({
+      where: { analysis: { severityScore: { gte: 4 } }, archive: null },
+      include: { analysis: true },
+      orderBy: { originalTimestamp: "desc" },
+      take: 5,
+    }),
+    prisma.feedbackAnalysis.count({
+      where: { severityScore: { gte: 4 }, feedbackItem: { archive: null } },
+    }),
+  ]);
 
   const totalAnalyses = await prisma.feedbackAnalysis.count();
   const lastRun = await prisma.ingestLog.findFirst({
@@ -90,6 +105,7 @@ async function getDashboardData() {
       .sort((a, b) => b.count - a.count),
     sentimentTrend: days,
     highSeverity,
+    highSeverityCount,
     totalAnalyses,
     lastRun,
   };
@@ -114,7 +130,7 @@ export default async function DashboardPage() {
   const positive = sentimentData.find((s) => s.sentiment === "positive")?.count ?? 0;
   const negative = sentimentData.find((s) => s.sentiment === "negative")?.count ?? 0;
   const neutral = sentimentData.find((s) => s.sentiment === "neutral")?.count ?? 0;
-  const highSeverityCount = data.highSeverity.length;
+  const highSeverityCount = data.highSeverityCount;
 
   return (
     <div className="space-y-6">
@@ -132,6 +148,13 @@ export default async function DashboardPage() {
             • {data.lastRun.itemsNew} new • {formatDate(data.lastRun.createdAt)}
           </div>
         )}
+      </div>
+
+      <RealtimeStats />
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <InsightsPanel />
+        <AnomalyAlerts />
       </div>
 
       {/* KPI cards */}
@@ -168,7 +191,29 @@ export default async function DashboardPage() {
         <Card title="Rising topics (week over week)">
           <RisingTopics />
         </Card>
+        <Card title="Emerging trends">
+          <EmergingTrends />
+        </Card>
+        <Card title="Triage funnel">
+          <FunnelChart />
+        </Card>
+        <Card title="Sentiment heatmap">
+          <SentimentHeatmap />
+        </Card>
+        <Card title="Topic correlations">
+          <TopicCorrelation />
+        </Card>
+        <Card title="Activity timeline">
+          <FeedbackTimeline />
+        </Card>
+        <Card title="Period comparison">
+          <ComparisonView />
+        </Card>
       </div>
+
+      <Card title="Custom widgets">
+        <WidgetGrid />
+      </Card>
 
       {/* High severity list */}
       <Card title="Recent high-severity feedback">

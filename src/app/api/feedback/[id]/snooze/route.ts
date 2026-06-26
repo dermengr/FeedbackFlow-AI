@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
+import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
 import { snoozeFeedback, unsnoozeFeedback } from "@/lib/snooze";
 
 const SnoozeSchema = z.object({
@@ -13,10 +13,8 @@ export async function POST(
   req: Request,
   { params }: { params: { id: string } }
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await getRequestAuth(req);
+  if (!auth) return unauthorizedResponse();
 
   let body: unknown;
   try {
@@ -47,14 +45,11 @@ export async function POST(
 }
 
 // DELETE /api/feedback/:id/snooze - manually unsnooze a feedback item.
-export async function DELETE(
-  _req: Request,
+export async function DELETE(req: Request,
   { params }: { params: { id: string } }
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await getRequestAuth(req);
+  if (!auth) return unauthorizedResponse();
 
   await unsnoozeFeedback(params.id);
 

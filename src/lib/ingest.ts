@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { fetchGitHubIssues, GITHUB_SOURCE } from "@/lib/github";
 import { analyzeBatch } from "@/lib/llm";
 import { notifyHighSeverity } from "@/lib/slack";
+import { applyRoutingRules } from "@/lib/routing";
+import { dispatchWebhooks } from "@/lib/webhooks";
 import { RawFeedbackItem } from "@/lib/types";
 import { randomUUID } from "crypto";
 
@@ -106,6 +108,13 @@ export async function runIngest(opts: IngestOptions = {}): Promise<IngestResult>
   let persisted = 0;
   for (const { item, analysis } of results) {
     try {
+      const assigneeId = await applyRoutingRules({
+        sentiment: analysis.sentiment,
+        topics: analysis.topics,
+        severityScore: analysis.severity_score,
+      });
+
+      let createdItemId: string | null = null;
       await prisma.$transaction(async (tx) => {
         const created = await tx.feedbackItem.create({
           data: {
@@ -118,6 +127,7 @@ export async function runIngest(opts: IngestOptions = {}): Promise<IngestResult>
             originalTimestamp: item.originalTimestamp,
           },
         });
+        createdItemId = created.id;
         await tx.feedbackAnalysis.create({
           data: {
             feedbackItemId: created.id,
@@ -130,10 +140,28 @@ export async function runIngest(opts: IngestOptions = {}): Promise<IngestResult>
             emotion: analysis.emotion,
             actionItems: analysis.actionItems,
             status: "NEW",
+            assignedToId: assigneeId,
           },
         });
       });
       persisted++;
+
+      const webhookPayload = {
+        feedbackItemId: createdItemId,
+        externalId: item.externalId,
+        source: item.source,
+        title: item.title,
+        sentiment: analysis.sentiment,
+        topics: analysis.topics,
+        severityScore: analysis.severity_score,
+        summary: analysis.summary,
+      };
+
+      try {
+        await dispatchWebhooks("feedback.new", webhookPayload);
+      } catch (e) {
+        console.warn(`[ingest] webhook dispatch failed: ${(e as Error).message}`);
+      }
 
       // 5. Slack notify on high severity (best-effort, never fails the run).
       if (analysis.severity_score >= HIGH_SEVERITY_THRESHOLD) {
@@ -147,6 +175,7 @@ export async function runIngest(opts: IngestOptions = {}): Promise<IngestResult>
             severityScore: analysis.severity_score,
             summary: analysis.summary,
           });
+          await dispatchWebhooks("feedback.escalated", webhookPayload);
         } catch (e) {
           console.warn(`[ingest] slack notify failed: ${(e as Error).message}`);
         }

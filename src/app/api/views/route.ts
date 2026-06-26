@@ -1,16 +1,14 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
+import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
 import { listViews, createView } from "@/lib/views";
 
 // GET /api/views — list the current user's saved views
-export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session || !session.user.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  const views = await listViews(session.user.id);
+export async function GET(req: Request) {
+  const auth = await getRequestAuth(req);
+  if (!auth) return unauthorizedResponse();
+  const views = await listViews(auth.userId);
   return NextResponse.json({ views });
 }
 
@@ -21,10 +19,8 @@ const CreateSchema = z.object({
 
 // POST /api/views — create a new saved view for the current user
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session || !session.user.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await getRequestAuth(req);
+  if (!auth) return unauthorizedResponse();
   let body: unknown;
   try {
     body = await req.json();
@@ -40,7 +36,7 @@ export async function POST(req: Request) {
   }
   try {
     const view = await createView(
-      session.user.id,
+      auth.userId,
       parsed.data.name,
       parsed.data.query
     );

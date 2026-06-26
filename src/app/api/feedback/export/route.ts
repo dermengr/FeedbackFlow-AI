@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
 import { prisma } from "@/lib/prisma";
 import { FEEDBACK_STATUSES, SENTIMENTS } from "@/lib/types";
 import { itemsToCsv, type ExportItem } from "@/lib/export";
@@ -14,10 +14,8 @@ import { itemsToCsv, type ExportItem } from "@/lib/export";
 //   sort=severity|createdAt|originalTimestamp (default: originalTimestamp)
 //   order=desc|asc (default: desc)
 export async function GET(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await getRequestAuth(req);
+  if (!auth) return unauthorizedResponse();
 
   const url = new URL(req.url);
   const getAll = (key: string): string[] => {

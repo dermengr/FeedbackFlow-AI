@@ -1,19 +1,16 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
 import { deleteView } from "@/lib/views";
 
 // DELETE /api/views/:id — delete a saved view owned by the current user
-export async function DELETE(
-  _req: Request,
+export async function DELETE(req: Request,
   { params }: { params: { id: string } }
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session || !session.user.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await getRequestAuth(req);
+  if (!auth) return unauthorizedResponse();
   try {
-    await deleteView(params.id, session.user.id);
+    await deleteView(params.id, auth.userId);
     return NextResponse.json({ ok: true });
   } catch {
     // View not found or not owned by the caller — both map to 404 to avoid

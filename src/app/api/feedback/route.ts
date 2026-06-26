@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import {
+  getRequestAuth,
+  unauthorizedResponse,
+  forbiddenResponse,
+  hasScope,
+} from "@/lib/request-auth";
 import { prisma } from "@/lib/prisma";
 import { FEEDBACK_STATUSES, SENTIMENTS } from "@/lib/types";
 
@@ -15,9 +19,10 @@ import { FEEDBACK_STATUSES, SENTIMENTS } from "@/lib/types";
 //   page=1
 //   pageSize=20
 export async function GET(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await getRequestAuth(req);
+  if (!auth) return unauthorizedResponse();
+  if (!hasScope(auth, "read:feedback")) {
+    return forbiddenResponse("Missing scope: read:feedback");
   }
 
   const url = new URL(req.url);
@@ -59,7 +64,9 @@ export async function GET(req: Request) {
   if (statuses.length) analysisWhere.status = { in: statuses };
   if (severityFilter) analysisWhere.severityScore = severityFilter;
 
-  const itemWhere: Record<string, unknown> = {};
+  const itemWhere: Record<string, unknown> = {
+    archive: null,
+  };
   if (topics.length) {
     // topics is a JSON array; use path + string_contains per topic (OR).
     itemWhere.OR = topics.map((t) => ({

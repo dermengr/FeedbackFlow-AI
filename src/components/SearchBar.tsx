@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { cn, truncate } from "@/lib/utils";
+import { SearchSuggestions } from "@/components/SearchSuggestions";
 
 type SearchResult = {
   id: string;
@@ -27,7 +28,7 @@ function sentimentDotClass(sentiment: string | null): string {
   return "bg-slate-300";
 }
 
-export function SearchBar() {
+export function SearchBar({ className }: { className?: string }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -92,8 +93,24 @@ export function SearchBar() {
     return () => document.removeEventListener("mousedown", handlePointerDown);
   }, []);
 
-  function navigateTo(id: string) {
+  async function recordSearchQuery(q: string, resultsCount: number) {
+    try {
+      await fetch("/api/search/suggestions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: q, resultsCount }),
+      });
+    } catch {
+      // Best-effort history logging.
+    }
+  }
+
+  function navigateTo(id: string, q?: string) {
     setOpen(false);
+    const trimmed = (q ?? query).trim();
+    if (trimmed.length >= 1) {
+      void recordSearchQuery(trimmed, 1);
+    }
     setQuery("");
     setResults([]);
     router.push(`/inbox/${id}`);
@@ -137,10 +154,12 @@ export function SearchBar() {
     navigateTo(id);
   }
 
-  const showDropdown = open && query.trim().length >= 2;
+  const trimmedQuery = query.trim();
+  const showResults = open && trimmedQuery.length >= 2;
+  const showSuggestions = open && trimmedQuery.length < 2;
 
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef} className={cn("relative w-full", className)}>
       <div className="relative">
         <Search
           className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
@@ -156,16 +175,28 @@ export function SearchBar() {
           placeholder="Search feedback..."
           aria-label="Search feedback"
           className={cn(
-            "w-96 rounded-md border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-900",
+            "w-full rounded-md border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-900",
             "placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           )}
         />
       </div>
 
-      {showDropdown && (
+      {showSuggestions && (
+        <div className="absolute z-50 mt-1 w-full min-w-[16rem]">
+          <SearchSuggestions
+            query={trimmedQuery}
+            onSuggestionClick={(s) => {
+              setQuery(s);
+              setOpen(true);
+            }}
+          />
+        </div>
+      )}
+
+      {showResults && (
         <div
           role="listbox"
-          className="absolute z-50 mt-1 w-96 max-h-80 overflow-y-auto rounded-md border border-slate-200 bg-white py-1 shadow-lg"
+          className="absolute z-50 mt-1 w-full min-w-[16rem] max-h-80 overflow-y-auto rounded-md border border-slate-200 bg-white py-1 shadow-lg"
         >
           {loading ? (
             <div className="px-3 py-2 text-sm text-slate-500">Searching...</div>

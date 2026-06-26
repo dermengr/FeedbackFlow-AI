@@ -18,7 +18,8 @@ datasource db {
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
-  hashedPassword String
+  // Null for OAuth-only accounts (e.g. Google sign-in).
+  hashedPassword String?
   name         String?
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
@@ -31,6 +32,32 @@ model User {
   auditEvents       AuditEvent[]
   // C19: saved views owned by this user
   savedViews        SavedView[]
+  // NEW: votes on feedback
+  votes             FeedbackVote[]
+  // NEW: feedback links created by this user
+  feedbackLinks     FeedbackLink[]
+  // NEW: notification preferences
+  notificationPref  NotificationPref?
+  // NEW: notification history
+  notifications     NotificationLog[]
+  // NEW: routing rules where this user is assignee
+  routingRules      RoutingRule[]
+  // NEW: API keys owned by this user
+  apiKeys           ApiKey[]
+  // NEW: dashboard widgets owned by this user
+  widgets           DashboardWidget[]
+  // NEW: export templates owned by this user
+  exportTemplates   ExportTemplate[]
+  // NEW: search history
+  searchHistory     SearchHistory[]
+  // NEW: reply templates
+  replyTemplates    ReplyTemplate[]
+  // NEW: onboarding state
+  onboarding        OnboardingStep?
+  // NEW: team metrics
+  teamMetrics       TeamMetric[]
+  // NEW: feedback archived by this user
+  archivedItems     FeedbackArchive[]
 
   @@map("users")
 }
@@ -81,6 +108,14 @@ model FeedbackItem {
   embedding          FeedbackEmbedding?
   // C16: audit events targeting this item
   auditEvents        AuditEvent[]
+  // NEW: votes on this feedback
+  votes              FeedbackVote[]
+  // NEW: links from this feedback item
+  linksFrom          FeedbackLink[] @relation("FeedbackLinkFrom")
+  // NEW: links to this feedback item
+  linksTo            FeedbackLink[] @relation("FeedbackLinkTo")
+  // NEW: archive record if archived
+  archive            FeedbackArchive?
 
   // D20: full-text search on title + rawContent. A GIN index over a
   // to_tsvector expression is created via raw SQL in the migration (no
@@ -275,4 +310,290 @@ model SavedView {
 
   @@index([ownerId])
   @@map("saved_views")
+}
+
+// ---------------------------------------------------------------------------
+// NEW: Vote / reaction on feedback items
+// ---------------------------------------------------------------------------
+model FeedbackVote {
+  id              String       @id @default(cuid())
+  feedbackItemId  String       @map("feedback_item_id")
+  feedbackItem    FeedbackItem @relation(fields: [feedbackItemId], references: [id], onDelete: Cascade)
+  userId          String       @map("user_id")
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // "up" | "down" | "heart" | "fire"
+  type            String
+  createdAt       DateTime     @default(now()) @map("created_at")
+
+  @@unique([feedbackItemId, userId, type])
+  @@index([feedbackItemId])
+  @@index([userId])
+  @@map("feedback_votes")
+}
+
+// ---------------------------------------------------------------------------
+// NEW: Related/linked feedback items
+// ---------------------------------------------------------------------------
+model FeedbackLink {
+  id              String       @id @default(cuid())
+  fromItemId      String       @map("from_item_id")
+  fromItem        FeedbackItem @relation("FeedbackLinkFrom", fields: [fromItemId], references: [id], onDelete: Cascade)
+  toItemId        String       @map("to_item_id")
+  toItem          FeedbackItem @relation("FeedbackLinkTo", fields: [toItemId], references: [id], onDelete: Cascade)
+  // "duplicate" | "related" | "blocks" | "blocked_by"
+  relationType    String       @default("related") @map("relation_type")
+  createdById     String       @map("created_by_id")
+  createdBy       User         @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt       DateTime     @default(now()) @map("created_at")
+
+  @@unique([fromItemId, toItemId, relationType])
+  @@index([fromItemId])
+  @@index([toItemId])
+  @@map("feedback_links")
+}
+
+// ---------------------------------------------------------------------------
+// NEW: Notification preferences per user
+// ---------------------------------------------------------------------------
+model NotificationPref {
+  id              String   @id @default(cuid())
+  userId          String   @unique @map("user_id")
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emailEnabled    Boolean  @default(true) @map("email_enabled")
+  slackEnabled    Boolean  @default(false) @map("slack_enabled")
+  minSeverity     Int      @default(3) @map("min_severity")
+  digestFrequency String   @default("daily") @map("digest_frequency")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("notification_prefs")
+}
+
+// ---------------------------------------------------------------------------
+// NEW: Notification history log
+// ---------------------------------------------------------------------------
+model NotificationLog {
+  id              String   @id @default(cuid())
+  userId          String   @map("user_id")
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type            String
+  title           String
+  body            String   @db.Text
+  // "unread" | "read"
+  status          String   @default("unread")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([status])
+  @@map("notification_logs")
+}
+
+// ---------------------------------------------------------------------------
+// NEW: Auto-routing rules for triage assignment
+// ---------------------------------------------------------------------------
+model RoutingRule {
+  id              String   @id @default(cuid())
+  name            String
+  // JSON conditions, e.g. {"topics":["Bug Report"],"minSeverity":4}
+  conditions      Json
+  // User ID to assign to
+  assigneeId      String   @map("assignee_id")
+  assignee        User     @relation(fields: [assigneeId], references: [id], onDelete: Cascade)
+  enabled         Boolean  @default(true)
+  priority        Int      @default(0)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([assigneeId])
+  @@index([enabled])
+  @@map("routing_rules")
+}
+
+// ---------------------------------------------------------------------------
+// NEW: Webhook configurations (outgoing webhooks)
+// ---------------------------------------------------------------------------
+model WebhookConfig {
+  id              String   @id @default(cuid())
+  name            String
+  url             String
+  // JSON events to trigger on, e.g. ["feedback.new","feedback.escalated"]
+  events          Json
+  // Optional secret for HMAC verification
+  secret          String?
+  enabled         Boolean  @default(true)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("webhook_configs")
+}
+
+// ---------------------------------------------------------------------------
+// NEW: API keys for external API access
+// ---------------------------------------------------------------------------
+model ApiKey {
+  id              String   @id @default(cuid())
+  name            String
+  // Hashed key — never store raw keys
+  hashedKey       String   @unique @map("hashed_key")
+  // Prefix shown in UI for identification, e.g. "ffk_abc..."
+  prefix          String
+  userId          String   @map("user_id")
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Scopes as JSON array, e.g. ["read:feedback","write:feedback"]
+  scopes          Json     @default("[]")
+  lastUsedAt      DateTime? @map("last_used_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([prefix])
+  @@map("api_keys")
+}
+
+// ---------------------------------------------------------------------------
+// NEW: Custom dashboard widgets
+// ---------------------------------------------------------------------------
+model DashboardWidget {
+  id              String   @id @default(cuid())
+  userId          String   @map("user_id")
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type            String
+  title           String
+  // JSON config for the widget, e.g. {"metric":"sentiment","timeRange":"7d"}
+  config          Json     @default("{}")
+  // Grid position
+  positionX       Int      @default(0) @map("position_x")
+  positionY       Int      @default(0) @map("position_y")
+  width           Int      @default(1)
+  height          Int      @default(1)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("dashboard_widgets")
+}
+
+// ---------------------------------------------------------------------------
+// NEW: Saved export templates
+// ---------------------------------------------------------------------------
+model ExportTemplate {
+  id              String   @id @default(cuid())
+  name            String
+  // JSON column definitions, e.g. [{"field":"summary","label":"Summary"}]
+  columns         Json
+  format          String   @default("csv")
+  // Optional filter query to apply
+  filterQuery     String?  @map("filter_query")
+  userId          String?  @map("user_id")
+  user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("export_templates")
+}
+
+// ---------------------------------------------------------------------------
+// NEW: Search history for suggestions
+// ---------------------------------------------------------------------------
+model SearchHistory {
+  id              String   @id @default(cuid())
+  userId          String   @map("user_id")
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  query           String
+  resultsCount    Int      @default(0) @map("results_count")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([query])
+  @@map("search_history")
+}
+
+// ---------------------------------------------------------------------------
+// NEW: AI-generated insights cache
+// ---------------------------------------------------------------------------
+model AiInsight {
+  id              String   @id @default(cuid())
+  type            String
+  // JSON insight data, e.g. {"summary":"...","highlights":[],"recommendations":[]}
+  data            Json
+  // Time range the insight covers, e.g. "7d", "30d", "all"
+  timeRange       String   @default("7d") @map("time_range")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([type])
+  @@index([timeRange])
+  @@map("ai_insights")
+}
+
+// ---------------------------------------------------------------------------
+// NEW: Reply templates for common responses
+// ---------------------------------------------------------------------------
+model ReplyTemplate {
+  id              String   @id @default(cuid())
+  name            String
+  subject         String?
+  body            String   @db.Text
+  // Optional tags to categorize, JSON array of strings
+  tags            Json     @default("[]")
+  userId          String   @map("user_id")
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("reply_templates")
+}
+
+// ---------------------------------------------------------------------------
+// NEW: Onboarding wizard state per user
+// ---------------------------------------------------------------------------
+model OnboardingStep {
+  id              String   @id @default(cuid())
+  userId          String   @unique @map("user_id")
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // JSON array of completed step IDs, e.g. ["create_source","run_ingest","view_dashboard"]
+  completedSteps  Json     @default("[]") @map("completed_steps")
+  currentStep     String   @default("welcome") @map("current_step")
+  skipped         Boolean  @default(false)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("onboarding_steps")
+}
+
+// ---------------------------------------------------------------------------
+// NEW: Team performance metrics snapshot
+// ---------------------------------------------------------------------------
+model TeamMetric {
+  id              String   @id @default(cuid())
+  userId          String   @map("user_id")
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // "daily" | "weekly" | "monthly"
+  period          String
+  periodStart     DateTime @map("period_start")
+  periodEnd       DateTime @map("period_end")
+  assignedCount   Int      @default(0) @map("assigned_count")
+  actionedCount   Int      @default(0) @map("actioned_count")
+  avgResponseHours Float   @default(0) @map("avg_response_hours")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, period, periodStart])
+  @@index([userId])
+  @@index([period])
+  @@map("team_metrics")
+}
+
+// ---------------------------------------------------------------------------
+// NEW: Feedback archive tracking
+// ---------------------------------------------------------------------------
+model FeedbackArchive {
+  id              String       @id @default(cuid())
+  feedbackItemId  String       @unique @map("feedback_item_id")
+  feedbackItem    FeedbackItem @relation(fields: [feedbackItemId], references: [id], onDelete: Cascade)
+  archivedById    String       @map("archived_by_id")
+  archivedBy      User         @relation(fields: [archivedById], references: [id], onDelete: Cascade)
+  reason          String?
+  createdAt       DateTime     @default(now()) @map("created_at")
+
+  @@index([archivedById])
+  @@map("feedback_archives")
 }

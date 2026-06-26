@@ -1,17 +1,15 @@
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 // D22: Ingest log viewer API.
 // Returns paginated ingest run history with optional source filter.
-export async function GET(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+export async function GET(req: Request) {
+  const auth = await getRequestAuth(req);
+  if (!auth) return unauthorizedResponse();
 
-  const { searchParams } = new URL(request.url);
+  const { searchParams } = new URL(req.url);
   const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10) || 1);
   const pageSize = Math.min(
     100,

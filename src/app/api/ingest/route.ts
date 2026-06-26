@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
 import { runIngest } from "@/lib/ingest";
 import { fetchAllSources, ensureDefaultSourceConfig } from "@/lib/sources/registry";
 
@@ -8,10 +8,8 @@ import { fetchAllSources, ensureDefaultSourceConfig } from "@/lib/sources/regist
 // Query param ?multi=1 runs all enabled SourceConfigs; otherwise runs the
 // legacy default GitHub source for backward compatibility.
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await getRequestAuth(req);
+  if (!auth) return unauthorizedResponse();
 
   const url = new URL(req.url);
   const multi = url.searchParams.get("multi") === "1";

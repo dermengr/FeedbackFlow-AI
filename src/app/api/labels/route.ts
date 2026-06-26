@@ -1,15 +1,13 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
+import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
 import { LABEL_COLORS, listLabels, createLabel } from "@/lib/labels";
 
 // GET /api/labels — list all labels in the taxonomy
-export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+export async function GET(req: Request) {
+  const auth = await getRequestAuth(req);
+  if (!auth) return unauthorizedResponse();
   const labels = await listLabels();
   return NextResponse.json({ labels });
 }
@@ -21,10 +19,8 @@ const CreateSchema = z.object({
 
 // POST /api/labels — create a new label
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await getRequestAuth(req);
+  if (!auth) return unauthorizedResponse();
   let body: unknown;
   try {
     body = await req.json();

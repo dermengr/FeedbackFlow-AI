@@ -4,7 +4,8 @@ import { EMOTIONS, LlmAnalysisResult, RawFeedbackItem, SENTIMENTS, TOPIC_TAXONOM
 import { backoffDelay, sleep } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
-// LLM integration: OpenAI gpt-4o-mini with structured JSON output.
+// LLM integration: supports local Ollama (default, free, lightweight) or
+// OpenAI as a fallback. Uses the OpenAI-compatible chat completions API.
 //
 // For each feedback item we perform a multi-task analysis:
 //   - Sentiment (positive | neutral | negative)
@@ -13,6 +14,14 @@ import { backoffDelay, sleep } from "@/lib/utils";
 //   - One-sentence summary
 //
 // Output is validated with zod and retried on parse / API failures.
+//
+// Local LLM setup (default):
+//   1. Install Ollama: https://ollama.com
+//   2. Pull a model: ollama pull qwen2.5:0.5b  (~400MB, very lightweight)
+//   3. Set LLM_PROVIDER=ollama (or leave unset — ollama is the default)
+//
+// Cloud fallback:
+//   Set LLM_PROVIDER=openai + OPENAI_API_KEY + OPENAI_MODEL
 // ---------------------------------------------------------------------------
 
 const AnalysisSchema = z.object({
@@ -60,13 +69,23 @@ function buildUserPrompt(item: RawFeedbackItem): string {
 }
 
 function getClient(): OpenAI {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) throw new Error("OPENAI_API_KEY is not set");
-  return new OpenAI({ apiKey });
+  const provider = (process.env.LLM_PROVIDER ?? "ollama").toLowerCase();
+  if (provider === "openai") {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) throw new Error("OPENAI_API_KEY is not set");
+    return new OpenAI({ apiKey });
+  }
+  // Ollama (default) — OpenAI-compatible endpoint, no API key needed.
+  const baseURL = process.env.OLLAMA_BASE_URL ?? "http://localhost:11434/v1";
+  return new OpenAI({ baseURL, apiKey: "ollama" });
 }
 
 function getModel(): string {
-  return process.env.OPENAI_MODEL ?? "gpt-4o-mini";
+  const provider = (process.env.LLM_PROVIDER ?? "ollama").toLowerCase();
+  if (provider === "openai") {
+    return process.env.OPENAI_MODEL ?? "gpt-4o-mini";
+  }
+  return process.env.OLLAMA_MODEL ?? "qwen2.5:0.5b";
 }
 
 export interface AnalyzeOptions {
@@ -160,4 +179,58 @@ export async function analyzeBatch(
   }
 
   return { results, failures };
+}
+
+// ---------------------------------------------------------------------------
+// General-purpose LLM chat completion for ad-hoc tasks (insights, replies, etc.)
+// Uses the same provider config (Ollama by default, OpenAI fallback).
+// Returns the raw text content from the model.
+// ---------------------------------------------------------------------------
+export async function chatCompletion(
+  systemPrompt: string,
+  userPrompt: string,
+  opts: { temperature?: number; jsonMode?: boolean; maxAttempts?: number } = {}
+): Promise<string> {
+  const client = getClient();
+  const model = getModel();
+  const maxAttempts = opts.maxAttempts ?? 2;
+  let lastErr: unknown;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const completion = await client.chat.completions.create({
+        model,
+        temperature: opts.temperature ?? 0.3,
+        ...(opts.jsonMode ? { response_format: { type: "json_object" } } : {}),
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+      });
+      const raw = completion.choices[0]?.message?.content ?? "";
+      if (!raw) throw new Error("Empty LLM response");
+      return raw;
+    } catch (err) {
+      lastErr = err;
+      if (attempt < maxAttempts) {
+        await sleep(backoffDelay(attempt));
+      }
+    }
+  }
+  throw new Error(
+    `LLM chat completion failed after ${maxAttempts} attempts: ${(lastErr as Error)?.message ?? lastErr}`
+  );
+}
+
+// Convenience: chat completion that expects JSON output, parsed and returned.
+export async function chatJson<T = unknown>(
+  systemPrompt: string,
+  userPrompt: string,
+  opts: { temperature?: number; maxAttempts?: number } = {}
+): Promise<T> {
+  const raw = await chatCompletion(systemPrompt, userPrompt, {
+    ...opts,
+    jsonMode: true,
+  });
+  return JSON.parse(raw) as T;
 }

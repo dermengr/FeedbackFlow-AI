@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { MessageSquareWarning } from "lucide-react";
+import { AuthDivider, GoogleSignInButton } from "@/components/GoogleSignInButton";
 
 export default function LoginPage() {
   return (
@@ -58,7 +59,12 @@ function LoginForm() {
             Access your feedback dashboard.
           </p>
 
-          <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+          <div className="mt-4">
+            <GoogleSignInButton callbackUrl={callbackUrl} label="Sign in with Google" />
+          </div>
+          <AuthDivider />
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-slate-700">
                 Email

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
 import { prisma } from "@/lib/prisma";
 import { isEmbeddingsEnabled } from "@/lib/embeddings";
 import { clusterBySimilarity } from "@/lib/clustering";
@@ -13,10 +13,8 @@ import { clusterBySimilarity } from "@/lib/clustering";
 //   threshold — similarity threshold (0-1, default 0.85)
 //   minSize   — minimum cluster size to include (default 2, use 1 for all)
 export async function GET(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await getRequestAuth(req);
+  if (!auth) return unauthorizedResponse();
 
   if (!isEmbeddingsEnabled()) {
     return NextResponse.json({ clusters: [], enabled: false });

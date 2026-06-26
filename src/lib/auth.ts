@@ -1,19 +1,41 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
-// NextAuth configuration: Credentials provider with bcrypt-hashed passwords,
-// JWT-based sessions (works serverless on Amplify / Lambda).
-export const authOptions: NextAuthOptions = {
-  session: {
-    strategy: "jwt",
-    maxAge: 60 * 60 * 24 * 7, // 7 days
-  },
-  pages: {
-    signIn: "/login",
-  },
-  providers: [
+export function isGoogleAuthEnabled(): boolean {
+  return Boolean(
+    process.env.GOOGLE_CLIENT_ID?.trim() &&
+      process.env.GOOGLE_CLIENT_SECRET?.trim()
+  );
+}
+
+async function ensureGoogleUser(email: string, name?: string | null) {
+  const normalized = email.trim().toLowerCase();
+  return prisma.user.upsert({
+    where: { email: normalized },
+    create: {
+      email: normalized,
+      name: name ?? null,
+      hashedPassword: null,
+    },
+    update: {
+      ...(name ? { name } : {}),
+    },
+    select: { id: true, email: true, name: true },
+  });
+}
+
+async function resolveDbUser(email: string) {
+  return prisma.user.findUnique({
+    where: { email: email.trim().toLowerCase() },
+    select: { id: true, email: true, name: true },
+  });
+}
+
+function buildProviders(): NextAuthOptions["providers"] {
+  const providers: NextAuthOptions["providers"] = [
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -28,7 +50,7 @@ export const authOptions: NextAuthOptions = {
         const user = await prisma.user.findUnique({
           where: { email },
         });
-        if (!user) return null;
+        if (!user?.hashedPassword) return null;
 
         const valid = await bcrypt.compare(password, user.hashedPassword);
         if (!valid) return null;
@@ -40,19 +62,74 @@ export const authOptions: NextAuthOptions = {
         };
       },
     }),
-  ],
+  ];
+
+  if (isGoogleAuthEnabled()) {
+    providers.push(
+      GoogleProvider({
+        clientId: process.env.GOOGLE_CLIENT_ID!,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        authorization: {
+          params: {
+            prompt: "consent",
+            access_type: "offline",
+            response_type: "code",
+          },
+        },
+      })
+    );
+  }
+
+  return providers;
+}
+
+// NextAuth configuration: Credentials + optional Google OAuth,
+// JWT-based sessions (works serverless on Amplify / Lambda).
+export const authOptions: NextAuthOptions = {
+  session: {
+    strategy: "jwt",
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+  },
+  pages: {
+    signIn: "/login",
+  },
+  providers: buildProviders(),
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
+    async signIn({ user, account }) {
+      if (account?.provider === "google") {
+        const email = user.email?.trim().toLowerCase();
+        if (!email) return false;
+        await ensureGoogleUser(email, user.name);
+      }
+      return true;
+    },
+    async jwt({ token, user, account }) {
+      // Credentials sign-in: user.id is already our DB id.
+      if (user?.id && account?.provider === "credentials") {
         token.id = user.id;
         token.email = user.email;
+        token.name = user.name;
+        return token;
       }
+
+      // Google (or token refresh): resolve DB user by email.
+      const email = (user?.email ?? token.email) as string | undefined;
+      if (email) {
+        const dbUser = await resolveDbUser(email);
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.email = dbUser.email;
+          token.name = dbUser.name ?? undefined;
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         (session.user as { id?: string }).id = token.id as string;
         session.user.email = token.email as string;
+        session.user.name = (token.name as string | undefined) ?? session.user.name;
       }
       return session;
     },

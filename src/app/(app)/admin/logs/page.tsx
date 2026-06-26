@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils";
 import Link from "next/link";
+import { RetryIngestButton } from "@/components/SourceActions";
 
 export const dynamic = "force-dynamic";
 
@@ -70,12 +71,7 @@ export default async function IngestLogsPage({
             History of all ingestion runs.
           </p>
         </div>
-        <button
-          id="retry-btn"
-          className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
-        >
-          Retry ingest
-        </button>
+        <RetryIngestButton />
       </div>
 
       {/* Source filter */}
@@ -205,24 +201,6 @@ export default async function IngestLogsPage({
           )}
         </div>
       </div>
-
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-          document.getElementById('retry-btn').addEventListener('click', async () => {
-            const btn = document.getElementById('retry-btn');
-            btn.disabled = true;
-            btn.textContent = 'Running…';
-            try {
-              await fetch('/api/ingest', { method: 'POST' });
-            } catch (e) {
-              console.error(e);
-            }
-            window.location.reload();
-          });
-        `,
-        }}
-      />
     </div>
   );
 }
