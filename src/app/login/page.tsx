@@ -6,6 +6,7 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { MessageSquareWarning } from "lucide-react";
 import { AuthDivider, GoogleSignInButton } from "@/components/GoogleSignInButton";
+import { sanitizeCallbackUrl } from "@/lib/auth-utils";
 
 function LoginSkeleton() {
   return (
@@ -42,7 +43,7 @@ export default function LoginPage() {
 function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const callbackUrl = params.get("callbackUrl") ?? "/dashboard";
+  const callbackUrl = sanitizeCallbackUrl(params.get("callbackUrl"));
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -136,6 +137,10 @@ function LoginForm() {
             <Link href="/signup" className="font-medium text-brand-700 hover:text-brand-800">
               Sign up
             </Link>
+          </p>
+          <p className="mt-3 rounded-md bg-slate-50 px-3 py-2 text-center text-xs text-slate-500">
+            Demo: <span className="font-medium text-slate-700">demo@feedbackflow.dev</span> /{" "}
+            <span className="font-medium text-slate-700">password123</span>
           </p>
         </div>
       </div>

@@ -86,6 +86,8 @@ function buildProviders(): NextAuthOptions["providers"] {
 // NextAuth configuration: Credentials + optional Google OAuth,
 // JWT-based sessions (works serverless on Amplify / Lambda).
 export const authOptions: NextAuthOptions = {
+  // Trust X-Forwarded-Host in Codespaces / reverse-proxy dev environments.
+  trustHost: true,
   session: {
     strategy: "jwt",
     maxAge: 60 * 60 * 24 * 7, // 7 days
