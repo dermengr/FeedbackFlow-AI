@@ -16,50 +16,50 @@ datasource db {
 // Auth
 // ---------------------------------------------------------------------------
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
+  id             String   @id @default(cuid())
+  email          String   @unique
   // Null for OAuth-only accounts (e.g. Google sign-in).
   hashedPassword String?
-  name         String?
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  name           String?
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   // C12: assigned feedback items
-  assignedAnalyses  FeedbackAnalysis[] @relation("Assignee")
+  assignedAnalyses FeedbackAnalysis[] @relation("Assignee")
   // C11: comments authored by this user
-  comments          FeedbackComment[]
+  comments         FeedbackComment[]
   // C16: audit events authored by this user
-  auditEvents       AuditEvent[]
+  auditEvents      AuditEvent[]
   // C19: saved views owned by this user
-  savedViews        SavedView[]
+  savedViews       SavedView[]
   // NEW: votes on feedback
-  votes             FeedbackVote[]
+  votes            FeedbackVote[]
   // NEW: feedback links created by this user
-  feedbackLinks     FeedbackLink[]
+  feedbackLinks    FeedbackLink[]
   // NEW: notification preferences
-  notificationPref  NotificationPref?
+  notificationPref NotificationPref?
   // NEW: notification history
-  notifications     NotificationLog[]
+  notifications    NotificationLog[]
   // NEW: routing rules where this user is assignee
-  routingRules      RoutingRule[]
+  routingRules     RoutingRule[]
   // NEW: API keys owned by this user
-  apiKeys           ApiKey[]
+  apiKeys          ApiKey[]
   // NEW: dashboard widgets owned by this user
-  widgets           DashboardWidget[]
+  widgets          DashboardWidget[]
   // NEW: export templates owned by this user
-  exportTemplates   ExportTemplate[]
+  exportTemplates  ExportTemplate[]
   // NEW: search history
-  searchHistory     SearchHistory[]
+  searchHistory    SearchHistory[]
   // NEW: reply templates
-  replyTemplates    ReplyTemplate[]
+  replyTemplates   ReplyTemplate[]
   // NEW: onboarding state
-  onboarding        OnboardingStep?
+  onboarding       OnboardingStep?
   // NEW: team metrics
-  teamMetrics       TeamMetric[]
+  teamMetrics      TeamMetric[]
   // NEW: feedback archived by this user
-  archivedItems     FeedbackArchive[]
+  archivedItems    FeedbackArchive[]
   // RBAC: roles assigned to this user
-  roles             UserRole[]
+  roles            UserRole[]
 
   @@map("users")
 }
@@ -75,6 +75,7 @@ model Role {
 
   permissions RolePermission[]
   users       UserRole[]
+  apiKeys     ApiKey[]
 
   @@map("roles")
 }
@@ -85,7 +86,7 @@ model Permission {
   description String?
   createdAt   DateTime @default(now()) @map("created_at")
 
-  roles       RolePermission[]
+  roles RolePermission[]
 
   @@map("permissions")
 }
@@ -114,20 +115,20 @@ model UserRole {
 // A4: Source registry — configurable ingestion sources (GitHub, Reddit, RSS, CSV)
 // ---------------------------------------------------------------------------
 model SourceConfig {
-  id          String   @id @default(cuid())
+  id        String   @id @default(cuid())
   // Stable identifier, e.g. "github:vercel/next.js", "reddit:r/nextjs", "rss:https://..."
-  sourceKey   String   @unique @map("source_key")
+  sourceKey String   @unique @map("source_key")
   // Human-readable label shown in the UI
-  label       String
+  label     String
   // Adapter type: "github" | "reddit" | "rss" | "csv"
-  adapter     String
+  adapter   String
   // Adapter-specific config as JSON, e.g. { "owner": "vercel", "repo": "next.js" }
-  config      Json
-  enabled     Boolean  @default(true)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  config    Json
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  ingestLogs  IngestLog[]
+  ingestLogs IngestLog[]
 
   @@map("source_configs")
 }
@@ -136,34 +137,34 @@ model SourceConfig {
 // Ingested feedback (raw content from the external source)
 // ---------------------------------------------------------------------------
 model FeedbackItem {
-  id                 String   @id @default(cuid())
+  id                String   @id @default(cuid())
   // Source label, e.g. "GitHubIssues", "Trustpilot", "GoogleReviews".
-  source             String
+  source            String
   // Crucial for idempotency: unique per source. e.g. "vercel/next.js#12345".
-  externalId         String   @unique
-  title              String?
-  rawContent         String   @db.Text
-  authorLogin        String?
-  url                String?
-  originalTimestamp  DateTime @map("original_timestamp")
-  createdAt          DateTime @default(now()) @map("created_at")
+  externalId        String   @unique
+  title             String?
+  rawContent        String   @db.Text
+  authorLogin       String?
+  url               String?
+  originalTimestamp DateTime @map("original_timestamp")
+  createdAt         DateTime @default(now()) @map("created_at")
 
-  analysis           FeedbackAnalysis?
-  comments           FeedbackComment[]
+  analysis    FeedbackAnalysis?
+  comments    FeedbackComment[]
   // C13: many-to-many labels
-  labels             FeedbackLabel[]
+  labels      FeedbackLabel[]
   // B9: embedding for semantic clustering
-  embedding          FeedbackEmbedding?
+  embedding   FeedbackEmbedding?
   // C16: audit events targeting this item
-  auditEvents        AuditEvent[]
+  auditEvents AuditEvent[]
   // NEW: votes on this feedback
-  votes              FeedbackVote[]
+  votes       FeedbackVote[]
   // NEW: links from this feedback item
-  linksFrom          FeedbackLink[] @relation("FeedbackLinkFrom")
+  linksFrom   FeedbackLink[]     @relation("FeedbackLinkFrom")
   // NEW: links to this feedback item
-  linksTo            FeedbackLink[] @relation("FeedbackLinkTo")
+  linksTo     FeedbackLink[]     @relation("FeedbackLinkTo")
   // NEW: archive record if archived
-  archive            FeedbackArchive?
+  archive     FeedbackArchive?
 
   // D20: full-text search on title + rawContent. A GIN index over a
   // to_tsvector expression is created via raw SQL in the migration (no
@@ -184,36 +185,36 @@ enum FeedbackStatus {
 }
 
 model FeedbackAnalysis {
-  id               String         @id @default(cuid())
-  feedbackItemId   String         @unique @map("feedback_item_id")
-  feedbackItem     FeedbackItem  @relation(fields: [feedbackItemId], references: [id], onDelete: Cascade)
+  id             String       @id @default(cuid())
+  feedbackItemId String       @unique @map("feedback_item_id")
+  feedbackItem   FeedbackItem @relation(fields: [feedbackItemId], references: [id], onDelete: Cascade)
 
   // "positive" | "neutral" | "negative"
-  sentiment        String
+  sentiment     String
   // JSON array of topics, e.g. ["Bug Report","Performance"]
-  topics           Json
+  topics        Json
   // 1-5 priority score
-  severityScore    Int            @map("severity_score")
-  summary          String         @db.Text
-  status           FeedbackStatus @default(NEW)
-  createdAt        DateTime       @default(now()) @map("created_at")
-  updatedAt        DateTime       @updatedAt @map("updated_at")
+  severityScore Int            @map("severity_score")
+  summary       String         @db.Text
+  status        FeedbackStatus @default(NEW)
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
 
   // B6: detected language (ISO 639-1 code, e.g. "en", "es", "fr") and
   // optional English translation of the summary.
-  language         String?
-  translatedSummary String?       @db.Text @map("translated_summary")
+  language          String?
+  translatedSummary String?   @map("translated_summary") @db.Text
   // Per-language AI translations: { "en": "...", "es": "...", "fr": "..." }
-  translations      Json?          @default("{}")
+  translations      Json?     @default("{}")
   // B8: emotion label, e.g. "angry" | "frustrated" | "confused" | "happy"
-  emotion          String?
+  emotion           String?
   // B7: action items extracted by the LLM, JSON array of strings.
-  actionItems      Json?
+  actionItems       Json?
   // C12: assignee for triage
-  assignedToId     String?        @map("assigned_to_id")
-  assignedTo       User?          @relation("Assignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  assignedToId      String?   @map("assigned_to_id")
+  assignedTo        User?     @relation("Assignee", fields: [assignedToId], references: [id], onDelete: SetNull)
   // C15: snooze — when set, item is hidden from default inbox until this time.
-  snoozedUntil     DateTime?      @map("snoozed_until")
+  snoozedUntil      DateTime? @map("snoozed_until")
 
   @@index([sentiment])
   @@index([severityScore])
@@ -234,19 +235,19 @@ enum IngestRunStatus {
 }
 
 model IngestLog {
-  id            String          @id @default(cuid())
-  runId         String          @map("run_id")
-  source        String
-  status        IngestRunStatus
-  itemsFetched  Int             @default(0) @map("items_fetched")
-  itemsNew      Int             @default(0) @map("items_new")
-  itemsSkipped  Int             @default(0) @map("items_skipped")
-  error         String?         @db.Text
-  createdAt     DateTime        @default(now()) @map("created_at")
+  id           String          @id @default(cuid())
+  runId        String          @map("run_id")
+  source       String
+  status       IngestRunStatus
+  itemsFetched Int             @default(0) @map("items_fetched")
+  itemsNew     Int             @default(0) @map("items_new")
+  itemsSkipped Int             @default(0) @map("items_skipped")
+  error        String?         @db.Text
+  createdAt    DateTime        @default(now()) @map("created_at")
 
   // A4: optional link to the SourceConfig that produced this run.
-  sourceConfigId String?        @map("source_config_id")
-  sourceConfig   SourceConfig?  @relation(fields: [sourceConfigId], references: [id], onDelete: SetNull)
+  sourceConfigId String?       @map("source_config_id")
+  sourceConfig   SourceConfig? @relation(fields: [sourceConfigId], references: [id], onDelete: SetNull)
 
   @@index([source])
   @@index([createdAt])
@@ -258,14 +259,14 @@ model IngestLog {
 // C11: Comments / notes on a feedback item
 // ---------------------------------------------------------------------------
 model FeedbackComment {
-  id              String       @id @default(cuid())
-  feedbackItemId  String       @map("feedback_item_id")
-  feedbackItem    FeedbackItem @relation(fields: [feedbackItemId], references: [id], onDelete: Cascade)
-  authorId        String       @map("author_id")
-  author          User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  body            String       @db.Text
-  createdAt       DateTime     @default(now()) @map("created_at")
-  updatedAt       DateTime     @updatedAt      @map("updated_at")
+  id             String       @id @default(cuid())
+  feedbackItemId String       @map("feedback_item_id")
+  feedbackItem   FeedbackItem @relation(fields: [feedbackItemId], references: [id], onDelete: Cascade)
+  authorId       String       @map("author_id")
+  author         User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  body           String       @db.Text
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
 
   @@index([feedbackItemId])
   @@index([authorId])
@@ -276,12 +277,12 @@ model FeedbackComment {
 // C13: Custom labels / tags (many-to-many with feedback items)
 // ---------------------------------------------------------------------------
 model Label {
-  id        String          @id @default(cuid())
-  name      String          @unique
-  color     String          @default("slate")
-  createdAt DateTime        @default(now()) @map("created_at")
+  id        String   @id @default(cuid())
+  name      String   @unique
+  color     String   @default("slate")
+  createdAt DateTime @default(now()) @map("created_at")
 
-  items     FeedbackLabel[]
+  items FeedbackLabel[]
 
   @@map("labels")
 }
@@ -292,7 +293,7 @@ model FeedbackLabel {
   labelId        String       @map("label_id")
   label          Label        @relation(fields: [labelId], references: [id], onDelete: Cascade)
 
-  assignedAt     DateTime     @default(now()) @map("assigned_at")
+  assignedAt DateTime @default(now()) @map("assigned_at")
 
   @@id([feedbackItemId, labelId])
   @@index([labelId])
@@ -330,15 +331,15 @@ enum AuditEventType {
 }
 
 model AuditEvent {
-  id              String          @id @default(cuid())
-  feedbackItemId  String          @map("feedback_item_id")
-  feedbackItem    FeedbackItem    @relation(fields: [feedbackItemId], references: [id], onDelete: Cascade)
-  actorId         String          @map("actor_id")
-  actor           User            @relation(fields: [actorId], references: [id], onDelete: Cascade)
-  type            AuditEventType
+  id             String         @id @default(cuid())
+  feedbackItemId String         @map("feedback_item_id")
+  feedbackItem   FeedbackItem   @relation(fields: [feedbackItemId], references: [id], onDelete: Cascade)
+  actorId        String         @map("actor_id")
+  actor          User           @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  type           AuditEventType
   // Free-form metadata, e.g. { from: "NEW", to: "ACTIONED" }
-  meta            Json?
-  createdAt       DateTime        @default(now()) @map("created_at")
+  meta           Json?
+  createdAt      DateTime       @default(now()) @map("created_at")
 
   @@index([feedbackItemId])
   @@index([actorId])
@@ -366,14 +367,14 @@ model SavedView {
 // NEW: Vote / reaction on feedback items
 // ---------------------------------------------------------------------------
 model FeedbackVote {
-  id              String       @id @default(cuid())
-  feedbackItemId  String       @map("feedback_item_id")
-  feedbackItem    FeedbackItem @relation(fields: [feedbackItemId], references: [id], onDelete: Cascade)
-  userId          String       @map("user_id")
-  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id             String       @id @default(cuid())
+  feedbackItemId String       @map("feedback_item_id")
+  feedbackItem   FeedbackItem @relation(fields: [feedbackItemId], references: [id], onDelete: Cascade)
+  userId         String       @map("user_id")
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   // "up" | "down" | "heart" | "fire"
-  type            String
-  createdAt       DateTime     @default(now()) @map("created_at")
+  type           String
+  createdAt      DateTime     @default(now()) @map("created_at")
 
   @@unique([feedbackItemId, userId, type])
   @@index([feedbackItemId])
@@ -385,16 +386,16 @@ model FeedbackVote {
 // NEW: Related/linked feedback items
 // ---------------------------------------------------------------------------
 model FeedbackLink {
-  id              String       @id @default(cuid())
-  fromItemId      String       @map("from_item_id")
-  fromItem        FeedbackItem @relation("FeedbackLinkFrom", fields: [fromItemId], references: [id], onDelete: Cascade)
-  toItemId        String       @map("to_item_id")
-  toItem          FeedbackItem @relation("FeedbackLinkTo", fields: [toItemId], references: [id], onDelete: Cascade)
+  id           String       @id @default(cuid())
+  fromItemId   String       @map("from_item_id")
+  fromItem     FeedbackItem @relation("FeedbackLinkFrom", fields: [fromItemId], references: [id], onDelete: Cascade)
+  toItemId     String       @map("to_item_id")
+  toItem       FeedbackItem @relation("FeedbackLinkTo", fields: [toItemId], references: [id], onDelete: Cascade)
   // "duplicate" | "related" | "blocks" | "blocked_by"
-  relationType    String       @default("related") @map("relation_type")
-  createdById     String       @map("created_by_id")
-  createdBy       User         @relation(fields: [createdById], references: [id], onDelete: Cascade)
-  createdAt       DateTime     @default(now()) @map("created_at")
+  relationType String       @default("related") @map("relation_type")
+  createdById  String       @map("created_by_id")
+  createdBy    User         @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt    DateTime     @default(now()) @map("created_at")
 
   @@unique([fromItemId, toItemId, relationType])
   @@index([fromItemId])
@@ -423,15 +424,15 @@ model NotificationPref {
 // NEW: Notification history log
 // ---------------------------------------------------------------------------
 model NotificationLog {
-  id              String   @id @default(cuid())
-  userId          String   @map("user_id")
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type            String
-  title           String
-  body            String   @db.Text
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  body      String   @db.Text
   // "unread" | "read"
-  status          String   @default("unread")
-  createdAt       DateTime @default(now()) @map("created_at")
+  status    String   @default("unread")
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@index([userId])
   @@index([status])
@@ -442,17 +443,17 @@ model NotificationLog {
 // NEW: Auto-routing rules for triage assignment
 // ---------------------------------------------------------------------------
 model RoutingRule {
-  id              String   @id @default(cuid())
-  name            String
+  id         String   @id @default(cuid())
+  name       String
   // JSON conditions, e.g. {"topics":["Bug Report"],"minSeverity":4}
-  conditions      Json
+  conditions Json
   // User ID to assign to
-  assigneeId      String   @map("assignee_id")
-  assignee        User     @relation(fields: [assigneeId], references: [id], onDelete: Cascade)
-  enabled         Boolean  @default(true)
-  priority        Int      @default(0)
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  assigneeId String   @map("assignee_id")
+  assignee   User     @relation(fields: [assigneeId], references: [id], onDelete: Cascade)
+  enabled    Boolean  @default(true)
+  priority   Int      @default(0)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
 
   @@index([assigneeId])
   @@index([enabled])
@@ -463,16 +464,16 @@ model RoutingRule {
 // NEW: Webhook configurations (outgoing webhooks)
 // ---------------------------------------------------------------------------
 model WebhookConfig {
-  id              String   @id @default(cuid())
-  name            String
-  url             String
+  id        String   @id @default(cuid())
+  name      String
+  url       String
   // JSON events to trigger on, e.g. ["feedback.new","feedback.escalated"]
-  events          Json
+  events    Json
   // Optional secret for HMAC verification
-  secret          String?
-  enabled         Boolean  @default(true)
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  secret    String?
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("webhook_configs")
 }
@@ -481,21 +482,25 @@ model WebhookConfig {
 // NEW: API keys for external API access
 // ---------------------------------------------------------------------------
 model ApiKey {
-  id              String   @id @default(cuid())
-  name            String
+  id         String    @id @default(cuid())
+  name       String
   // Hashed key — never store raw keys
-  hashedKey       String   @unique @map("hashed_key")
+  hashedKey  String    @unique @map("hashed_key")
   // Prefix shown in UI for identification, e.g. "ffk_abc..."
-  prefix          String
-  userId          String   @map("user_id")
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prefix     String
+  userId     String    @map("user_id")
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   // Scopes as JSON array, e.g. ["read:feedback","write:feedback"]
-  scopes          Json     @default("[]")
-  lastUsedAt      DateTime? @map("last_used_at")
-  createdAt       DateTime @default(now()) @map("created_at")
+  scopes     Json      @default("[]")
+  // Optional RBAC role assignment — when set, the key inherits the role's permissions
+  roleId     String?   @map("role_id")
+  role       Role?     @relation(fields: [roleId], references: [id], onDelete: SetNull)
+  lastUsedAt DateTime? @map("last_used_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
 
   @@index([userId])
   @@index([prefix])
+  @@index([roleId])
   @@map("api_keys")
 }
 
@@ -503,20 +508,20 @@ model ApiKey {
 // NEW: Custom dashboard widgets
 // ---------------------------------------------------------------------------
 model DashboardWidget {
-  id              String   @id @default(cuid())
-  userId          String   @map("user_id")
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type            String
-  title           String
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
   // JSON config for the widget, e.g. {"metric":"sentiment","timeRange":"7d"}
-  config          Json     @default("{}")
+  config    Json     @default("{}")
   // Grid position
-  positionX       Int      @default(0) @map("position_x")
-  positionY       Int      @default(0) @map("position_y")
-  width           Int      @default(1)
-  height          Int      @default(1)
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  positionX Int      @default(0) @map("position_x")
+  positionY Int      @default(0) @map("position_y")
+  width     Int      @default(1)
+  height    Int      @default(1)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([userId])
   @@map("dashboard_widgets")
@@ -526,16 +531,16 @@ model DashboardWidget {
 // NEW: Saved export templates
 // ---------------------------------------------------------------------------
 model ExportTemplate {
-  id              String   @id @default(cuid())
-  name            String
+  id          String   @id @default(cuid())
+  name        String
   // JSON column definitions, e.g. [{"field":"summary","label":"Summary"}]
-  columns         Json
-  format          String   @default("csv")
+  columns     Json
+  format      String   @default("csv")
   // Optional filter query to apply
-  filterQuery     String?  @map("filter_query")
-  userId          String?  @map("user_id")
-  user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  createdAt       DateTime @default(now()) @map("created_at")
+  filterQuery String?  @map("filter_query")
+  userId      String?  @map("user_id")
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now()) @map("created_at")
 
   @@index([userId])
   @@map("export_templates")
@@ -545,12 +550,12 @@ model ExportTemplate {
 // NEW: Search history for suggestions
 // ---------------------------------------------------------------------------
 model SearchHistory {
-  id              String   @id @default(cuid())
-  userId          String   @map("user_id")
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  query           String
-  resultsCount    Int      @default(0) @map("results_count")
-  createdAt       DateTime @default(now()) @map("created_at")
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  query        String
+  resultsCount Int      @default(0) @map("results_count")
+  createdAt    DateTime @default(now()) @map("created_at")
 
   @@index([userId])
   @@index([query])
@@ -561,13 +566,13 @@ model SearchHistory {
 // NEW: AI-generated insights cache
 // ---------------------------------------------------------------------------
 model AiInsight {
-  id              String   @id @default(cuid())
-  type            String
+  id        String   @id @default(cuid())
+  type      String
   // JSON insight data, e.g. {"summary":"...","highlights":[],"recommendations":[]}
-  data            Json
+  data      Json
   // Time range the insight covers, e.g. "7d", "30d", "all"
-  timeRange       String   @default("7d") @map("time_range")
-  createdAt       DateTime @default(now()) @map("created_at")
+  timeRange String   @default("7d") @map("time_range")
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@index([type])
   @@index([timeRange])
@@ -578,16 +583,16 @@ model AiInsight {
 // NEW: Reply templates for common responses
 // ---------------------------------------------------------------------------
 model ReplyTemplate {
-  id              String   @id @default(cuid())
-  name            String
-  subject         String?
-  body            String   @db.Text
+  id        String   @id @default(cuid())
+  name      String
+  subject   String?
+  body      String   @db.Text
   // Optional tags to categorize, JSON array of strings
-  tags            Json     @default("[]")
-  userId          String   @map("user_id")
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  tags      Json     @default("[]")
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([userId])
   @@map("reply_templates")
@@ -597,15 +602,15 @@ model ReplyTemplate {
 // NEW: Onboarding wizard state per user
 // ---------------------------------------------------------------------------
 model OnboardingStep {
-  id              String   @id @default(cuid())
-  userId          String   @unique @map("user_id")
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id             String   @id @default(cuid())
+  userId         String   @unique @map("user_id")
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   // JSON array of completed step IDs, e.g. ["create_source","run_ingest","view_dashboard"]
-  completedSteps  Json     @default("[]") @map("completed_steps")
-  currentStep     String   @default("welcome") @map("current_step")
-  skipped         Boolean  @default(false)
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  completedSteps Json     @default("[]") @map("completed_steps")
+  currentStep    String   @default("welcome") @map("current_step")
+  skipped        Boolean  @default(false)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   @@map("onboarding_steps")
 }
@@ -614,17 +619,17 @@ model OnboardingStep {
 // NEW: Team performance metrics snapshot
 // ---------------------------------------------------------------------------
 model TeamMetric {
-  id              String   @id @default(cuid())
-  userId          String   @map("user_id")
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id               String   @id @default(cuid())
+  userId           String   @map("user_id")
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   // "daily" | "weekly" | "monthly"
-  period          String
-  periodStart     DateTime @map("period_start")
-  periodEnd       DateTime @map("period_end")
-  assignedCount   Int      @default(0) @map("assigned_count")
-  actionedCount   Int      @default(0) @map("actioned_count")
-  avgResponseHours Float   @default(0) @map("avg_response_hours")
-  createdAt       DateTime @default(now()) @map("created_at")
+  period           String
+  periodStart      DateTime @map("period_start")
+  periodEnd        DateTime @map("period_end")
+  assignedCount    Int      @default(0) @map("assigned_count")
+  actionedCount    Int      @default(0) @map("actioned_count")
+  avgResponseHours Float    @default(0) @map("avg_response_hours")
+  createdAt        DateTime @default(now()) @map("created_at")
 
   @@unique([userId, period, periodStart])
   @@index([userId])
@@ -636,13 +641,13 @@ model TeamMetric {
 // NEW: Feedback archive tracking
 // ---------------------------------------------------------------------------
 model FeedbackArchive {
-  id              String       @id @default(cuid())
-  feedbackItemId  String       @unique @map("feedback_item_id")
-  feedbackItem    FeedbackItem @relation(fields: [feedbackItemId], references: [id], onDelete: Cascade)
-  archivedById    String       @map("archived_by_id")
-  archivedBy      User         @relation(fields: [archivedById], references: [id], onDelete: Cascade)
-  reason          String?
-  createdAt       DateTime     @default(now()) @map("created_at")
+  id             String       @id @default(cuid())
+  feedbackItemId String       @unique @map("feedback_item_id")
+  feedbackItem   FeedbackItem @relation(fields: [feedbackItemId], references: [id], onDelete: Cascade)
+  archivedById   String       @map("archived_by_id")
+  archivedBy     User         @relation(fields: [archivedById], references: [id], onDelete: Cascade)
+  reason         String?
+  createdAt      DateTime     @default(now()) @map("created_at")
 
   @@index([archivedById])
   @@map("feedback_archives")
