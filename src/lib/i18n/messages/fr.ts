@@ -13,6 +13,7 @@ export const frMessages = {
   "nav.onboarding": "Intégration",
   "nav.settings": "Paramètres",
   "nav.logs": "Journaux",
+  "nav.roles": "Roles",
   "nav.more": "Plus",
   "nav.signOut": "Se déconnecter",
   "nav.openMenu": "Ouvrir le menu",

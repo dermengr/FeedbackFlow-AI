@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import {
   translateFeedback,
   FeedbackItemNotFoundError,
@@ -17,6 +18,8 @@ export async function POST(req: Request,
 ) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_TRANSLATE_WRITE);
+  if (forbidden) return forbidden;
 
   let targetLanguage = DEFAULT_LOCALE;
   try {

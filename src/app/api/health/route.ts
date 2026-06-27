@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { getHealthStatus } from "@/lib/health";
 
 // GET /api/health — system health (ingestion + processing). Auth required.
@@ -8,6 +9,8 @@ import { getHealthStatus } from "@/lib/health";
 export async function GET(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_HEALTH_READ);
+  if (forbidden) return forbidden;
 
   try {
     const health = await getHealthStatus();

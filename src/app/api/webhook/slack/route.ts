@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { isSlackEnabled, sendSlackMessage } from "@/lib/slack";
 
 // GET /api/webhook/slack - report whether Slack notifications are configured.
 export async function GET(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_WEBHOOKS_WRITE);
+  if (forbidden) return forbidden;
   return NextResponse.json({ enabled: isSlackEnabled() });
 }
 
@@ -14,6 +17,8 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_WEBHOOKS_WRITE);
+  if (forbidden) return forbidden;
   if (!isSlackEnabled()) {
     return NextResponse.json(
       { error: "SLACK_WEBHOOK_URL is not configured" },

@@ -1,12 +1,33 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import type { NextRequestWithAuth } from "next-auth/middleware";
+import { getPagePermission, PAGE_PERMISSIONS } from "@/lib/roles";
+import type { PermissionName, RoleName } from "@/lib/roles";
 
-// Protect UI routes only. API routes enforce auth themselves via
-// `getServerSession` and return a clean 401 JSON, so we exclude /api here
-// (otherwise the middleware would redirect API consumers to the HTML signin
-// page). Auth pages and static assets are also excluded.
+// Protect UI routes. API routes enforce auth themselves via `getRequestAuth`.
+// Auth pages and static assets are excluded.
 export default withAuth(
-  function middleware() {
+  function middleware(req: NextRequestWithAuth) {
+    const token = req.nextauth.token;
+    const pathname = req.nextUrl.pathname;
+
+    // Check if the route requires a specific permission
+    const requiredPermission = getPagePermission(pathname);
+    if (requiredPermission) {
+      const permissions = (token?.permissions as PermissionName[] | undefined) ?? [];
+      const roles = (token?.roles as RoleName[] | undefined) ?? [];
+
+      // Admin always has access
+      if (roles.includes("Admin")) {
+        return NextResponse.next();
+      }
+
+      if (!permissions.includes(requiredPermission)) {
+        // Redirect to dashboard if user lacks permission
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
+    }
+
     return NextResponse.next();
   },
   {

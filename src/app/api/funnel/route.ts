@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { getFunnelData } from "@/lib/funnel";
 
 // GET /api/funnel?days=30 - triage funnel counts by status with conversion rates.
 export async function GET(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_FUNNEL_READ);
+  if (forbidden) return forbidden;
 
   const { searchParams } = new URL(req.url);
   const daysParam = searchParams.get("days");

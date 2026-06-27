@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { LABEL_COLORS, listLabels, createLabel } from "@/lib/labels";
 
 // GET /api/labels — list all labels in the taxonomy
 export async function GET(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_LABELS_READ);
+  if (forbidden) return forbidden;
   const labels = await listLabels();
   return NextResponse.json({ labels });
 }
@@ -21,6 +24,8 @@ const CreateSchema = z.object({
 export async function POST(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_LABELS_WRITE);
+  if (forbidden) return forbidden;
   let body: unknown;
   try {
     body = await req.json();

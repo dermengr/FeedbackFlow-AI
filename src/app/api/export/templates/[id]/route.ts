@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import {
   EXPORT_FORMATS,
   updateTemplate,
@@ -16,6 +17,8 @@ export async function GET(req: Request,
 ) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_EXPORT_READ);
+  if (forbidden) return forbidden;
   const template = await prisma.exportTemplate.findUnique({
     where: { id: params.id },
   });
@@ -50,6 +53,8 @@ export async function PATCH(
 ) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_EXPORT_WRITE);
+  if (forbidden) return forbidden;
   let body: unknown;
   try {
     body = await req.json();
@@ -84,6 +89,8 @@ export async function DELETE(req: Request,
 ) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_EXPORT_WRITE);
+  if (forbidden) return forbidden;
   try {
     await deleteTemplate(params.id, auth.userId);
     return NextResponse.json({ ok: true });

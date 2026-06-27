@@ -1,29 +1,9 @@
-import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { SentimentTrendChart } from "@/components/charts/SentimentTrendChart";
-import { TopicDistributionChart } from "@/components/charts/TopicDistributionChart";
-import { SeverityChart } from "@/components/charts/SeverityChart";
-import { SentimentDonutChart } from "@/components/charts/SentimentDonutChart";
-import { EmotionDonutChart } from "@/components/charts/EmotionDonutChart";
-import { RisingTopics } from "@/components/RisingTopics";
-import { RealtimeStats } from "@/components/RealtimeStats";
-import { InsightsPanel } from "@/components/InsightsPanel";
-import { AnomalyAlerts } from "@/components/AnomalyAlerts";
-import { EmergingTrends } from "@/components/EmergingTrends";
-import { FunnelChart } from "@/components/FunnelChart";
-import { SentimentHeatmap } from "@/components/SentimentHeatmap";
-import { WidgetGrid } from "@/components/WidgetGrid";
-import { ComparisonView } from "@/components/ComparisonView";
-import { FeedbackTimeline } from "@/components/FeedbackTimeline";
-import { TopicCorrelation } from "@/components/TopicCorrelation";
-import {
-  SentimentBadge,
-  SeverityBadge,
-  TopicChip,
-} from "@/components/Badges";
-import { formatDate, truncate } from "@/lib/utils";
+import { RoleDashboard } from "@/components/RoleDashboard";
+import { getUserRoles, type RoleName } from "@/lib/roles";
+import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +18,6 @@ async function getDashboardData() {
     _count: { _all: true },
   });
 
-  // B8: emotion distribution
   const emotionGroups = await prisma.feedbackAnalysis.groupBy({
     by: ["emotion"],
     _count: { _all: true },
@@ -113,6 +92,7 @@ async function getDashboardData() {
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
+  const userId = (session?.user as { id?: string })?.id;
   const data = await getDashboardData();
 
   const sentimentData = data.sentimentGroups.map((g) => ({
@@ -132,11 +112,19 @@ export default async function DashboardPage() {
   const neutral = sentimentData.find((s) => s.sentiment === "neutral")?.count ?? 0;
   const highSeverityCount = data.highSeverityCount;
 
+  let roles: RoleName[] = [];
+  if (userId) {
+    roles = await getUserRoles(userId);
+  }
+  const primaryRole = roles[0] ?? "Viewer";
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+          <h1 className="text-2xl font-bold text-slate-900">
+            {primaryRole} Dashboard
+          </h1>
           <p className="text-sm text-slate-500">
             Welcome back{session?.user?.name ? `, ${session.user.name}` : ""}. Here&apos;s the latest feedback overview.
           </p>
@@ -150,145 +138,20 @@ export default async function DashboardPage() {
         )}
       </div>
 
-      <RealtimeStats />
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <InsightsPanel />
-        <AnomalyAlerts />
-      </div>
-
-      {/* KPI cards */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <KpiCard label="Total feedback" value={data.totalAnalyses} />
-        <KpiCard label="Positive" value={positive} accent="text-emerald-600" />
-        <KpiCard label="Negative" value={negative} accent="text-rose-600" />
-        <KpiCard label="High severity (≥4)" value={highSeverityCount} accent="text-orange-600" />
-      </div>
-
-      {/* Charts */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card title="Sentiment trend (14 days)">
-          <SentimentTrendChart data={data.sentimentTrend} />
-        </Card>
-        <Card title="Sentiment distribution">
-          <SentimentDonutChart data={sentimentData} />
-        </Card>
-        <Card title="Topic distribution">
-          {data.topicDistribution.length ? (
-            <TopicDistributionChart data={data.topicDistribution} />
-          ) : (
-            <EmptyState />
-          )}
-        </Card>
-        <Card title="Severity distribution">
-          <SeverityChart data={severityData} />
-        </Card>
-        {emotionData.length > 0 && (
-          <Card title="Emotion distribution">
-            <EmotionDonutChart data={emotionData} />
-          </Card>
-        )}
-        <Card title="Rising topics (week over week)">
-          <RisingTopics />
-        </Card>
-        <Card title="Emerging trends">
-          <EmergingTrends />
-        </Card>
-        <Card title="Triage funnel">
-          <FunnelChart />
-        </Card>
-        <Card title="Sentiment heatmap">
-          <SentimentHeatmap />
-        </Card>
-        <Card title="Topic correlations">
-          <TopicCorrelation />
-        </Card>
-        <Card title="Activity timeline">
-          <FeedbackTimeline />
-        </Card>
-        <Card title="Period comparison">
-          <ComparisonView />
-        </Card>
-      </div>
-
-      <Card title="Custom widgets">
-        <WidgetGrid />
-      </Card>
-
-      {/* High severity list */}
-      <Card title="Recent high-severity feedback">
-        {data.highSeverity.length === 0 ? (
-          <EmptyState />
-        ) : (
-          <ul className="divide-y divide-slate-100">
-            {data.highSeverity.map((item) => (
-              <li key={item.id} className="py-3">
-                <Link
-                  href={`/inbox/${item.id}`}
-                  className="flex flex-wrap items-center gap-2 hover:underline"
-                >
-                  <span className="font-medium text-slate-900">
-                    {item.title ?? item.externalId}
-                  </span>
-                  {item.analysis && (
-                    <SeverityBadge score={item.analysis.severityScore} />
-                  )}
-                  {item.analysis && (
-                    <SentimentBadge sentiment={item.analysis.sentiment as never} />
-                  )}
-                </Link>
-                {item.analysis?.summary && (
-                  <p className="mt-1 text-sm text-slate-600">
-                    {truncate(item.analysis.summary, 200)}
-                  </p>
-                )}
-                <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                  {(item.analysis?.topics as string[] | undefined)?.map((t) => (
-                    <TopicChip key={t} topic={t} />
-                  ))}
-                  <span className="ml-auto text-xs text-slate-400">
-                    {formatDate(item.originalTimestamp)}
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Card>
-    </div>
-  );
-}
-
-function KpiCard({
-  label,
-  value,
-  accent,
-}: {
-  label: string;
-  value: number;
-  accent?: string;
-}) {
-  return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p>
-      <p className={`mt-1 text-2xl font-bold ${accent ?? "text-slate-900"}`}>{value}</p>
-    </div>
-  );
-}
-
-function Card({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 className="mb-3 text-sm font-semibold text-slate-700">{title}</h2>
-      {children}
-    </div>
-  );
-}
-
-function EmptyState() {
-  return (
-    <div className="flex h-[260px] items-center justify-center text-sm text-slate-400">
-      No data yet. Run an ingest to populate the dashboard.
+      <RoleDashboard
+        role={primaryRole}
+        sentimentData={sentimentData}
+        severityData={severityData}
+        emotionData={emotionData}
+        topicDistribution={data.topicDistribution}
+        sentimentTrend={data.sentimentTrend}
+        highSeverity={data.highSeverity}
+        totalAnalyses={data.totalAnalyses}
+        positive={positive}
+        negative={negative}
+        neutral={neutral}
+        highSeverityCount={highSeverityCount}
+      />
     </div>
   );
 }

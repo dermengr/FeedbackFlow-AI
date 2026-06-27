@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { updateWidget, deleteWidget } from "@/lib/widgets";
 
 const UpdateSchema = z.object({
@@ -21,6 +22,8 @@ export async function PATCH(
 ) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_WIDGETS_WRITE);
+  if (forbidden) return forbidden;
 
   let body: unknown;
   try {
@@ -53,6 +56,8 @@ export async function DELETE(req: Request,
 ) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_WIDGETS_WRITE);
+  if (forbidden) return forbidden;
 
   try {
     await deleteWidget(params.id, auth.userId);

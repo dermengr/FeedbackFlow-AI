@@ -13,6 +13,7 @@ export const koMessages = {
   "nav.onboarding": "온보딩",
   "nav.settings": "설정",
   "nav.logs": "로그",
+  "nav.roles": "Roles",
   "nav.more": "더보기",
   "nav.signOut": "로그아웃",
   "nav.openMenu": "메뉴 열기",

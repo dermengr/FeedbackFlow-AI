@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { getTimelineData } from "@/lib/timeline";
 
 // GET /api/timeline?days=30&source=GitHubIssues - returns a per-day timeline of
@@ -10,6 +11,8 @@ import { getTimelineData } from "@/lib/timeline";
 export async function GET(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_TIMELINE_READ);
+  if (forbidden) return forbidden;
 
   const { searchParams } = new URL(req.url);
 

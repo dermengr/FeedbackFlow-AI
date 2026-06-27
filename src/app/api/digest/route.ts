@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { runDigest, isDigestEnabled } from "@/lib/digest";
 
 // GET /api/digest - report whether the email digest is configured.
 export async function GET(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_DIGEST_READ);
+  if (forbidden) return forbidden;
   return NextResponse.json({ enabled: isDigestEnabled() });
 }
 
@@ -15,6 +18,8 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_DIGEST_READ);
+  if (forbidden) return forbidden;
 
   try {
     const result = await runDigest();

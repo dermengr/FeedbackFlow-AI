@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { seedRolesAndPermissions } from "@/lib/roles";
 
 const SignupSchema = z.object({
   email: z.string().email(),
@@ -33,11 +34,22 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Email already registered" }, { status: 409 });
   }
 
+  // Ensure roles/permissions are seeded in the database
+  await seedRolesAndPermissions();
+
   const hashedPassword = await bcrypt.hash(password, 12);
   const user = await prisma.user.create({
     data: { email: normalized, hashedPassword, name },
     select: { id: true, email: true, name: true },
   });
+
+  // Assign default "Viewer" role to new users
+  const viewerRole = await prisma.role.findUnique({ where: { name: "Viewer" } });
+  if (viewerRole) {
+    await prisma.userRole.create({
+      data: { userId: user.id, roleId: viewerRole.id },
+    });
+  }
 
   return NextResponse.json({ id: user.id, email: user.email, name: user.name }, { status: 201 });
 }

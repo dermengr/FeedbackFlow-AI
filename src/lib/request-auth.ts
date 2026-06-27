@@ -3,18 +3,32 @@ import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { validateApiKey } from "@/lib/api-keys";
 import type { ApiScope } from "@/lib/api-key-constants";
+import type { PermissionName, RoleName } from "@/lib/roles";
 
 export type RequestAuth = {
   userId: string;
   scopes: string[];
   via: "session" | "api-key";
+  permissions?: PermissionName[];
+  roles?: RoleName[];
 };
 
 /** Resolve the caller from a NextAuth session or `Authorization: Bearer ffk_…` API key. */
 export async function getRequestAuth(req?: Request): Promise<RequestAuth | null> {
   const session = await getServerSession(authOptions);
   if (session?.user?.id) {
-    return { userId: session.user.id, scopes: [], via: "session" };
+    const user = session.user as {
+      id: string;
+      permissions?: PermissionName[];
+      roles?: RoleName[];
+    };
+    return {
+      userId: user.id,
+      scopes: [],
+      via: "session",
+      permissions: user.permissions ?? [],
+      roles: user.roles ?? [],
+    };
   }
 
   if (!req) return null;
@@ -39,6 +53,27 @@ export async function getRequestAuth(req?: Request): Promise<RequestAuth | null>
 export function hasScope(auth: RequestAuth, scope: ApiScope): boolean {
   if (auth.via === "session") return true;
   return auth.scopes.includes(scope);
+}
+
+/** Check if the authenticated user has a specific permission.
+ *  API keys bypass RBAC and use scopes instead.
+ */
+export function hasPermission(
+  auth: RequestAuth,
+  permission: PermissionName
+): boolean {
+  if (auth.via === "api-key") return true;
+  return auth.permissions?.includes(permission) ?? false;
+}
+
+/** Require a specific permission for an API route. Returns a 403 response if missing. */
+export function requirePermission(
+  auth: RequestAuth,
+  permission: PermissionName
+): NextResponse | null {
+  const ok = hasPermission(auth, permission);
+  if (!ok) return forbiddenResponse(`Missing permission: ${permission}`);
+  return null;
 }
 
 export function unauthorizedResponse() {

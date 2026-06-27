@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { listApiKeys, createApiKey, ALLOWED_SCOPES } from "@/lib/api-keys";
 
 // GET /api/api-keys — list the current user's API keys (without hashes)
 export async function GET(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_API_KEYS_READ);
+  if (forbidden) return forbidden;
   const keys = await listApiKeys(auth.userId);
   return NextResponse.json({ keys });
 }
@@ -25,6 +28,8 @@ const CreateSchema = z.object({
 export async function POST(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_API_KEYS_WRITE);
+  if (forbidden) return forbidden;
   let body: unknown;
   try {
     body = await req.json();

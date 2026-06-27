@@ -13,6 +13,7 @@ export const ptMessages = {
   "nav.onboarding": "Primeiros passos",
   "nav.settings": "Configurações",
   "nav.logs": "Registros",
+  "nav.roles": "Roles",
   "nav.more": "Mais",
   "nav.signOut": "Sair",
   "nav.openMenu": "Abrir menu",

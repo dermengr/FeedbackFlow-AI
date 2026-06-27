@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import {
+import { PERMISSIONS } from "@/lib/roles";
+import { 
   getRequestAuth,
   unauthorizedResponse,
-} from "@/lib/request-auth";
+ requirePermission, } from "@/lib/request-auth";
 import { deleteApiKey } from "@/lib/api-keys";
 
 export async function DELETE(
@@ -11,6 +12,8 @@ export async function DELETE(
 ) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_API_KEYS_WRITE);
+  if (forbidden) return forbidden;
 
   const deleted = await deleteApiKey(params.id, auth.userId);
   if (!deleted) {

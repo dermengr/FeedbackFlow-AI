@@ -13,6 +13,7 @@ export const enMessages = {
   "nav.onboarding": "Onboarding",
   "nav.settings": "Settings",
   "nav.logs": "Logs",
+  "nav.roles": "Roles",
   "nav.more": "More",
   "nav.signOut": "Sign out",
   "nav.openMenu": "Open menu",

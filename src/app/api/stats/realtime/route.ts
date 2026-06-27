@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { getRealtimeStats } from "@/lib/realtime-stats";
 
 // GET /api/stats/realtime - live dashboard activity stats.
@@ -8,6 +9,8 @@ import { getRealtimeStats } from "@/lib/realtime-stats";
 export async function GET(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_REALTIME_STATS_READ);
+  if (forbidden) return forbidden;
 
   const stats = await getRealtimeStats();
 

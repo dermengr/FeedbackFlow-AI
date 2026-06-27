@@ -15,6 +15,8 @@
     "db:up": "docker compose up -d db",
     "db:down": "docker compose down",
     "seed": "tsx scripts/seed.ts",
+    "seed:admin": "tsx scripts/seed-admin.ts",
+    "backfill:viewer": "tsx scripts/backfill-viewer-roles.ts",
     "ingest": "tsx scripts/ingest.ts",
     "ingest:lambda": "tsx scripts/build-lambda.ts",
     "digest": "tsx scripts/digest.ts",

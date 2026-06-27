@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import {
   ONBOARDING_STEPS,
   getOnboardingState,
@@ -14,6 +15,8 @@ import {
 export async function GET(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_NOTIFICATIONS_WRITE);
+  if (forbidden) return forbidden;
   const userId = auth.userId;
   const [state, progress] = await Promise.all([
     getOnboardingState(userId),
@@ -32,6 +35,8 @@ const CompleteSchema = z.object({
 export async function POST(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_NOTIFICATIONS_WRITE);
+  if (forbidden) return forbidden;
   let body: unknown;
   try {
     body = await req.json();
@@ -54,6 +59,8 @@ export async function POST(req: Request) {
 export async function DELETE(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_NOTIFICATIONS_WRITE);
+  if (forbidden) return forbidden;
   const state = await skipOnboarding(auth.userId);
   const progress = await getOnboardingProgress(auth.userId);
   return NextResponse.json({ state, progress });

@@ -13,6 +13,7 @@ export const plMessages = {
   "nav.onboarding": "Wdrożenie",
   "nav.settings": "Ustawienia",
   "nav.logs": "Dzienniki",
+  "nav.roles": "Roles",
   "nav.more": "Więcej",
   "nav.signOut": "Wyloguj się",
   "nav.openMenu": "Otwórz menu",

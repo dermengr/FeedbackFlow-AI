@@ -13,6 +13,7 @@ export const jaMessages = {
   "nav.onboarding": "オンボーディング",
   "nav.settings": "設定",
   "nav.logs": "ログ",
+  "nav.roles": "Roles",
   "nav.more": "その他",
   "nav.signOut": "サインアウト",
   "nav.openMenu": "メニューを開く",

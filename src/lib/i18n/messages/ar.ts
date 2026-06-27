@@ -13,6 +13,7 @@ export const arMessages = {
   "nav.onboarding": "الإعداد الأولي",
   "nav.settings": "الإعدادات",
   "nav.logs": "السجلات",
+  "nav.roles": "Roles",
   "nav.more": "المزيد",
   "nav.signOut": "تسجيل الخروج",
   "nav.openMenu": "فتح القائمة",

@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { prisma } from "@/lib/prisma";
 import { FEEDBACK_STATUSES } from "@/lib/types";
 
@@ -11,6 +12,8 @@ export async function GET(req: Request,
 ) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_FEEDBACK_READ);
+  if (forbidden) return forbidden;
 
   const item = await prisma.feedbackItem.findUnique({
     where: { id: params.id },
@@ -33,6 +36,8 @@ export async function PATCH(
 ) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_FEEDBACK_WRITE);
+  if (forbidden) return forbidden;
 
   let body: unknown;
   try {

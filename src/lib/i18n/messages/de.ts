@@ -13,6 +13,7 @@ export const deMessages = {
   "nav.onboarding": "Erste Schritte",
   "nav.settings": "Einstellungen",
   "nav.logs": "Protokolle",
+  "nav.roles": "Roles",
   "nav.more": "Mehr",
   "nav.signOut": "Abmelden",
   "nav.openMenu": "Menü öffnen",

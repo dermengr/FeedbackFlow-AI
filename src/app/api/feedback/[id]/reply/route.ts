@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { generateReply, FeedbackItemNotFoundError } from "@/lib/reply-gen";
 
 // POST /api/feedback/:id/reply - generate a suggested support reply for a
@@ -10,6 +11,8 @@ export async function POST(req: Request,
 ) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_COMMENTS_WRITE);
+  if (forbidden) return forbidden;
 
   try {
     const reply = await generateReply(params.id);

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { translateText, translateTexts } from "@/lib/app-translation";
 import { isSupportedLanguage } from "@/lib/i18n/languages";
 
@@ -20,6 +21,8 @@ const BatchSchema = z.object({
 export async function POST(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_TRANSLATE_WRITE);
+  if (forbidden) return forbidden;
 
   let body: unknown;
   try {

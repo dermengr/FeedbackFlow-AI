@@ -30,6 +30,21 @@ and Customer Success teams to triage it.
   - **Inbox** — sortable/filterable list (by sentiment, topic, severity,
     status) with pagination.
   - **Detail view** — raw content alongside the structured AI analysis.
+- **RBAC — 10 role-based dashboards**
+  - **10 roles**: Admin, Manager, Analyst, Support Agent, Viewer, Developer,
+    QA Engineer, Product Owner, Marketing, Sales.
+  - **Full RBAC schema**: `Role`, `Permission`, `RolePermission`, `UserRole`
+    tables in Prisma. Each role carries a set of granular permissions
+    (`page:dashboard`, `api:feedback:read`, `api:feedback:write`, etc.).
+  - **Role-specific dashboards** — each role sees a curated dashboard with
+    widgets relevant to their job (e.g., Developers see bug trackers and
+    health metrics; Sales sees conversion funnels and revenue trends).
+  - **Permission guards** — all 60+ API routes enforce `requirePermission`
+    checks before any DB operation. The middleware blocks unauthorized page
+    access at the edge. The navbar only shows links the user has permission
+    to see.
+  - **Admin role management** — admins can assign/remove roles for any user
+    via `/admin/roles`.
 - **Bonus**
   - **Slack webhooks** — outgoing notification when severity ≥ 4.
   - **Triage (Cron Pattern B)** — assign status `New` / `Acknowledged` /
@@ -49,6 +64,7 @@ and Customer Success teams to triage it.
 | Database     | PostgreSQL + Prisma (local docker, AWS RDS prod)  |
 | LLM          | OpenAI `gpt-4o-mini` (JSON mode)                  |
 | Data source  | GitHub Issues API (`@octokit/rest`)               |
+| Auth / RBAC  | NextAuth.js + JWT-enriched roles/permissions      |
 | Charts       | Recharts                                          |
 | Cron (prod)  | AWS Lambda + EventBridge                          |
 | IaC          | AWS SAM                                           |
@@ -132,6 +148,18 @@ items already present (by `external_id`) are skipped.
 You can also trigger an ingest from the UI by `POST /api/ingest` (e.g. with
 `curl` + a session cookie) for demos.
 
+### Seed scripts
+
+```bash
+# Create the first admin user (configurable via env vars)
+npm run seed:admin
+#   ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD=Secure123 npm run seed:admin
+
+# Backfill Viewer role for existing users who have no roles
+npm run backfill:viewer
+#   --dry-run   preview without writing
+```
+
 ### Running the digest job locally (Cron Pattern B)
 
 ```bash
@@ -158,6 +186,10 @@ FeedbackAnalysis  id, feedbackItemId (unique FK), sentiment, topics (JSON),
                   createdAt, updatedAt
 IngestLog         id, runId, source, status (SUCCESS|PARTIAL|FAILURE),
                   itemsFetched, itemsNew, itemsSkipped, error, createdAt
+Role              id, name (unique), description
+Permission        id, name (unique), description
+RolePermission    roleId, permissionId  (composite PK)
+UserRole          userId, roleId        (composite PK)
 ```
 
 Indexes: `feedback_items(source)`, `feedback_items(original_timestamp)`,
@@ -203,6 +235,8 @@ bad item never aborts a run — failures are recorded and the batch continues.
 │   ├── ingest.ts                # Local cron runner (Cron A)
 │   ├── digest.ts                # Local digest runner (Cron B)
 │   ├── seed.ts
+│   ├── seed-admin.ts            # Create the first admin user
+│   ├── backfill-viewer-roles.ts # Assign Viewer to role-less users
 │   ├── build-lambda.ts          # esbuild bundler for the ingest Lambda
 │   └── build-digest-lambda.ts   # esbuild bundler for the digest Lambda
 └── aws/
@@ -235,7 +269,10 @@ ingestion, cron execution (EventBridge → Lambda → DB), and cloud services us
 - `.env` is gitignored; `.env.example` contains only placeholders.
 - Passwords are hashed with bcrypt (cost 12).
 - Protected routes are enforced both by Next.js middleware (UI) and by
-  `getServerSession` checks on every API route.
+  `getServerSession` + `requirePermission` checks on every API route.
+- RBAC permissions are embedded in the JWT token, so role checks happen
+  at the edge (middleware) without DB lookups.
+- API keys bypass RBAC and use OAuth-style scopes instead.
 - In production, DB credentials live in AWS Secrets Manager; the Lambda
   resolves them at runtime.
 
@@ -248,6 +285,8 @@ npm run build       # next build
 npm run test        # vitest — unit tests for LLM + digest modules
 npm run db:up && npx prisma migrate dev
 npm run seed -- --with-samples
+npm run seed:admin  # create the first admin user
+npm run backfill:viewer  # assign Viewer to existing users
 npm run ingest      # idempotent: re-run, itemsNew should be 0
 npm run digest      # sends email if DIGEST_SMTP_URL is set
 npm run dev         # manual UI walkthrough

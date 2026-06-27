@@ -13,6 +13,7 @@ export const zhMessages = {
   "nav.onboarding": "入门引导",
   "nav.settings": "设置",
   "nav.logs": "日志",
+  "nav.roles": "Roles",
   "nav.more": "更多",
   "nav.signOut": "退出登录",
   "nav.openMenu": "打开菜单",

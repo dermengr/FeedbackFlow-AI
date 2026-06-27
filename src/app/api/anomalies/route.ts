@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { detectAnomalies } from "@/lib/anomaly";
 
 // GET /api/anomalies?days=30 - returns detected volume and sentiment anomalies
@@ -7,6 +8,8 @@ import { detectAnomalies } from "@/lib/anomaly";
 export async function GET(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_ANOMALIES_READ);
+  if (forbidden) return forbidden;
 
   const { searchParams } = new URL(req.url);
   const rawDays = searchParams.get("days");

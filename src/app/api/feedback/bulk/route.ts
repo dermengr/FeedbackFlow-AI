@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { executeBulk } from "@/lib/bulk";
 
 const BulkSchema = z.object({
@@ -14,6 +15,8 @@ const BulkSchema = z.object({
 export async function POST(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_FEEDBACK_BULK);
+  if (forbidden) return forbidden;
 
   let body: unknown;
   try {

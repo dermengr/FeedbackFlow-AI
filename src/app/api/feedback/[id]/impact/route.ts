@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { prisma } from "@/lib/prisma";
 import { getImpactForItem } from "@/lib/impact";
 
@@ -11,6 +12,8 @@ export async function GET(req: Request,
 ) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_FEEDBACK_READ);
+  if (forbidden) return forbidden;
 
   // Verify the item exists so we can return a clean 404 distinct from the
   // "no analysis yet" case (which still yields a valid score of 0).

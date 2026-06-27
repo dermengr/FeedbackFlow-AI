@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { deleteView } from "@/lib/views";
 
 // DELETE /api/views/:id — delete a saved view owned by the current user
@@ -9,6 +10,8 @@ export async function DELETE(req: Request,
 ) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_VIEWS_WRITE);
+  if (forbidden) return forbidden;
   try {
     await deleteView(params.id, auth.userId);
     return NextResponse.json({ ok: true });

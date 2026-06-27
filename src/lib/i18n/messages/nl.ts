@@ -13,6 +13,7 @@ export const nlMessages = {
   "nav.onboarding": "Onboarding",
   "nav.settings": "Instellingen",
   "nav.logs": "Logboeken",
+  "nav.roles": "Roles",
   "nav.more": "Meer",
   "nav.signOut": "Uitloggen",
   "nav.openMenu": "Menu openen",

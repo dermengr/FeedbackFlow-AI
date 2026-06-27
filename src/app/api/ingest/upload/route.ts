@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { parseCsvUpload } from "@/lib/sources/csv";
 import { runIngest } from "@/lib/ingest";
 
@@ -10,6 +11,8 @@ import { runIngest } from "@/lib/ingest";
 export async function POST(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_INGEST_WRITE);
+  if (forbidden) return forbidden;
 
   const contentType = req.headers.get("content-type") ?? "";
   let csvText = "";

@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
-import {
+import { PERMISSIONS } from "@/lib/roles";
+import { 
   getRequestAuth,
   unauthorizedResponse,
   forbiddenResponse,
   hasScope,
-} from "@/lib/request-auth";
+ requirePermission, } from "@/lib/request-auth";
 import { prisma } from "@/lib/prisma";
 import { FEEDBACK_STATUSES, SENTIMENTS } from "@/lib/types";
 
@@ -21,6 +22,8 @@ import { FEEDBACK_STATUSES, SENTIMENTS } from "@/lib/types";
 export async function GET(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_FEEDBACK_READ);
+  if (forbidden) return forbidden;
   if (!hasScope(auth, "read:feedback")) {
     return forbiddenResponse("Missing scope: read:feedback");
   }

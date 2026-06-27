@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { searchFeedback } from "@/lib/search";
 
 // GET /api/search - full-text search over feedback items.
@@ -11,6 +12,8 @@ import { searchFeedback } from "@/lib/search";
 export async function GET(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_SEARCH_READ);
+  if (forbidden) return forbidden;
 
   const url = new URL(req.url);
   const q = url.searchParams.get("q") ?? "";

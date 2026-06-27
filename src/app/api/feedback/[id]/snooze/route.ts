@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { snoozeFeedback, unsnoozeFeedback } from "@/lib/snooze";
 
 const SnoozeSchema = z.object({
@@ -15,6 +16,8 @@ export async function POST(
 ) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_SNOOZE_WRITE);
+  if (forbidden) return forbidden;
 
   let body: unknown;
   try {
@@ -50,6 +53,8 @@ export async function DELETE(req: Request,
 ) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_SNOOZE_WRITE);
+  if (forbidden) return forbidden;
 
   await unsnoozeFeedback(params.id);
 

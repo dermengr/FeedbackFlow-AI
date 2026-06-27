@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import {
   listRoutingRules,
   createRoutingRule,
@@ -11,6 +12,8 @@ import {
 export async function GET(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_ROUTING_READ);
+  if (forbidden) return forbidden;
   const rules = await listRoutingRules();
   return NextResponse.json({ rules });
 }
@@ -34,6 +37,8 @@ const CreateSchema = z.object({
 export async function POST(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_ROUTING_WRITE);
+  if (forbidden) return forbidden;
 
   let body: unknown;
   try {

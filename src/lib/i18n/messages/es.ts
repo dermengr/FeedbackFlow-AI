@@ -13,6 +13,7 @@ export const esMessages = {
   "nav.onboarding": "Incorporación",
   "nav.settings": "Configuración",
   "nav.logs": "Registros",
+  "nav.roles": "Roles",
   "nav.more": "Más",
   "nav.signOut": "Cerrar sesión",
   "nav.openMenu": "Abrir menú",

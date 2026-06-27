@@ -13,6 +13,7 @@ export const itMessages = {
   "nav.onboarding": "Onboarding",
   "nav.settings": "Impostazioni",
   "nav.logs": "Log",
+  "nav.roles": "Roles",
   "nav.more": "Altro",
   "nav.signOut": "Esci",
   "nav.openMenu": "Apri menu",

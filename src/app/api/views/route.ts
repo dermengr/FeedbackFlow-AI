@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { listViews, createView } from "@/lib/views";
 
 // GET /api/views — list the current user's saved views
 export async function GET(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_VIEWS_READ);
+  if (forbidden) return forbidden;
   const views = await listViews(auth.userId);
   return NextResponse.json({ views });
 }
@@ -21,6 +24,8 @@ const CreateSchema = z.object({
 export async function POST(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_VIEWS_WRITE);
+  if (forbidden) return forbidden;
   let body: unknown;
   try {
     body = await req.json();

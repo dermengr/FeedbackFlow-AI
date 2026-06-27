@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
+import { PERMISSIONS } from "@/lib/roles";
 import { z } from "zod";
-import {
+import { 
   getRequestAuth,
   unauthorizedResponse,
-} from "@/lib/request-auth";
+ requirePermission, } from "@/lib/request-auth";
 import {
   updateRoutingRule,
   deleteRoutingRule,
@@ -30,6 +31,8 @@ export async function PATCH(
 ) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_ROUTING_WRITE);
+  if (forbidden) return forbidden;
 
   let body: unknown;
   try {
@@ -63,6 +66,8 @@ export async function DELETE(
 ) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_ROUTING_WRITE);
+  if (forbidden) return forbidden;
 
   try {
     await deleteRoutingRule(params.id);

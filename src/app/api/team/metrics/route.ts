@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
-import { getRequestAuth, unauthorizedResponse } from "@/lib/request-auth";
+import { PERMISSIONS } from "@/lib/roles";
+import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import {
   getTeamMetrics,
   snapshotTeamMetrics,
@@ -13,6 +14,8 @@ const VALID_PERIODS: MetricsPeriod[] = ["daily", "weekly", "monthly"];
 export async function GET(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_TEAM_READ);
+  if (forbidden) return forbidden;
 
   const { searchParams } = new URL(req.url);
   const periodParam = searchParams.get("period") ?? "weekly";
@@ -29,6 +32,8 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const auth = await getRequestAuth(req);
   if (!auth) return unauthorizedResponse();
+  const forbidden = requirePermission(auth, PERMISSIONS.API_TEAM_READ);
+  if (forbidden) return forbidden;
 
   const { searchParams } = new URL(req.url);
   const periodParam = searchParams.get("period") ?? "weekly";
