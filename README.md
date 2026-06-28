@@ -3,11 +3,11 @@
 > Automated micro-SaaS to ingest, analyze, and triage real-world B2B/B2C
 > public reviews using LLMs.
 
-FeedbackFlow AI pulls in real customer feedback from a public source
-(GitHub Issues API), runs a multi-task LLM analysis on each item
-(sentiment, topics, severity, summary), stores the raw + structured results in
-Postgres, and presents a dashboard + inbox + detail UI for Product Managers
-and Customer Success teams to triage it.
+FeedbackFlow AI pulls in real customer feedback from public sources
+(GitHub Issues API, CSV upload), runs a multi-task LLM analysis on each item
+(sentiment, topics, severity, summary, impact), stores the raw + structured
+results in Postgres, and presents a modern dashboard, inbox, analytics, and
+triage UI for Product Managers, Customer Success, and engineering teams.
 
 ## Features
 
@@ -15,21 +15,30 @@ and Customer Success teams to triage it.
   protected by middleware; logged-out users are redirected to `/login`.
 - **LLM integration** — OpenAI `gpt-4o-mini` with structured JSON output
   (`response_format: json_object`) + zod validation + retry. Each item gets
-  sentiment, topic classification, a 1–5 severity score, and a one-sentence
-  summary.
+  sentiment, topic classification, a 1–5 severity score, impact score, and a
+  one-sentence summary.
 - **Daily cron (real ingest)** — fetches new issues from a configurable public
   GitHub repo via the GitHub Issues REST API, with pagination, rate-limit
   awareness, and exponential backoff. Runs locally via `npm run ingest` and in
-  production via AWS Lambda + EventBridge (`rate(1 day)`).
+  production via AWS Lambda + EventBridge (`rate(1 day)`). CSV upload is also
+  supported through the UI.
 - **Database** — Postgres with Prisma. `feedback_items` (raw) +
-  `feedback_analyses` (LLM results) + `ingest_logs` (reliability) + `users`.
+  `feedback_analyses` (LLM results) + `ingest_logs` (reliability) + `users` +
+  `labels` + `saved_views` + `widgets` + `notification_logs` + RBAC tables.
 - **UI**
   - **Dashboard** — KPI cards, sentiment trend (14-day line chart), sentiment
     distribution donut, topic distribution bar chart, severity distribution,
-    and a recent high-severity list.
-  - **Inbox** — sortable/filterable list (by sentiment, topic, severity,
-    status) with pagination.
-  - **Detail view** — raw content alongside the structured AI analysis.
+    recent high-severity list, and customizable widgets.
+  - **Inbox** — sortable/filterable list with advanced search, pagination,
+    bulk actions (status, assign, label, archive, snooze, delete), shift-click
+    range selection, and predictive severity.
+  - **Detail view** — raw content alongside structured AI analysis, impact
+    breakdown, similar items, activity timeline, comments, and reply templates.
+  - **Analytics** — root-cause analysis, period/source comparison, anomaly
+    detection, and impact tracking.
+  - **Management** — labels, reply templates, export templates, saved views,
+    widgets, search history, audit logs, webhook delivery logs, and team/role
+    administration.
 - **RBAC — 10 role-based dashboards**
   - **10 roles**: Admin, Manager, Analyst, Support Agent, Viewer, Developer,
     QA Engineer, Product Owner, Marketing, Sales.
@@ -39,19 +48,24 @@ and Customer Success teams to triage it.
   - **Role-specific dashboards** — each role sees a curated dashboard with
     widgets relevant to their job (e.g., Developers see bug trackers and
     health metrics; Sales sees conversion funnels and revenue trends).
-  - **Permission guards** — all 60+ API routes enforce `requirePermission`
+  - **Permission guards** — all API routes enforce `requirePermission`
     checks before any DB operation. The middleware blocks unauthorized page
     access at the edge. The navbar only shows links the user has permission
     to see.
   - **Admin role management** — admins can assign/remove roles for any user
     via `/admin/roles`.
 - **Bonus**
-  - **Slack webhooks** — outgoing notification when severity ≥ 4.
-  - **Triage (Cron Pattern B)** — assign status `New` / `Acknowledged` /
-    `Actioned` from the detail view, plus a daily email digest summarising
-    triage status, high-severity items, and recent feedback. Runs locally via
-    `npm run digest` and in production via a second AWS Lambda + EventBridge
-    (`rate(1 day)`).
+  - **Slack webhooks** — outgoing notification when severity ≥ 4, plus a
+    webhook delivery log and test button.
+  - **In-app notifications** — global notification bell + `/notifications`
+    page with mark-read, mark-all-read, and delete.
+  - **Toast notifications** — consistent success/error/warning feedback across
+    the app.
+  - **Triage** — assign status `New` / `Acknowledged` / `Actioned` from the
+    detail view or bulk action bar, plus snooze/archive with optional reasons.
+  - **Daily digest** — summarises triage status, high-severity items, and
+    recent feedback. Runs locally via `npm run digest` and in production via
+    AWS Lambda + EventBridge (`rate(1 day)`).
   - **Idempotency & reliability** — `external_id` unique constraint prevents
     duplicates; per-item failure isolation; `IngestLog` records every run.
 
@@ -63,7 +77,7 @@ and Customer Success teams to triage it.
 | Auth         | NextAuth.js (Credentials, JWT)                    |
 | Database     | PostgreSQL + Prisma (local docker, AWS RDS prod)  |
 | LLM          | OpenAI `gpt-4o-mini` (JSON mode)                  |
-| Data source  | GitHub Issues API (`@octokit/rest`)               |
+| Data source  | GitHub Issues API (`@octokit/rest`) + CSV upload  |
 | Auth / RBAC  | NextAuth.js + JWT-enriched roles/permissions      |
 | Charts       | Recharts                                          |
 | Cron (prod)  | AWS Lambda + EventBridge                          |
@@ -73,19 +87,23 @@ and Customer Success teams to triage it.
 ## Architecture
 
 ```
-[Frontend (Next.js + Tailwind)]
+[Frontend (Next.js + Tailwind + Framer Motion)]
    ↓ Auth (NextAuth / JWT)
 [API Layer (Next.js Route Handlers)]
    ├── Auth Controller        → Users
    ├── Feedback Controller    → FeedbackItem + FeedbackAnalysis
-   ├── Dashboard Controller   → Aggregated metrics
-   ├── Webhook Controller     → Slack (bonus)
-   └── Digest Controller      → Email digest (bonus)
+   ├── Dashboard Controller   → Aggregated metrics + widgets
+   ├── Analytics Controller   → Root cause, comparison, anomalies, impact
+   ├── Search Controller      → Full-text search + search history
+   ├── Webhook Controller     → Slack + webhook delivery logs
+   ├── Digest Controller      → Email digest
+   ├── Notification Controller→ In-app notifications
+   └── Admin Controller       → Audit logs, roles
    ↓
 [Database: AWS RDS Postgres]
    ↑
 [Cron A: AWS Lambda + EventBridge (daily) — Ingest]
-   1) Fetch new feedback (GitHub Issues API)
+   1) Fetch new feedback (GitHub Issues API or CSV)
    2) Deduplicate by external_id
    3) Call LLM (OpenAI) for structured analysis
    4) Store analysis + write IngestLog
@@ -184,17 +202,36 @@ FeedbackItem      id, source, externalId (unique), title, rawContent,
 FeedbackAnalysis  id, feedbackItemId (unique FK), sentiment, topics (JSON),
                   severityScore (1-5), summary, status (NEW|ACKNOWLEDGED|ACTIONED),
                   createdAt, updatedAt
+FeedbackLink      id, fromItemId, toItemId, relationType (duplicate|related),
+                  createdAt
+FeedbackVote      id, feedbackItemId, userId, createdAt
+FeedbackComment   id, feedbackItemId, userId, body, createdAt
 IngestLog         id, runId, source, status (SUCCESS|PARTIAL|FAILURE),
                   itemsFetched, itemsNew, itemsSkipped, error, createdAt
+Label             id, name (unique), color, createdAt
+FeedbackItemLabel feedbackItemId, labelId (composite PK)
+SavedView         id, userId, name, filters (JSON), sort, createdAt
+Widget            id, userId, type, title, config (JSON), order, createdAt
+SearchHistory     id, userId, query, createdAt
+NotificationLog   id, userId, type, title, body, status (unread|read),
+                  feedbackItemId, link, createdAt
 Role              id, name (unique), description
 Permission        id, name (unique), description
 RolePermission    roleId, permissionId  (composite PK)
 UserRole          userId, roleId        (composite PK)
+ApiKey            id, userId, name, prefix, hashedKey, scopes, lastUsedAt,
+                  createdAt
+Webhook           id, userId, name, url, events, secret, active, createdAt
+WebhookDelivery   id, webhookId, event, status, requestBody, responseBody,
+                  responseStatus, error, createdAt
+AuditEvent        id, actorId, action, resource, resourceId, metadata (JSON),
+                  createdAt
 ```
 
 Indexes: `feedback_items(source)`, `feedback_items(original_timestamp)`,
 `feedback_analyses(sentiment)`, `feedback_analyses(severity_score)`,
-`feedback_analyses(status)`, `ingest_logs(source)`, `ingest_logs(created_at)`.
+`feedback_analyses(status)`, `ingest_logs(source)`, `ingest_logs(created_at)`,
+`notification_logs(userId, status)`, `saved_views(userId)`, `widgets(userId)`.
 
 ## LLM output format
 
@@ -223,12 +260,12 @@ bad item never aborts a run — failures are recorded and the batch continues.
 │   └── migrations/
 ├── src/
 │   ├── app/
-│   │   ├── (app)/               # Authenticated routes (dashboard, inbox)
+│   │   ├── (app)/               # Authenticated routes (dashboard, inbox, analytics, management)
 │   │   ├── api/                 # Route handlers
 │   │   ├── login/ signup/
 │   │   ├── layout.tsx globals.css
-│   ├── components/              # Navbar, Filters, Badges, charts, StatusSelect
-│   ├── lib/                     # prisma, auth, github, llm, ingest, slack, digest, utils, types
+│   ├── components/              # Navbar, PageShell, Filters, Badges, charts, managers, toast
+│   ├── lib/                     # prisma, auth, github, llm, ingest, slack, digest, analytics, utils, types
 │   ├── middleware.ts            # Route protection
 │   └── types/next-auth.d.ts
 ├── scripts/
@@ -282,7 +319,7 @@ ingestion, cron execution (EventBridge → Lambda → DB), and cloud services us
 npm run typecheck   # tsc --noEmit
 npm run lint        # next lint
 npm run build       # next build
-npm run test        # vitest — unit tests for LLM + digest modules
+npm run test        # vitest — unit tests for LLM + analytics + modules
 npm run db:up && npx prisma migrate dev
 npm run seed -- --with-samples
 npm run seed:admin  # create the first admin user
@@ -299,9 +336,14 @@ Unit tests cover the most critical code paths:
 - **LLM module** (`src/lib/__tests__/llm.test.ts`) — Zod schema validation
   (valid/invalid sentiment, severity range, topic array constraints, summary
   length), JSON parsing, batch failure isolation.
+- **Analytics modules** (`src/lib/__tests__/comparison.test.ts`,
+  `anomaly.test.ts`, `impact.test.ts`, `root-cause.test.ts`) — aggregation,
+  delta calculation, rolling stats, spike detection, and score breakdown.
 - **Digest module** (`src/lib/__tests__/digest.test.ts`) — HTML rendering
   (status/sentiment tables, high-severity section, recent feedback section,
   empty states, links).
+- **Bulk actions** (`src/lib/__tests__/bulk.test.ts`) — status, assignment,
+  labeling, archive, snooze, and delete operations.
 
 Run with `npm test` (one-shot) or `npm run test:watch` (watch mode).
 
@@ -311,9 +353,11 @@ Run with `npm test` (one-shot) or `npm run test:watch` (watch mode).
 | -------------------------- | -------------------------------------------------------- |
 | Auth + protected routes    | `src/middleware.ts`, `src/lib/auth.ts`, `(app)/layout.tsx` |
 | Cron ingests real data     | `src/lib/github.ts`, `src/lib/ingest.ts`, `aws/lambda/handler.ts` |
-| LLM analysis per item      | `src/lib/llm.ts`, `FeedbackAnalysis` rows                |
+| LLM analysis per item        | `src/lib/llm.ts`, `FeedbackAnalysis` rows                |
 | Reliability + logging      | retry/backoff, `IngestLog`, idempotency via `externalId` |
-| Inbox filter/sort          | `src/app/(app)/inbox/page.tsx`, `src/components/Filters.tsx` |
+| Inbox filter/sort + bulk   | `src/app/(app)/inbox/page.tsx`, `src/components/Filters.tsx`, `BulkActionBar.tsx` |
+| Analytics                  | `src/app/(app)/{root-cause,comparison,anomalies,impact}/` |
+| Management tools           | `src/app/(app)/{labels,reply-templates,export/templates,saved-views,widgets}/` |
 | Secrets from env vars      | `.env.example`, no hardcoded secrets                     |
 | Triage + digest (bonus)    | `src/components/StatusSelect.tsx`, `src/lib/digest.ts`, `aws/lambda/digest-handler.ts` |
 
