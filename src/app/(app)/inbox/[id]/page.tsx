@@ -21,6 +21,7 @@ import { ReplyGenerator } from "@/components/ReplyGenerator";
 import { TranslationButton } from "@/components/TranslationButton";
 import { ArchiveButton } from "@/components/ArchiveButton";
 import { VoteButtons } from "@/components/VoteButtons";
+import { SeverityPredictor } from "@/components/SeverityPredictor";
 import { FeedbackLinks } from "@/components/FeedbackLinks";
 import { SmartCategorization } from "@/components/SmartCategorization";
 import { PageShell, PageSection } from "@/components/PageShell";
@@ -131,6 +132,9 @@ export default async function FeedbackDetailPage({
                     </dt>
                     <dd className="mt-1">
                       <SeverityBadge score={analysis.severityScore} />
+                    </dd>
+                    <dd className="mt-2">
+                      <SeverityPredictor text={item.rawContent} />
                     </dd>
                   </div>
                   <div>

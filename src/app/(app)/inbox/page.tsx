@@ -158,6 +158,7 @@ export default async function InboxPage({
 
         <PageSection>
           <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-soft dark:bg-slate-800 dark:border-slate-700">
+          <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-700">
               <thead className="bg-slate-50/80 dark:bg-slate-800/50">
                 <tr className="text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
@@ -165,7 +166,8 @@ export default async function InboxPage({
                     <input
                       type="checkbox"
                       id="inbox-select-all"
-                      className="rounded border-slate-300 dark:border-slate-600"
+                      aria-label="Select all items on this page"
+                      className="h-4 w-4 cursor-pointer rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-700 dark:ring-offset-slate-800"
                     />
                   </th>
                   <th className="px-4 py-3">Title / Source</th>
@@ -192,7 +194,8 @@ export default async function InboxPage({
                     <td className="px-4 py-3">
                       <input
                         type="checkbox"
-                        className="rounded border-slate-300 dark:border-slate-600"
+                        aria-label={`Select ${item.title ?? item.externalId}`}
+                        className="h-4 w-4 cursor-pointer rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-600 dark:bg-slate-700 dark:ring-offset-slate-800"
                         data-item-id={item.id}
                       />
                     </td>
@@ -269,6 +272,7 @@ export default async function InboxPage({
                 </div>
               </div>
             )}
+          </div>
           </div>
         </PageSection>
       </div>

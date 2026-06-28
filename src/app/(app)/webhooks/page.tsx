@@ -38,6 +38,7 @@ export default async function WebhooksPage() {
           </div>
         ) : (
           <div className="overflow-hidden card-modern">
+            <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200">
               <thead className="bg-slate-50">
                 <tr>
@@ -93,6 +94,7 @@ export default async function WebhooksPage() {
                 ))}
               </tbody>
             </table>
+          </div>
           </div>
         )}
       </PageSection>

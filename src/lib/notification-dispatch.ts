@@ -16,13 +16,19 @@ export type NotificationPayload = {
   link?: string;
 };
 
+function buildFeedbackLink(feedbackItemId?: string, link?: string): string | undefined {
+  if (link) return link;
+  if (feedbackItemId) return `/inbox/${feedbackItemId}`;
+  return undefined;
+}
+
 /**
  * Dispatch a notification to a single user. The notification is always logged
  * in-app. Email and Slack delivery are attempted only when the user's
  * notification preferences allow it.
  */
 export async function dispatchNotification(payload: NotificationPayload) {
-  const { userId, type, title, body, severity = 3, link } = payload;
+  const { userId, type, title, body, severity = 3, feedbackItemId, link } = payload;
 
   // Persist an in-app notification record for every dispatch so the user has a
   // complete history regardless of channel preferences.
@@ -33,6 +39,8 @@ export async function dispatchNotification(payload: NotificationPayload) {
       title,
       body,
       status: "unread",
+      feedbackItemId,
+      link: buildFeedbackLink(feedbackItemId, link),
     },
   });
 
@@ -104,6 +112,25 @@ export async function markNotificationRead(
   return prisma.notificationLog.updateMany({
     where: { id: notificationId, userId },
     data: { status: "read" },
+  });
+}
+
+/**
+ * Mark all notifications as read for a user.
+ */
+export async function markAllNotificationsRead(userId: string) {
+  return prisma.notificationLog.updateMany({
+    where: { userId, status: "unread" },
+    data: { status: "read" },
+  });
+}
+
+/**
+ * Delete a notification for a user.
+ */
+export async function deleteNotification(userId: string, notificationId: string) {
+  return prisma.notificationLog.deleteMany({
+    where: { id: notificationId, userId },
   });
 }
 

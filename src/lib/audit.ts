@@ -19,6 +19,19 @@ export interface AuditEventDto {
   createdAt: string;
   actor: { id: string; name: string | null; email: string };
   meta: Record<string, unknown> | null;
+  feedbackItem?: {
+    id: string;
+    source: string;
+    externalId: string;
+    title: string | null;
+  };
+}
+
+export interface AuditEventListResult {
+  events: AuditEventDto[];
+  total: number;
+  page: number;
+  pageSize: number;
 }
 
 /**
@@ -79,4 +92,49 @@ export async function listAuditEvents(
     },
     meta: (e.meta as Record<string, unknown> | null) ?? null,
   }));
+}
+
+/**
+ * List all audit events across the system with pagination, newest first.
+ * Includes actor and feedback item details for the admin audit log viewer.
+ */
+export async function listAllAuditEvents(
+  page = 1,
+  pageSize = 20
+): Promise<AuditEventListResult> {
+  const safePage = Math.max(1, page);
+  const safePageSize = Math.min(100, Math.max(1, pageSize));
+
+  const [events, total] = await Promise.all([
+    prisma.auditEvent.findMany({
+      include: {
+        actor: { select: { id: true, name: true, email: true } },
+        feedbackItem: {
+          select: { id: true, source: true, externalId: true, title: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      skip: (safePage - 1) * safePageSize,
+      take: safePageSize,
+    }),
+    prisma.auditEvent.count(),
+  ]);
+
+  return {
+    events: events.map((e) => ({
+      id: e.id,
+      type: e.type as AuditType,
+      createdAt: e.createdAt.toISOString(),
+      actor: {
+        id: e.actor.id,
+        name: e.actor.name,
+        email: e.actor.email,
+      },
+      meta: (e.meta as Record<string, unknown> | null) ?? null,
+      feedbackItem: e.feedbackItem,
+    })),
+    total,
+    page: safePage,
+    pageSize: safePageSize,
+  };
 }

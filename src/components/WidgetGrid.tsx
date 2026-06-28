@@ -174,7 +174,7 @@ function WidgetBody({ widget }: { widget: Widget }) {
   }
 }
 
-export function WidgetGrid() {
+export function WidgetGrid({ manageable = false }: { manageable?: boolean }) {
   const [widgets, setWidgets] = useState<Widget[]>([]);
   const [status, setStatus] = useState<"loading" | "error" | "ready">("loading");
   const [errorMsg, setErrorMsg] = useState("");
@@ -182,6 +182,7 @@ export function WidgetGrid() {
   const [formType, setFormType] = useState(WIDGET_TYPE_OPTIONS[0].value);
   const [formTitle, setFormTitle] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [reordering, setReordering] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -235,6 +236,42 @@ export function WidgetGrid() {
       setErrorMsg(message);
       setStatus("error");
       showToast(message, "error");
+    }
+  };
+
+  const handleReorder = async (direction: "up" | "down", index: number) => {
+    if (reordering) return;
+    const newIndex = direction === "up" ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= widgets.length) return;
+
+    const reordered = [...widgets];
+    const [moved] = reordered.splice(index, 1);
+    reordered.splice(newIndex, 0, moved);
+    setWidgets(reordered);
+    setReordering(true);
+
+    try {
+      await Promise.all(
+        reordered.map((w, i) =>
+          fetch(`/api/widgets/${w.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ positionY: i }),
+          }).then((res) => {
+            if (!res.ok) throw new Error(`Failed to update ${w.id}`);
+          })
+        )
+      );
+      showToast("Widgets reordered", "success");
+      await load();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to reorder widgets";
+      setErrorMsg(message);
+      setStatus("error");
+      showToast(message, "error");
+      await load();
+    } finally {
+      setReordering(false);
     }
   };
 
@@ -318,19 +355,43 @@ export function WidgetGrid() {
 
       {widgets.length > 0 && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {widgets.map((w) => (
+          {widgets.map((w, index) => (
             <div
               key={w.id}
               className="relative rounded-xl border border-slate-200 bg-white p-4 shadow-soft dark:border-slate-700 dark:bg-slate-800"
             >
-              <button
-                type="button"
-                aria-label="Remove widget"
-                onClick={() => handleRemove(w.id)}
-                className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:hover:bg-slate-700 dark:hover:text-slate-300"
-              >
-                ✕
-              </button>
+              <div className="absolute right-2 top-2 flex items-center gap-1">
+                {manageable && (
+                  <>
+                    <button
+                      type="button"
+                      aria-label="Move widget up"
+                      disabled={reordering || index === 0}
+                      onClick={() => handleReorder("up", index)}
+                      className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Move widget down"
+                      disabled={reordering || index === widgets.length - 1}
+                      onClick={() => handleReorder("down", index)}
+                      className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                    >
+                      ↓
+                    </button>
+                  </>
+                )}
+                <button
+                  type="button"
+                  aria-label="Remove widget"
+                  onClick={() => handleRemove(w.id)}
+                  className="flex h-6 w-6 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                >
+                  ✕
+                </button>
+              </div>
               <h3 className="pr-6 text-sm font-semibold text-slate-700 dark:text-slate-200">
                 {w.title}
               </h3>

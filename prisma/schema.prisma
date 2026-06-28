@@ -433,6 +433,8 @@ model NotificationLog {
   // "unread" | "read"
   status    String   @default("unread")
   createdAt DateTime @default(now()) @map("created_at")
+  feedbackItemId String? @map("feedback_item_id")
+  link      String?  @db.Text
 
   @@index([userId])
   @@index([status])

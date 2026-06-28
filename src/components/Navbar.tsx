@@ -24,6 +24,18 @@ import {
   ChevronDown,
   MoreHorizontal,
   Shield,
+  ClipboardList,
+  History,
+  LayoutGrid,
+  Tags,
+  MessageSquareReply,
+  FileDown,
+  Bookmark,
+  GitBranch,
+  GitCompare,
+  AlertCircle,
+  TrendingUp,
+  Bell,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState, useMemo } from "react";
@@ -32,6 +44,7 @@ import { SearchBar } from "@/components/SearchBar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { NotificationBell } from "@/components/NotificationBell";
+import { RealtimeIndicator } from "@/components/RealtimeIndicator";
 import { useTranslation } from "@/contexts/LocaleContext";
 import type { MessageKey } from "@/lib/i18n/messages/en";
 import { PAGE_PERMISSIONS, type PermissionName, type RoleName } from "@/lib/roles";
@@ -57,6 +70,19 @@ const allNavLinks: NavLink[] = [
   { href: "/settings", labelKey: "nav.settings", icon: Settings, permission: PAGE_PERMISSIONS["/settings"] },
   { href: "/admin/logs", labelKey: "nav.logs", icon: ScrollText, permission: PAGE_PERMISSIONS["/admin"] },
   { href: "/admin/roles", labelKey: "nav.roles", icon: Shield, permission: PAGE_PERMISSIONS["/admin"] },
+  { href: "/admin/audit", labelKey: "nav.audit", icon: ClipboardList, permission: PAGE_PERMISSIONS["/admin"] },
+  { href: "/admin/webhook-logs", labelKey: "nav.webhookLogs", icon: Webhook, permission: PAGE_PERMISSIONS["/admin"] },
+  { href: "/search-history", labelKey: "nav.searchHistory", icon: History },
+  { href: "/widgets", labelKey: "nav.widgets", icon: LayoutGrid },
+  { href: "/labels", labelKey: "nav.labels", icon: Tags },
+  { href: "/reply-templates", labelKey: "nav.replyTemplates", icon: MessageSquareReply },
+  { href: "/export", labelKey: "nav.exportTemplates", icon: FileDown },
+  { href: "/saved-views", labelKey: "nav.savedViews", icon: Bookmark },
+  { href: "/root-cause", labelKey: "nav.rootCause", icon: GitBranch },
+  { href: "/comparison", labelKey: "nav.comparison", icon: GitCompare },
+  { href: "/anomalies", labelKey: "nav.anomalies", icon: AlertCircle },
+  { href: "/impact", labelKey: "nav.impact", icon: TrendingUp },
+  { href: "/notifications", labelKey: "nav.notifications", icon: Bell },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -196,6 +222,7 @@ export function Navbar() {
         <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
           <LanguageSelector compact />
           <ThemeToggle />
+          <RealtimeIndicator />
           <NotificationBell />
           {session?.user?.email && (
             <span

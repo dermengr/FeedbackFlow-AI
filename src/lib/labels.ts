@@ -5,11 +5,12 @@ export const LABEL_COLORS = [
   "red",
   "orange",
   "amber",
-  "yellow",
   "green",
+  "emerald",
   "teal",
   "blue",
   "indigo",
+  "violet",
   "purple",
   "pink",
 ] as const;

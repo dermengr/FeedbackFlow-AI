@@ -154,10 +154,10 @@ export function NotificationBell() {
 
             <div className="border-t border-slate-100 p-2 dark:border-slate-700">
               <Link
-                href="/settings"
+                href="/notifications"
                 className="block rounded-lg px-3 py-1.5 text-center text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
               >
-                Notification settings
+                View all notifications
               </Link>
             </div>
           </motion.div>

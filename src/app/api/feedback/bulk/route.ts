@@ -7,8 +7,18 @@ import { executeBulk } from "@/lib/bulk";
 
 const BulkSchema = z.object({
   ids: z.array(z.string()).min(1).max(500),
-  action: z.enum(["status", "assign", "label", "delete"]),
-  value: z.string(),
+  action: z.enum([
+    "status",
+    "assign",
+    "label",
+    "unlabel",
+    "delete",
+    "archive",
+    "unarchive",
+    "snooze",
+    "unsnooze",
+  ]),
+  value: z.string().default(""),
 });
 
 // POST /api/feedback/bulk - apply an action to multiple feedback items at once.
@@ -33,6 +43,6 @@ export async function POST(req: Request) {
     );
   }
 
-  const result = await executeBulk(parsed.data);
+  const result = await executeBulk(parsed.data, auth.userId);
   return NextResponse.json(result);
 }

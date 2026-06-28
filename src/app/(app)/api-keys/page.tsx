@@ -47,6 +47,7 @@ export default async function ApiKeysPage() {
           </div>
         ) : (
           <div className="mt-2 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-soft dark:bg-slate-800 dark:border-slate-700">
+            <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-700">
               <thead className="bg-slate-50/80 dark:bg-slate-800/50">
                 <tr>
@@ -110,6 +111,7 @@ export default async function ApiKeysPage() {
                 ))}
               </tbody>
             </table>
+          </div>
           </div>
         )}
       </PageSection>

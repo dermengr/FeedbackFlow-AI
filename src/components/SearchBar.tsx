@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { cn, truncate } from "@/lib/utils";
 import { SearchSuggestions } from "@/components/SearchSuggestions";
+import { SearchHistory } from "@/components/SearchHistory";
 import { useTranslation } from "@/contexts/LocaleContext";
 
 type SearchResult = {
@@ -97,7 +98,7 @@ export function SearchBar({ className }: { className?: string }) {
 
   async function recordSearchQuery(q: string, resultsCount: number) {
     try {
-      await fetch("/api/search/suggestions", {
+      await fetch("/api/search/history", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: q, resultsCount }),
@@ -158,7 +159,8 @@ export function SearchBar({ className }: { className?: string }) {
 
   const trimmedQuery = query.trim();
   const showResults = open && trimmedQuery.length >= 2;
-  const showSuggestions = open && trimmedQuery.length < 2;
+  const showSuggestions = open && trimmedQuery.length >= 1 && trimmedQuery.length < 2;
+  const showHistory = open && trimmedQuery.length === 0;
 
   return (
     <div ref={containerRef} className={cn("relative w-full", className)}>
@@ -181,6 +183,18 @@ export function SearchBar({ className }: { className?: string }) {
           )}
         />
       </div>
+
+      {showHistory && (
+        <div className="absolute z-50 mt-1 w-full min-w-[16rem] max-h-80 overflow-y-auto rounded-xl border border-slate-200 bg-white py-1 shadow-lg dark:bg-slate-800 dark:border-slate-700">
+          <SearchHistory
+            compact
+            onSelect={(s) => {
+              setQuery(s);
+              setOpen(true);
+            }}
+          />
+        </div>
+      )}
 
       {showSuggestions && (
         <div className="absolute z-50 mt-1 w-full min-w-[16rem]">
