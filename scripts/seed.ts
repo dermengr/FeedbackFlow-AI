@@ -6,18 +6,61 @@
 import "dotenv/config";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { seedRolesAndPermissions } from "@/lib/roles";
+
+const DEMO_PASSWORD = "password123";
+
+const DEMO_ACCOUNTS: Array<{ email: string; name: string; role: string }> = [
+  { email: "admin@feedbackflow.dev", name: "Admin Demo", role: "Admin" },
+  { email: "manager@feedbackflow.dev", name: "Manager Demo", role: "Manager" },
+  { email: "analyst@feedbackflow.dev", name: "Analyst Demo", role: "Analyst" },
+  { email: "support@feedbackflow.dev", name: "Support Agent Demo", role: "Support Agent" },
+  { email: "viewer@feedbackflow.dev", name: "Viewer Demo", role: "Viewer" },
+  { email: "developer@feedbackflow.dev", name: "Developer Demo", role: "Developer" },
+  { email: "qa@feedbackflow.dev", name: "QA Engineer Demo", role: "QA Engineer" },
+  { email: "product@feedbackflow.dev", name: "Product Owner Demo", role: "Product Owner" },
+  { email: "marketing@feedbackflow.dev", name: "Marketing Demo", role: "Marketing" },
+  { email: "sales@feedbackflow.dev", name: "Sales Demo", role: "Sales" },
+];
 
 async function main() {
-  const email = "demo@feedbackflow.dev";
-  const password = "password123";
+  // 1. Ensure roles and permissions exist
+  await seedRolesAndPermissions();
+  console.log("Seeded roles and permissions.");
 
-  const hashed = await bcrypt.hash(password, 12);
-  const user = await prisma.user.upsert({
-    where: { email },
-    update: {},
-    create: { email, hashedPassword: hashed, name: "Demo User" },
-  });
-  console.log(`Seeded user: ${user.email} (password: ${password})`);
+  const hashed = await bcrypt.hash(DEMO_PASSWORD, 12);
+
+  for (const account of DEMO_ACCOUNTS) {
+    const user = await prisma.user.upsert({
+      where: { email: account.email },
+      update: { name: account.name, hashedPassword: hashed },
+      create: { email: account.email, hashedPassword: hashed, name: account.name },
+    });
+
+    const role = await prisma.role.findUnique({
+      where: { name: account.role },
+      select: { id: true },
+    });
+
+    if (role) {
+      const existingUserRole = await prisma.userRole.findUnique({
+        where: { userId_roleId: { userId: user.id, roleId: role.id } },
+      });
+
+      if (!existingUserRole) {
+        await prisma.userRole.create({
+          data: { userId: user.id, roleId: role.id },
+        });
+        console.log(`Assigned ${account.role} role to ${user.email}.`);
+      } else {
+        console.log(`${user.email} already has ${account.role} role.`);
+      }
+    } else {
+      console.warn(`Role ${account.role} not found; ${user.email} has no role.`);
+    }
+  }
+
+  console.log(`\nSeeded ${DEMO_ACCOUNTS.length} demo accounts (password: ${DEMO_PASSWORD}).`);
 
   if (process.argv.includes("--with-samples")) {
     await seedSamples();

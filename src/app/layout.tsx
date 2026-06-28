@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { PageTransition } from "@/components/PageTransition";
 
 export const metadata: Metadata = {
   title: "FeedbackFlow AI",
@@ -18,7 +19,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          <Providers>{children}</Providers>
+          <Providers>
+            <PageTransition>{children}</PageTransition>
+          </Providers>
         </ThemeProvider>
       </body>
     </html>

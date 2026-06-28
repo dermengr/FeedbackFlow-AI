@@ -8,6 +8,7 @@ import {
   getOnboardingProgress,
 } from "@/lib/onboarding";
 import { OnboardingActions } from "@/components/OnboardingActions";
+import { PageShell, PageHeader, PageSection } from "@/components/PageShell";
 
 export const dynamic = "force-dynamic";
 
@@ -35,39 +36,37 @@ export default async function OnboardingPage() {
   const completed = new Set(state.completedSteps);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Onboarding Wizard</h1>
-        <p className="text-sm text-slate-500">
-          Complete these steps to get FeedbackFlow up and running.
-        </p>
-      </div>
+    <PageShell className="space-y-6">
+      <PageHeader
+        title="Onboarding Wizard"
+        description="Complete these steps to get FeedbackFlow up and running."
+      />
 
-      {/* Progress bar */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between text-sm">
-          <span className="font-medium text-slate-700">
-            {progress.completionPercentage}% complete
-          </span>
-          {state.skipped ? (
-            <span className="text-slate-400">Onboarding skipped</span>
-          ) : progress.nextStep === null ? (
-            <span className="text-indigo-600">All steps complete</span>
-          ) : (
-            <span className="text-slate-500">
-              Next: {ONBOARDING_STEPS.find((s) => s.id === progress.nextStep)?.title}
+      <PageSection>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="font-medium text-slate-700 dark:text-slate-300">
+              {progress.completionPercentage}% complete
             </span>
-          )}
+            {state.skipped ? (
+              <span className="text-slate-400">Onboarding skipped</span>
+            ) : progress.nextStep === null ? (
+              <span className="text-indigo-600 dark:text-indigo-400">All steps complete</span>
+            ) : (
+              <span className="text-slate-500 dark:text-slate-400">
+                Next: {ONBOARDING_STEPS.find((s) => s.id === progress.nextStep)?.title}
+              </span>
+            )}
+          </div>
+          <div className="h-2.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-indigo-600 to-brand-500 transition-all duration-700 ease-out"
+              style={{ width: `${progress.completionPercentage}%` }}
+            />
+          </div>
         </div>
-        <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200">
-          <div
-            className="h-full rounded-full bg-indigo-600 transition-all"
-            style={{ width: `${progress.completionPercentage}%` }}
-          />
-        </div>
-      </div>
+      </PageSection>
 
-      {/* Step list */}
       <ol className="space-y-3">
         {ONBOARDING_STEPS.map((step, index) => {
           const isCompleted = completed.has(step.id);
@@ -75,47 +74,45 @@ export default async function OnboardingPage() {
           const href = STEP_LINKS[step.id] ?? "/onboarding";
 
           return (
-            <li key={step.id}>
+            <PageSection key={step.id}>
               <Link
                 href={href}
                 className={[
-                  "flex items-center gap-4 rounded-lg border p-4 transition-colors",
+                  "group flex items-center gap-4 rounded-xl border p-4 transition-all duration-200",
                   isCurrent
-                    ? "border-indigo-300 bg-indigo-50 ring-1 ring-indigo-200"
+                    ? "border-indigo-300 bg-indigo-50/80 ring-1 ring-indigo-200 shadow-soft dark:bg-indigo-900/20 dark:border-indigo-500/50 dark:ring-indigo-500/30"
                     : isCompleted
-                    ? "border-slate-200 bg-white hover:border-slate-300"
-                    : "border-slate-200 bg-white hover:border-slate-300",
+                    ? "card-modern border-emerald-200/60 bg-emerald-50/30 hover:bg-emerald-50/50 dark:bg-emerald-900/10 dark:border-emerald-500/30"
+                    : "card-modern",
                 ].join(" ")}
               >
-                {/* Status indicator */}
                 <div
                   className={[
-                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold",
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold transition-transform duration-200 group-hover:scale-110",
                     isCompleted
-                      ? "bg-indigo-600 text-white"
+                      ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-sm"
                       : isCurrent
-                      ? "bg-indigo-100 text-indigo-700"
-                      : "bg-slate-100 text-slate-500",
+                      ? "bg-gradient-to-br from-indigo-500 to-brand-500 text-white shadow-sm"
+                      : "bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400",
                   ].join(" ")}
                 >
                   {isCompleted ? (
-                    <Check className="h-4 w-4" />
+                    <Check className="h-5 w-5" />
                   ) : (
                     index + 1
                   )}
                 </div>
 
-                {/* Title + status */}
                 <div className="min-w-0 flex-1">
                   <p
                     className={[
-                      "text-sm font-medium",
-                      isCurrent ? "text-indigo-900" : "text-slate-900",
+                      "text-sm font-semibold",
+                      isCurrent ? "text-indigo-900 dark:text-indigo-100" : "text-slate-900 dark:text-slate-100",
                     ].join(" ")}
                   >
                     {step.title}
                   </p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     {isCompleted
                       ? "Completed"
                       : isCurrent
@@ -126,22 +123,24 @@ export default async function OnboardingPage() {
 
                 <span
                   className={[
-                    "text-xs font-medium",
-                    isCurrent ? "text-indigo-600" : "text-slate-400",
+                    "text-xs font-semibold transition-colors",
+                    isCurrent ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300",
                   ].join(" ")}
                 >
                   Go →
                 </span>
               </Link>
-            </li>
+            </PageSection>
           );
         })}
       </ol>
 
-      <OnboardingActions
-        showSkip={!state.skipped && progress.nextStep !== null}
-        showWelcomeComplete={!completed.has("welcome") && !state.skipped}
-      />
-    </div>
+      <PageSection>
+        <OnboardingActions
+          showSkip={!state.skipped && progress.nextStep !== null}
+          showWelcomeComplete={!completed.has("welcome") && !state.skipped}
+        />
+      </PageSection>
+    </PageShell>
   );
 }

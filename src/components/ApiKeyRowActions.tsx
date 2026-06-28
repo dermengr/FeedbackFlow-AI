@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { showToast } from "@/lib/toast";
 
 export function ApiKeyRowActions({ keyId }: { keyId: string }) {
   const router = useRouter();
@@ -14,10 +15,13 @@ export function ApiKeyRowActions({ keyId }: { keyId: string }) {
       const res = await fetch(`/api/api-keys/${keyId}`, { method: "DELETE" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        alert(data.error ?? "Failed to revoke key");
+        showToast(data.error ?? "Failed to delete API key", "error");
         return;
       }
       router.refresh();
+      showToast("API key deleted", "success");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Failed to delete API key", "error");
     } finally {
       setLoading(false);
     }

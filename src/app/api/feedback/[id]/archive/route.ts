@@ -5,6 +5,8 @@ import { PERMISSIONS } from "@/lib/roles";
 import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { prisma } from "@/lib/prisma";
 import { archiveItem, unarchiveItem } from "@/lib/archive";
+import { recordAuditEvent } from "@/lib/audit";
+import { dispatchNotification } from "@/lib/notification-dispatch";
 
 const ArchiveSchema = z.object({
   reason: z.string().trim().max(500).optional(),
@@ -50,6 +52,35 @@ export async function POST(
 
   try {
     const archive = await archiveItem(params.id, userId, parsed.data.reason);
+
+    const analysis = await prisma.feedbackAnalysis.findUnique({
+      where: { feedbackItemId: params.id },
+      select: { assignedToId: true, severityScore: true },
+    });
+
+    void recordAuditEvent({
+      feedbackItemId: params.id,
+      actorId: userId,
+      type: "BULK_UPDATE",
+      meta: { action: "archive", reason: parsed.data.reason },
+    }).catch(() => {});
+
+    if (analysis?.assignedToId && analysis.assignedToId !== userId) {
+      const item = await prisma.feedbackItem.findUnique({
+        where: { id: params.id },
+        select: { title: true, externalId: true },
+      });
+      void dispatchNotification({
+        userId: analysis.assignedToId,
+        type: "feedback.archived",
+        title: "Assigned feedback archived",
+        body: `${item?.title ?? item?.externalId ?? "An assigned item"} was archived.`,
+        feedbackItemId: params.id,
+        severity: analysis.severityScore,
+        link: `/inbox/${params.id}`,
+      }).catch(() => {});
+    }
+
     return NextResponse.json(archive, { status: 201 });
   } catch {
     // archiveItem throws when an archive record already exists.
@@ -78,6 +109,34 @@ export async function DELETE(req: Request,
   }
 
   await unarchiveItem(params.id);
+
+  const analysis = await prisma.feedbackAnalysis.findUnique({
+    where: { feedbackItemId: params.id },
+    select: { assignedToId: true, severityScore: true },
+  });
+
+  void recordAuditEvent({
+    feedbackItemId: params.id,
+    actorId: auth.userId,
+    type: "BULK_UPDATE",
+    meta: { action: "unarchive" },
+  }).catch(() => {});
+
+  if (analysis?.assignedToId && analysis.assignedToId !== auth.userId) {
+    const item = await prisma.feedbackItem.findUnique({
+      where: { id: params.id },
+      select: { title: true, externalId: true },
+    });
+    void dispatchNotification({
+      userId: analysis.assignedToId,
+      type: "feedback.unarchived",
+      title: "Assigned feedback unarchived",
+      body: `${item?.title ?? item?.externalId ?? "An assigned item"} is active again.`,
+      feedbackItemId: params.id,
+      severity: analysis.severityScore,
+      link: `/inbox/${params.id}`,
+    }).catch(() => {});
+  }
 
   return NextResponse.json({ ok: true });
 }

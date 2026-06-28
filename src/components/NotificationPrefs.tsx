@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { showToast } from "@/lib/toast";
 
 // Notification preferences management UI. Fetches the current user's prefs
 // from /api/notifications, lets them toggle email/slack, set a minimum
@@ -17,8 +18,6 @@ type Prefs = {
   updatedAt: string;
 };
 
-type Toast = { kind: "success" | "error"; message: string } | null;
-
 const DIGEST_OPTIONS: { value: Prefs["digestFrequency"]; label: string }[] = [
   { value: "daily", label: "Daily" },
   { value: "weekly", label: "Weekly" },
@@ -30,7 +29,6 @@ export function NotificationPrefs() {
   const [prefs, setPrefs] = useState<Prefs | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [toast, setToast] = useState<Toast>(null);
 
   // Local editable form state, synced from server prefs once loaded.
   const [emailEnabled, setEmailEnabled] = useState(true);
@@ -56,10 +54,10 @@ export function NotificationPrefs() {
         setDigestFrequency(data.prefs.digestFrequency);
       } catch (err) {
         if (active) {
-          setToast({
-            kind: "error",
-            message: (err as Error).message ?? "Failed to load preferences",
-          });
+          showToast(
+            (err as Error).message ?? "Failed to load preferences",
+            "error"
+          );
         }
       } finally {
         if (active) setLoading(false);
@@ -70,16 +68,8 @@ export function NotificationPrefs() {
     };
   }, []);
 
-  // Auto-dismiss toasts after a few seconds.
-  useEffect(() => {
-    if (!toast) return;
-    const t = setTimeout(() => setToast(null), 3500);
-    return () => clearTimeout(t);
-  }, [toast]);
-
   async function save() {
     setSaving(true);
-    setToast(null);
     try {
       const res = await fetch("/api/notifications", {
         method: "PATCH",
@@ -97,12 +87,12 @@ export function NotificationPrefs() {
       }
       const data = (await res.json()) as { prefs: Prefs };
       setPrefs(data.prefs);
-      setToast({ kind: "success", message: "Preferences saved" });
+      showToast("Preferences saved", "success");
     } catch (err) {
-      setToast({
-        kind: "error",
-        message: (err as Error).message ?? "Failed to save preferences",
-      });
+      showToast(
+        (err as Error).message ?? "Failed to save preferences",
+        "error"
+      );
     } finally {
       setSaving(false);
     }
@@ -110,24 +100,24 @@ export function NotificationPrefs() {
 
   if (loading) {
     return (
-      <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-        <p className="text-sm text-slate-500">Loading preferences…</p>
+      <div className="card-modern p-6">
+        <p className="text-sm text-slate-500 dark:text-slate-400">Loading preferences…</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="card-modern space-y-6 p-6">
       <div>
-        <h2 className="text-lg font-semibold text-slate-900">
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
           Notification Preferences
         </h2>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
           Control how and when you receive feedback notifications.
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-5">
         {/* Email toggle */}
         <ToggleRow
           label="Email notifications"
@@ -151,11 +141,11 @@ export function NotificationPrefs() {
           <div>
             <label
               htmlFor="minSeverity"
-              className="text-sm font-medium text-slate-700"
+              className="text-sm font-medium text-slate-700 dark:text-slate-300"
             >
               Minimum severity
             </label>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Only notify for events at or above this level (1-5)
             </p>
           </div>
@@ -172,7 +162,7 @@ export function NotificationPrefs() {
                 setMinSeverity(Math.max(1, Math.min(5, Math.trunc(v))));
               }
             }}
-            className="w-20 rounded-md border border-slate-300 px-2 py-1.5 text-sm text-slate-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-60"
+            className="input-modern w-20"
           />
         </div>
 
@@ -181,11 +171,11 @@ export function NotificationPrefs() {
           <div>
             <label
               htmlFor="digestFrequency"
-              className="text-sm font-medium text-slate-700"
+              className="text-sm font-medium text-slate-700 dark:text-slate-300"
             >
               Digest frequency
             </label>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               How often to send a summary digest
             </p>
           </div>
@@ -198,7 +188,7 @@ export function NotificationPrefs() {
                 e.target.value as Prefs["digestFrequency"]
               )
             }
-            className="rounded-md border border-slate-300 px-2 py-1.5 text-sm text-slate-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:opacity-60"
+            className="input-modern"
           >
             {DIGEST_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -213,12 +203,12 @@ export function NotificationPrefs() {
         <button
           onClick={save}
           disabled={saving}
-          className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-60"
+          className="btn-primary"
         >
           {saving ? "Saving…" : "Save preferences"}
         </button>
         {prefs && (
-          <span className="text-xs text-slate-400">
+          <span className="text-xs text-slate-400 dark:text-slate-500">
             Last updated{" "}
             {new Date(prefs.updatedAt).toLocaleDateString(undefined, {
               year: "numeric",
@@ -229,25 +219,6 @@ export function NotificationPrefs() {
         )}
       </div>
 
-      {toast && (
-        <div
-          role="status"
-          className={`flex items-center justify-between rounded-md px-3 py-2 text-sm ${
-            toast.kind === "success"
-              ? "bg-emerald-50 text-emerald-700"
-              : "bg-rose-50 text-rose-700"
-          }`}
-        >
-          <span>{toast.message}</span>
-          <button
-            onClick={() => setToast(null)}
-            className="ml-2 text-xs font-medium underline-offset-2 hover:underline"
-            aria-label="Dismiss"
-          >
-            Dismiss
-          </button>
-        </div>
-      )}
     </div>
   );
 }
@@ -269,8 +240,8 @@ function ToggleRow({
   return (
     <div className="flex items-center justify-between">
       <div>
-        <p className="text-sm font-medium text-slate-700">{label}</p>
-        <p className="text-xs text-slate-500">{description}</p>
+        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400">{description}</p>
       </div>
       <button
         type="button"
@@ -278,12 +249,12 @@ function ToggleRow({
         aria-checked={checked}
         disabled={disabled}
         onClick={() => onChange(!checked)}
-        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 ${
-          checked ? "bg-indigo-600" : "bg-slate-200"
+        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 ${
+          checked ? "bg-brand-600" : "bg-slate-200 dark:bg-slate-700"
         }`}
       >
         <span
-          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition ${
+          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition-transform duration-200 ${
             checked ? "translate-x-5" : "translate-x-0"
           }`}
         />

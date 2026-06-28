@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { showToast } from "@/lib/toast";
 
 interface UserOption {
   id: string;
@@ -53,40 +54,43 @@ export function RoutingRuleForm({ users }: { users: UserOption[] }) {
       if (!res.ok) {
         throw new Error(data.error ?? "Failed to create routing rule");
       }
+      showToast("Routing rule created", "success");
       (e.target as HTMLFormElement).reset();
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create rule");
+      const message = err instanceof Error ? err.message : "Failed to create rule";
+      setError(message);
+      showToast(message, "error");
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 className="text-sm font-semibold text-slate-800">Create a routing rule</h2>
-      <p className="mt-0.5 text-xs text-slate-500">
+    <div className="card-modern p-5">
+      <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Create a routing rule</h2>
+      <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
         A rule matches when all of its conditions are met. Leave a field blank to ignore it.
       </p>
       <form onSubmit={handleSubmit} className="mt-4 space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="block">
-            <span className="text-xs font-medium text-slate-600">Name</span>
+            <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Name</span>
             <input
               name="name"
               type="text"
               required
               maxLength={100}
-              className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-800 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="input-modern mt-1 block w-full"
               placeholder="e.g. Bug escalation"
             />
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-slate-600">Assignee</span>
+            <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Assignee</span>
             <select
               name="assigneeId"
               required
-              className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-800 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="input-modern mt-1 block w-full"
             >
               {users.map((u) => (
                 <option key={u.id} value={u.id}>
@@ -96,30 +100,30 @@ export function RoutingRuleForm({ users }: { users: UserOption[] }) {
             </select>
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-slate-600">Topics (comma-separated)</span>
+            <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Topics (comma-separated)</span>
             <input
               name="topics"
               type="text"
-              className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-800 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="input-modern mt-1 block w-full"
               placeholder="e.g. Bug Report, Performance"
             />
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-slate-600">Min severity (1-5)</span>
+            <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Min severity (1-5)</span>
             <input
               name="minSeverity"
               type="number"
               min={1}
               max={5}
-              className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-800 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="input-modern mt-1 block w-full"
               placeholder="e.g. 4"
             />
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-slate-600">Sentiment</span>
+            <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Sentiment</span>
             <select
               name="sentiment"
-              className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-800 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="input-modern mt-1 block w-full"
             >
               <option value="">Any</option>
               <option value="positive">positive</option>
@@ -128,21 +132,21 @@ export function RoutingRuleForm({ users }: { users: UserOption[] }) {
             </select>
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-slate-600">Priority (lower = higher)</span>
+            <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Priority (lower = higher)</span>
             <input
               name="priority"
               type="number"
               min={0}
               defaultValue={0}
-              className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-800 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="input-modern mt-1 block w-full"
             />
           </label>
         </div>
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>}
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60"
+          className="btn-primary"
         >
           {submitting ? "Creating…" : "Create rule"}
         </button>

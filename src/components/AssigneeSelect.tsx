@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { showToast } from "@/lib/toast";
 
 type User = { id: string; name: string | null; email: string | null };
 
@@ -27,8 +28,11 @@ export function AssigneeSelect({
         if (!res.ok) throw new Error("Failed to load users");
         const data = (await res.json()) as { users: User[] };
         if (active) setUsers(data.users);
-      } catch {
-        if (active) setError("Failed to load users");
+      } catch (err) {
+        if (active) {
+          setError("Failed to load users");
+          showToast(err instanceof Error ? err.message : "Failed to load users", "error");
+        }
       } finally {
         if (active) setLoading(false);
       }
@@ -50,13 +54,16 @@ export function AssigneeSelect({
     setSaving(false);
     if (!res.ok) {
       const data = await res.json().catch(() => ({ error: "Update failed" }));
-      setError(data.error ?? "Update failed");
+      const message = data.error ?? "Failed to assign";
+      setError(message);
+      showToast(message, "error");
       // revert selection on failure
       setSelected(currentAssigneeId ?? "");
       return;
     }
     setSelected(next);
     router.refresh();
+    showToast("Assigned", "success");
   }
 
   if (loading) {

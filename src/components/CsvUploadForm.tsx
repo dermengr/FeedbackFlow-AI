@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, Loader2, CheckCircle2, AlertCircle, FileText } from "lucide-react";
+import { showToast } from "@/lib/toast";
 
 // CSV file upload form. Posts a file to /api/ingest/upload which parses and
 // ingests the CSV as feedback items.
@@ -50,26 +51,32 @@ export function CsvUploadForm() {
       });
       const data = await res.json();
       if (res.ok) {
+        const message = `Successfully ingested ${data.ingested ?? 0} items.`;
         setResult({
           ok: true,
-          message: `Successfully ingested ${data.ingested ?? 0} items.`,
+          message,
           count: data.ingested,
         });
+        showToast(message, "success");
         // Reset and refresh after a short delay
         setTimeout(() => {
           router.refresh();
         }, 1000);
       } else {
+        const message = data.error ?? "Upload failed.";
         setResult({
           ok: false,
-          message: data.error ?? "Upload failed.",
+          message,
         });
+        showToast(message, "error");
       }
     } catch {
+      const message = "Network error during upload.";
       setResult({
         ok: false,
-        message: "Network error during upload.",
+        message,
       });
+      showToast(message, "error");
     } finally {
       setUploading(false);
     }
@@ -79,9 +86,9 @@ export function CsvUploadForm() {
     <form onSubmit={upload} className="space-y-4">
       {/* File input */}
       <div>
-        <label className="text-sm font-medium text-slate-700">CSV file</label>
+        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">CSV file</label>
         <div
-          className="mt-1 flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center"
+          className="mt-1 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center transition-colors hover:border-slate-400 dark:border-slate-600 dark:bg-slate-800"
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
             e.preventDefault();
@@ -95,21 +102,21 @@ export function CsvUploadForm() {
           }}
         >
           {file ? (
-            <div className="flex items-center gap-2 text-sm text-slate-700">
+            <div className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200">
               <FileText className="h-5 w-5 text-indigo-500" />
               <span className="font-medium">{file.name}</span>
-              <span className="text-slate-400">({(file.size / 1024).toFixed(1)} KB)</span>
+              <span className="text-slate-400 dark:text-slate-500">({(file.size / 1024).toFixed(1)} KB)</span>
             </div>
           ) : (
             <>
               <Upload className="h-8 w-8 text-slate-400" />
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                 Drag &amp; drop a CSV file here, or
               </p>
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="mt-2 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100"
+                className="mt-2 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
               >
                 Browse files
               </button>
@@ -123,22 +130,22 @@ export function CsvUploadForm() {
             className="hidden"
           />
         </div>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
           CSV must have columns: title, content, author, timestamp (optional).
         </p>
       </div>
 
       {/* Source key */}
       <div>
-        <label className="text-sm font-medium text-slate-700">Source key</label>
+        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Source key</label>
         <input
           type="text"
           value={sourceKey}
           onChange={(e) => setSourceKey(e.target.value)}
           placeholder="csv:my-export"
-          className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+          className="input-modern mt-1 block w-full"
         />
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
           Used for deduplication. Items with the same source key won&apos;t be re-ingested.
         </p>
       </div>
@@ -146,8 +153,10 @@ export function CsvUploadForm() {
       {/* Result */}
       {result && (
         <div
-          className={`flex items-start gap-2 rounded-md p-3 text-sm ${
-            result.ok ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
+          className={`flex items-start gap-2 rounded-lg p-3 text-sm ${
+            result.ok
+              ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300"
+              : "bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-300"
           }`}
         >
           {result.ok ? (
@@ -164,7 +173,7 @@ export function CsvUploadForm() {
         <button
           type="submit"
           disabled={uploading || !file}
-          className="inline-flex items-center gap-1.5 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 btn-primary disabled:cursor-not-allowed disabled:opacity-50"
         >
           {uploading ? (
             <>
@@ -186,7 +195,7 @@ export function CsvUploadForm() {
               setResult(null);
               if (fileInputRef.current) fileInputRef.current.value = "";
             }}
-            className="rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+            className="btn-secondary"
           >
             Clear
           </button>

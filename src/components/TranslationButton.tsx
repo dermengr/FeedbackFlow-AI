@@ -6,6 +6,7 @@ import {
   getLanguageLabel,
 } from "@/lib/i18n/languages";
 import { useTranslation } from "@/contexts/LocaleContext";
+import { showToast } from "@/lib/toast";
 
 interface TranslationResponse {
   translatedText: string | null;
@@ -63,10 +64,11 @@ export function TranslationButton({
       const data = (await res.json()) as TranslationResponse;
       setTranslatedText(data.translatedText);
       setDetectedLanguage(data.detectedLanguage);
+      showToast("Translation saved", "success");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to translate feedback"
-      );
+      const message = err instanceof Error ? err.message : "Failed to translate";
+      setError(message);
+      showToast(message, "error");
     } finally {
       setLoading(false);
     }

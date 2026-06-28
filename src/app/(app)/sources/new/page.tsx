@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { PageShell, PageHeader, PageSection } from "@/components/PageShell";
+import { showToast } from "@/lib/toast";
 
 // A5: Form to add a new data source config.
 export default function NewSourcePage() {
@@ -58,17 +60,21 @@ export default function NewSourcePage() {
     setSubmitting(false);
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setError(data.error ?? "Failed to create source");
+      const message = data.error ?? "Failed to create source";
+      setError(message);
+      showToast(message, "error");
       return;
     }
+    showToast("Source created", "success");
     router.push("/sources");
     router.refresh();
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-4">
-      <h1 className="text-xl font-bold text-slate-900">Add Data Source</h1>
-      <form onSubmit={submit} className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <PageShell className="mx-auto max-w-lg space-y-4">
+      <PageHeader title="Add Data Source" />
+      <PageSection>
+        <form onSubmit={submit} className="space-y-4 card-modern p-4">
         <div>
           <label className="text-sm font-medium text-slate-700">Adapter type</label>
           <select
@@ -83,7 +89,7 @@ export default function NewSourcePage() {
                 setConfigJson('{\n  "owner": "vercel",\n  "repo": "next.js"\n}');
               }
             }}
-            className="mt-1 block w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+            className="input-modern mt-1 block w-full"
           >
             <option value="github">GitHub Issues</option>
             <option value="reddit">Reddit</option>
@@ -97,7 +103,7 @@ export default function NewSourcePage() {
             value={label}
             onChange={(e) => setLabel(e.target.value)}
             placeholder="e.g. GitHub Issues — vercel/next.js"
-            className="mt-1 block w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+            className="input-modern mt-1 block w-full"
           />
         </div>
         <div>
@@ -108,7 +114,7 @@ export default function NewSourcePage() {
             value={configJson}
             onChange={(e) => setConfigJson(e.target.value)}
             rows={6}
-            className="mt-1 block w-full rounded-md border border-slate-300 px-2 py-1.5 font-mono text-xs"
+            className="input-modern mt-1 block w-full font-mono text-xs"
           />
           {sourceKeyPreview && (
             <p className="mt-1 text-xs text-slate-500">
@@ -116,24 +122,25 @@ export default function NewSourcePage() {
             </p>
           )}
         </div>
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>}
         <div className="flex gap-2">
           <button
             type="submit"
             disabled={submitting}
-            className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+            className="btn-primary"
           >
             {submitting ? "Creating..." : "Create source"}
           </button>
           <button
             type="button"
             onClick={() => router.back()}
-            className="rounded-md border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
+            className="btn-secondary"
           >
             Cancel
           </button>
         </div>
       </form>
-    </div>
+    </PageSection>
+  </PageShell>
   );
 }

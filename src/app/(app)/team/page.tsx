@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { getTeamMetrics, getPeriodRange, type MetricsPeriod } from "@/lib/team-metrics";
 import { formatDate } from "@/lib/utils";
+import { PageShell, PageHeader, PageSection } from "@/components/PageShell";
 
 export const dynamic = "force-dynamic";
 
@@ -39,37 +40,38 @@ export default async function TeamPage({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Team Performance Metrics</h1>
-          <p className="text-sm text-slate-500">
-            Per-team-member triage performance for the selected period.
-          </p>
-        </div>
-        <div className="flex gap-1 rounded-md border border-slate-200 bg-white p-1">
-          {PERIODS.map((p) => (
-            <a
-              key={p}
-              href={`/team?period=${p}`}
-              className={`rounded px-3 py-1 text-sm font-medium capitalize transition-colors ${
-                p === period
-                  ? "bg-indigo-600 text-white"
-                  : "text-slate-600 hover:bg-slate-100"
-              }`}
-            >
-              {p}
-            </a>
-          ))}
-        </div>
-      </div>
+    <PageShell className="space-y-6">
+      <PageHeader
+        title="Team Performance Metrics"
+        description="Per-team-member triage performance for the selected period."
+        actions={
+          <div className="flex gap-1 rounded-md border border-slate-200 bg-white p-1">
+            {PERIODS.map((p) => (
+              <a
+                key={p}
+                href={`/team?period=${p}`}
+                className={`rounded px-3 py-1 text-sm font-medium capitalize transition-colors ${
+                  p === period
+                    ? "bg-indigo-600 text-white"
+                    : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                {p}
+              </a>
+            ))}
+          </div>
+        }
+      />
 
-      <p className="text-xs text-slate-400">
-        Period: {formatDate(periodStart)} — {formatDate(periodEnd)}
-      </p>
+      <PageSection>
+        <p className="text-xs text-slate-400">
+          Period: {formatDate(periodStart)} — {formatDate(periodEnd)}
+        </p>
+      </PageSection>
 
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-        <table className="min-w-full divide-y divide-slate-200">
+      <PageSection>
+        <div className="overflow-hidden card-modern">
+          <table className="min-w-full divide-y divide-slate-200">
           <thead className="bg-slate-50">
             <tr>
               <Th>Name</Th>
@@ -126,7 +128,8 @@ export default async function TeamPage({
           </tbody>
         </table>
       </div>
-    </div>
+    </PageSection>
+  </PageShell>
   );
 }
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { formatDate } from "@/lib/utils";
+import { showToast } from "@/lib/toast";
 
 type Author = {
   id: string;
@@ -39,7 +40,9 @@ export function Comments({ feedbackItemId }: { feedbackItemId: string }) {
       const data = (await res.json()) as { comments: Comment[] };
       setComments(data.comments);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load comments");
+      const message = err instanceof Error ? err.message : "Failed to load comments";
+      setError(message);
+      showToast(message, "error");
     } finally {
       setLoading(false);
     }
@@ -70,8 +73,11 @@ export function Comments({ feedbackItemId }: { feedbackItemId: string }) {
       const created = (await res.json()) as Comment;
       setComments((prev) => [...prev, created]);
       setNewComment("");
+      showToast("Comment posted", "success");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to add comment");
+      const message = err instanceof Error ? err.message : "Failed to post comment";
+      setError(message);
+      showToast(message, "error");
     } finally {
       setSubmitting(false);
     }

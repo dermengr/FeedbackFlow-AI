@@ -1,0 +1,11 @@
+export { AdminDashboard } from "./AdminDashboard";
+export { ManagerDashboard } from "./ManagerDashboard";
+export { AnalystDashboard } from "./AnalystDashboard";
+export { SupportAgentDashboard } from "./SupportAgentDashboard";
+export { ViewerDashboard } from "./ViewerDashboard";
+export { DeveloperDashboard } from "./DeveloperDashboard";
+export { QaEngineerDashboard } from "./QaEngineerDashboard";
+export { ProductOwnerDashboard } from "./ProductOwnerDashboard";
+export { MarketingDashboard } from "./MarketingDashboard";
+export { SalesDashboard } from "./SalesDashboard";
+export type { RoleDashboardProps } from "./types";

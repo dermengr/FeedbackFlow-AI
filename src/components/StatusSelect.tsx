@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FEEDBACK_STATUSES, FeedbackStatus } from "@/lib/types";
 import { StatusBadge } from "@/components/Badges";
+import { showToast } from "@/lib/toast";
 
 export function StatusSelect({
   itemId,
@@ -29,11 +30,14 @@ export function StatusSelect({
     setSaving(false);
     if (!res.ok) {
       const data = await res.json().catch(() => ({ error: "Update failed" }));
-      setError(data.error ?? "Update failed");
+      const message = data.error ?? "Failed to update status";
+      setError(message);
+      showToast(message, "error");
       return;
     }
     setCurrent(next);
     router.refresh();
+    showToast("Status updated", "success");
   }
 
   return (

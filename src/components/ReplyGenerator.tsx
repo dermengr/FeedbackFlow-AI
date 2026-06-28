@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { TemplatePicker } from "@/components/TemplatePicker";
+import { showToast } from "@/lib/toast";
 
 /**
  * Auto-Reply Generator.
@@ -35,8 +36,11 @@ export function ReplyGenerator({ feedbackItemId }: { feedbackItemId: string }) {
       }
       const data = (await res.json()) as { reply: string };
       setReply(data.reply);
+      showToast("Reply generated", "success");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to generate reply");
+      const message = err instanceof Error ? err.message : "Failed to generate reply";
+      setError(message);
+      showToast(message, "error");
     } finally {
       setLoading(false);
     }
@@ -48,8 +52,11 @@ export function ReplyGenerator({ feedbackItemId }: { feedbackItemId: string }) {
       await navigator.clipboard.writeText(reply);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+      showToast("Reply copied", "success");
     } catch {
-      setError("Failed to copy to clipboard");
+      const message = "Failed to copy reply";
+      setError(message);
+      showToast(message, "error");
     }
   }
 

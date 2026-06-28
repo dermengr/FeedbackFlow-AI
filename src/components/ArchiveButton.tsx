@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { showToast } from "@/lib/toast";
 
 type Props = {
   feedbackItemId: string;
@@ -28,11 +29,14 @@ export function ArchiveButton({ feedbackItemId, isArchived }: Props) {
     setBusy(false);
     if (!res.ok) {
       const data = await res.json().catch(() => ({ error: "Archive failed" }));
-      setError(data.error ?? "Archive failed");
+      const message = data.error ?? "Failed to archive";
+      setError(message);
+      showToast(message, "error");
       return;
     }
     setShowConfirm(false);
     setReason("");
+    showToast("Archived", "success");
     window.location.reload();
   }
 
@@ -47,9 +51,12 @@ export function ArchiveButton({ feedbackItemId, isArchived }: Props) {
       const data = await res
         .json()
         .catch(() => ({ error: "Unarchive failed" }));
-      setError(data.error ?? "Unarchive failed");
+      const message = data.error ?? "Failed to unarchive";
+      setError(message);
+      showToast(message, "error");
       return;
     }
+    showToast("Unarchived", "success");
     window.location.reload();
   }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { showToast } from "@/lib/toast";
 
 // Mirror of the WidgetDto returned by /api/widgets, plus the `data` payload
 // enriched by the server.
@@ -211,10 +212,13 @@ export function WidgetGrid() {
       if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
       setShowForm(false);
       setFormTitle("");
+      showToast("Widget added", "success");
       await load();
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : "Failed to add widget");
+      const message = err instanceof Error ? err.message : "Failed to add widget";
+      setErrorMsg(message);
       setStatus("error");
+      showToast(message, "error");
     } finally {
       setSubmitting(false);
     }
@@ -225,36 +229,39 @@ export function WidgetGrid() {
       const res = await fetch(`/api/widgets/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
       setWidgets((prev) => prev.filter((w) => w.id !== id));
+      showToast("Widget removed", "success");
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : "Failed to remove widget");
+      const message = err instanceof Error ? err.message : "Failed to remove widget";
+      setErrorMsg(message);
       setStatus("error");
+      showToast(message, "error");
     }
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-slate-700">Dashboard Widgets</h2>
+        <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Dashboard Widgets</h2>
         <button
           type="button"
           onClick={() => setShowForm((v) => !v)}
-          className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="btn-primary py-1.5 text-xs"
         >
           Add Widget
         </button>
       </div>
 
       {showForm && (
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="card-modern p-4">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="text-sm">
-              <span className="block text-xs font-medium uppercase tracking-wide text-slate-500">
+              <span className="block text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Type
               </span>
               <select
                 value={formType}
                 onChange={(e) => setFormType(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm text-slate-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="input-modern mt-1 block w-full"
               >
                 {WIDGET_TYPE_OPTIONS.map((o) => (
                   <option key={o.value} value={o.value}>
@@ -264,7 +271,7 @@ export function WidgetGrid() {
               </select>
             </label>
             <label className="text-sm">
-              <span className="block text-xs font-medium uppercase tracking-wide text-slate-500">
+              <span className="block text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Title
               </span>
               <input
@@ -272,7 +279,7 @@ export function WidgetGrid() {
                 value={formTitle}
                 onChange={(e) => setFormTitle(e.target.value)}
                 placeholder="Widget title"
-                className="mt-1 block w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm text-slate-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="input-modern mt-1 block w-full"
               />
             </label>
           </div>
@@ -280,7 +287,7 @@ export function WidgetGrid() {
             <button
               type="button"
               onClick={() => setShowForm(false)}
-              className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
+              className="btn-secondary py-1.5 text-xs"
             >
               Cancel
             </button>
@@ -288,7 +295,7 @@ export function WidgetGrid() {
               type="button"
               onClick={handleAdd}
               disabled={submitting || !formTitle.trim()}
-              className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+              className="btn-primary py-1.5 text-xs disabled:opacity-50"
             >
               {submitting ? "Adding…" : "Add"}
             </button>
@@ -297,14 +304,14 @@ export function WidgetGrid() {
       )}
 
       {status === "loading" && (
-        <p className="text-sm text-slate-400">Loading widgets…</p>
+        <p className="text-sm text-slate-400 dark:text-slate-500">Loading widgets…</p>
       )}
       {status === "error" && (
-        <p className="text-sm text-red-600">{errorMsg}</p>
+        <p className="text-sm text-rose-600 dark:text-rose-400">{errorMsg}</p>
       )}
 
       {status === "ready" && widgets.length === 0 && (
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-slate-400 dark:text-slate-500">
           No widgets yet. Click “Add Widget” to create one.
         </p>
       )}
@@ -314,20 +321,20 @@ export function WidgetGrid() {
           {widgets.map((w) => (
             <div
               key={w.id}
-              className="relative rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+              className="relative rounded-xl border border-slate-200 bg-white p-4 shadow-soft dark:border-slate-700 dark:bg-slate-800"
             >
               <button
                 type="button"
                 aria-label="Remove widget"
                 onClick={() => handleRemove(w.id)}
-                className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:hover:bg-slate-700 dark:hover:text-slate-300"
               >
                 ✕
               </button>
-              <h3 className="pr-6 text-sm font-semibold text-slate-700">
+              <h3 className="pr-6 text-sm font-semibold text-slate-700 dark:text-slate-200">
                 {w.title}
               </h3>
-              <p className="mb-3 text-xs uppercase tracking-wide text-slate-400">
+              <p className="mb-3 text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">
                 {w.type.replace(/_/g, " ")}
               </p>
               <WidgetBody widget={w} />

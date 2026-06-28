@@ -13,9 +13,11 @@ export default async function AppLayout({
     redirect("/login");
   }
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen gradient-bg">
       <Navbar />
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">{children}</main>
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+        {children}
+      </main>
     </div>
   );
 }

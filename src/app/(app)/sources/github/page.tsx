@@ -1,6 +1,7 @@
 import { GitHubRepoForm } from "@/components/GitHubRepoForm";
 import { Github, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { PageShell, PageHeader, PageSection } from "@/components/PageShell";
 
 export const dynamic = "force-dynamic";
 
@@ -8,36 +9,37 @@ export const dynamic = "force-dynamic";
 // Lets users paste a GitHub URL to quickly create a feedback ingestion source.
 export default function AddGitHubSourcePage() {
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <Link
-        href="/sources"
-        className="inline-flex items-center gap-1 text-sm font-medium text-slate-600 hover:text-slate-900"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to sources
-      </Link>
+    <PageShell className="mx-auto max-w-2xl space-y-6">
+      <PageSection>
+        <Link
+          href="/sources"
+          className="inline-flex items-center gap-1 text-sm font-medium text-slate-600 hover:text-slate-900"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to sources
+        </Link>
+      </PageSection>
 
-      <div>
+      <PageSection>
         <div className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900 text-white">
             <Github className="h-5 w-5" />
           </span>
-          <div>
-            <h1 className="text-xl font-bold text-slate-900">
-              Add GitHub Repository
-            </h1>
-            <p className="text-sm text-slate-500">
-              Paste a GitHub repo URL to start ingesting its issues as feedback.
-            </p>
-          </div>
+          <PageHeader
+            title="Add GitHub Repository"
+            description="Paste a GitHub repo URL to start ingesting its issues as feedback."
+          />
         </div>
-      </div>
+      </PageSection>
 
-      <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-        <GitHubRepoForm />
-      </div>
+      <PageSection>
+        <div className="card-modern p-6">
+          <GitHubRepoForm />
+        </div>
+      </PageSection>
 
-      <div className="rounded-lg bg-slate-50 p-4 text-sm text-slate-600">
+      <PageSection>
+        <div className="rounded-lg bg-slate-50 p-4 text-sm text-slate-600">
         <h2 className="mb-2 font-semibold text-slate-700">How it works</h2>
         <ol className="list-inside list-decimal space-y-1">
           <li>Paste any GitHub repository URL above.</li>
@@ -53,6 +55,7 @@ export default function AddGitHubSourcePage() {
           </li>
         </ol>
       </div>
-    </div>
+    </PageSection>
+  </PageShell>
   );
 }

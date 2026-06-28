@@ -39,9 +39,9 @@ export function Filters({ topicOptions }: Props) {
   const topics = topicOptions ?? [...TOPIC_TAXONOMY];
 
   return (
-    <div className="space-y-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="card-modern space-y-3 p-4">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
           Sentiment
         </span>
         {SENTIMENTS.map((s) => (
@@ -55,7 +55,7 @@ export function Filters({ topicOptions }: Props) {
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
           Severity ≥
         </span>
         {[1, 2, 3, 4, 5].map((n) => (
@@ -71,7 +71,7 @@ export function Filters({ topicOptions }: Props) {
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
           Status
         </span>
         {FEEDBACK_STATUSES.map((s) => (
@@ -85,7 +85,7 @@ export function Filters({ topicOptions }: Props) {
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
           Topic
         </span>
         {topics.map((t) => (
@@ -99,7 +99,7 @@ export function Filters({ topicOptions }: Props) {
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
           Sort
         </span>
         {[
@@ -114,7 +114,7 @@ export function Filters({ topicOptions }: Props) {
             label={o.l}
           />
         ))}
-        <span className="text-slate-300">|</span>
+        <span className="text-slate-300 dark:text-slate-600">|</span>
         <Toggle
           active={params.get("order") === "asc"}
           onClick={() =>
@@ -127,7 +127,7 @@ export function Filters({ topicOptions }: Props) {
       {params.toString() && (
         <button
           onClick={() => router.push("/inbox")}
-          className="text-xs font-medium text-brand-700 hover:text-brand-800"
+          className="text-xs font-semibold text-brand-600 transition-colors hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
         >
           Clear filters
         </button>
@@ -148,10 +148,10 @@ function Toggle({
   return (
     <button
       onClick={onClick}
-      className={`rounded-full px-2.5 py-1 text-xs font-medium capitalize transition-colors ${
+      className={`rounded-full px-2.5 py-1 text-xs font-medium capitalize transition-all duration-200 ${
         active
-          ? "bg-brand-600 text-white"
-          : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+          ? "bg-brand-600 text-white shadow-sm shadow-brand-500/30 hover:bg-brand-700"
+          : "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
       }`}
     >
       {label}

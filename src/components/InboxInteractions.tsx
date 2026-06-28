@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import { BulkActionBar } from "@/components/BulkActionBar";
 import { KeyboardHelp } from "@/components/KeyboardHelp";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { showToast } from "@/lib/toast";
 
 // Client-side interactions for the inbox: row selection (checkboxes),
 // bulk action bar, and keyboard shortcuts help overlay.
@@ -68,6 +69,7 @@ export function InboxInteractions({ itemIds }: { itemIds: string[] }) {
         onClear={clear}
         onDone={() => {
           clear();
+          showToast("Bulk update applied", "success");
           window.location.reload();
         }}
       />

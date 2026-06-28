@@ -33,6 +33,7 @@
     "@prisma/client": "^5.22.0",
     "@types/papaparse": "^5.5.2",
     "bcryptjs": "^2.4.3",
+    "framer-motion": "^12.40.0",
     "lucide-react": "^0.454.0",
     "next": "^14.2.35",
     "next-auth": "^4.24.10",
@@ -42,6 +43,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "recharts": "^2.13.3",
+    "sonner": "^1.5.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

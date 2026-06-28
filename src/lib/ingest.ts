@@ -4,6 +4,7 @@ import { analyzeBatch } from "@/lib/llm";
 import { notifyHighSeverity } from "@/lib/slack";
 import { applyRoutingRules } from "@/lib/routing";
 import { dispatchWebhooks } from "@/lib/webhooks";
+import { dispatchNotification } from "@/lib/notification-dispatch";
 import { RawFeedbackItem } from "@/lib/types";
 import { randomUUID } from "crypto";
 
@@ -178,6 +179,23 @@ export async function runIngest(opts: IngestOptions = {}): Promise<IngestResult>
           await dispatchWebhooks("feedback.escalated", webhookPayload);
         } catch (e) {
           console.warn(`[ingest] slack notify failed: ${(e as Error).message}`);
+        }
+      }
+
+      // 6. In-app + email notification to the assigned user (if any).
+      if (assigneeId && createdItemId) {
+        try {
+          await dispatchNotification({
+            userId: assigneeId,
+            type: "feedback.assigned",
+            title: "New feedback assigned to you",
+            body: item.title ?? item.externalId,
+            feedbackItemId: createdItemId,
+            severity: analysis.severity_score,
+            link: `/inbox/${createdItemId}`,
+          });
+        } catch (e) {
+          console.warn(`[ingest] assignee notification failed: ${(e as Error).message}`);
         }
       }
     } catch (err) {

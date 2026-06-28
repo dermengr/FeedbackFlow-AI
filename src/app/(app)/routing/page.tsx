@@ -5,6 +5,7 @@ import { listRoutingRules } from "@/lib/routing";
 import type { RoutingConditions } from "@/lib/routing";
 import { RoutingRuleForm } from "@/components/RoutingRuleForm";
 import { EnabledToggle } from "@/components/RoutingRuleActions";
+import { PageShell, PageHeader, PageSection } from "@/components/PageShell";
 
 export const dynamic = "force-dynamic";
 
@@ -23,22 +24,20 @@ export default async function RoutingRulesPage() {
   ]);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Routing Rules</h1>
-        <p className="text-sm text-slate-500">
-          Auto-assign incoming feedback to the right person based on
-          sentiment, topics, and severity.
-        </p>
-      </div>
+    <PageShell className="space-y-6">
+      <PageHeader
+        title="Routing Rules"
+        description="Auto-assign incoming feedback to the right person based on sentiment, topics, and severity."
+      />
 
-      {rules.length === 0 ? (
-        <div className="rounded-lg border border-slate-200 bg-white p-8 text-center text-sm text-slate-400">
-          No routing rules configured. Create a rule to start auto-assigning
-          feedback.
-        </div>
-      ) : (
-        <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <PageSection>
+        {rules.length === 0 ? (
+          <div className="card-modern p-8 text-center text-sm text-slate-400">
+            No routing rules configured. Create a rule to start auto-assigning
+            feedback.
+          </div>
+        ) : (
+          <div className="overflow-hidden card-modern">
           <table className="min-w-full divide-y divide-slate-200 text-sm">
             <thead className="bg-slate-50">
               <tr className="text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -73,9 +72,12 @@ export default async function RoutingRulesPage() {
           </table>
         </div>
       )}
+    </PageSection>
 
+    <PageSection>
       <RoutingRuleForm users={users} />
-    </div>
+    </PageSection>
+  </PageShell>
   );
 }
 

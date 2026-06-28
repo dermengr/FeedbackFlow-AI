@@ -5,6 +5,7 @@ import { formatDate } from "@/lib/utils";
 import Link from "next/link";
 import { Github, Upload } from "lucide-react";
 import { RunAllButton, SourceRowActions } from "@/components/SourceActions";
+import { PageShell, PageHeader, PageSection } from "@/components/PageShell";
 
 export const dynamic = "force-dynamic";
 
@@ -41,53 +42,52 @@ export default async function SourcesPage() {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900">Data Sources</h1>
-          <p className="text-sm text-slate-500">
-            Configure and monitor ingestion sources.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Link
-            href="/sources/github"
-            className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
-          >
-            <Github className="h-4 w-4" />
-            Add GitHub repo
-          </Link>
-          <Link
-            href="/sources/upload"
-            className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-          >
-            <Upload className="h-4 w-4" />
-            Upload CSV
-          </Link>
-          <Link
-            href="/sources/new"
-            className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
-          >
-            + Add source
-          </Link>
-          <RunAllButton />
-        </div>
-      </div>
+    <PageShell className="space-y-6">
+      <PageHeader
+        title="Data Sources"
+        description="Configure and monitor ingestion sources."
+        actions={
+          <div className="flex gap-2">
+            <Link
+              href="/sources/github"
+              className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
+            >
+              <Github className="h-4 w-4" />
+              Add GitHub repo
+            </Link>
+            <Link
+              href="/sources/upload"
+              className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            >
+              <Upload className="h-4 w-4" />
+              Upload CSV
+            </Link>
+            <Link
+              href="/sources/new"
+              className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
+            >
+              + Add source
+            </Link>
+            <RunAllButton />
+          </div>
+        }
+      />
 
-      {sources.length === 0 ? (
-        <div className="rounded-lg border border-slate-200 bg-white p-8 text-center text-sm text-slate-400">
-          No sources configured. Add a source to start ingesting feedback.
-        </div>
-      ) : (
-        <div className="grid gap-4">
-          {sources.map((src) => {
-            const total = totalsMap.get(src.id);
-            const lastRun = src.ingestLogs[0];
-            return (
-              <div
-                key={src.id}
-                className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
-              >
+      <PageSection>
+        {sources.length === 0 ? (
+          <div className="card-modern p-8 text-center text-sm text-slate-400">
+            No sources configured. Add a source to start ingesting feedback.
+          </div>
+        ) : (
+          <div className="grid gap-4">
+            {sources.map((src) => {
+              const total = totalsMap.get(src.id);
+              const lastRun = src.ingestLogs[0];
+              return (
+                <div
+                  key={src.id}
+                  className="card-modern p-4"
+                >
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center gap-2">
@@ -150,7 +150,8 @@ export default async function SourcesPage() {
           })}
         </div>
       )}
-    </div>
+    </PageSection>
+  </PageShell>
   );
 }
 

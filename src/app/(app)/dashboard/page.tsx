@@ -3,7 +3,6 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { RoleDashboard } from "@/components/RoleDashboard";
 import { getUserRoles, type RoleName } from "@/lib/roles";
-import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -119,39 +118,20 @@ export default async function DashboardPage() {
   const primaryRole = roles[0] ?? "Viewer";
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">
-            {primaryRole} Dashboard
-          </h1>
-          <p className="text-sm text-slate-500">
-            Welcome back{session?.user?.name ? `, ${session.user.name}` : ""}. Here&apos;s the latest feedback overview.
-          </p>
-        </div>
-        {data.lastRun && (
-          <div className="rounded-md border border-slate-200 bg-white px-3 py-2 text-xs text-slate-500">
-            Last ingest:{" "}
-            <span className="font-medium text-slate-700">{data.lastRun.status}</span>{" "}
-            • {data.lastRun.itemsNew} new • {formatDate(data.lastRun.createdAt)}
-          </div>
-        )}
-      </div>
-
-      <RoleDashboard
-        role={primaryRole}
-        sentimentData={sentimentData}
-        severityData={severityData}
-        emotionData={emotionData}
-        topicDistribution={data.topicDistribution}
-        sentimentTrend={data.sentimentTrend}
-        highSeverity={data.highSeverity}
-        totalAnalyses={data.totalAnalyses}
-        positive={positive}
-        negative={negative}
-        neutral={neutral}
-        highSeverityCount={highSeverityCount}
-      />
-    </div>
+    <RoleDashboard
+      role={primaryRole}
+      sentimentData={sentimentData}
+      severityData={severityData}
+      emotionData={emotionData}
+      topicDistribution={data.topicDistribution}
+      sentimentTrend={data.sentimentTrend}
+      highSeverity={data.highSeverity}
+      totalAnalyses={data.totalAnalyses}
+      positive={positive}
+      negative={negative}
+      neutral={neutral}
+      highSeverityCount={highSeverityCount}
+      lastRun={data.lastRun}
+    />
   );
 }

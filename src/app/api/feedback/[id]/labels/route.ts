@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { PERMISSIONS } from "@/lib/roles";
 import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { prisma } from "@/lib/prisma";
+import { recordAuditEvent } from "@/lib/audit";
 
 // GET /api/feedback/:id/labels - labels assigned to this feedback item
 export async function GET(req: Request,
@@ -105,6 +106,13 @@ export async function POST(
     throw err;
   }
 
+  void recordAuditEvent({
+    feedbackItemId: params.id,
+    actorId: auth.userId,
+    type: "LABEL_ADD",
+    meta: { labelId, labelName: label.name },
+  }).catch(() => {});
+
   return NextResponse.json({ ok: true }, { status: 201 });
 }
 
@@ -151,6 +159,13 @@ export async function DELETE(
       },
     },
   });
+
+  void recordAuditEvent({
+    feedbackItemId: params.id,
+    actorId: auth.userId,
+    type: "LABEL_REMOVE",
+    meta: { labelId },
+  }).catch(() => {});
 
   return NextResponse.json({ ok: true });
 }

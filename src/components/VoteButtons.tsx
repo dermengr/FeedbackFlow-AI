@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { showToast } from "@/lib/toast";
 
 type VoteType = "up" | "down" | "heart";
 
@@ -65,7 +66,9 @@ export function VoteButtons({ feedbackItemId }: { feedbackItemId: string }) {
       const data = (await res.json()) as VoteSummary;
       setSummary(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load votes");
+      const message = err instanceof Error ? err.message : "Failed to load votes";
+      setError(message);
+      showToast(message, "error");
     } finally {
       setLoading(false);
     }
@@ -109,8 +112,11 @@ export function VoteButtons({ feedbackItemId }: { feedbackItemId: string }) {
       }
       const data = (await res.json()) as VoteSummary;
       setSummary(data);
+      showToast("Vote recorded", "success");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update vote");
+      const message = err instanceof Error ? err.message : "Failed to vote";
+      setError(message);
+      showToast(message, "error");
     } finally {
       setPending(null);
     }

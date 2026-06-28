@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils";
 import Link from "next/link";
 import { RetryIngestButton } from "@/components/SourceActions";
+import { PageShell, PageHeader, PageSection } from "@/components/PageShell";
 
 export const dynamic = "force-dynamic";
 
@@ -63,145 +64,140 @@ export default async function IngestLogsPage({
   });
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900">Ingest Logs</h1>
-          <p className="text-sm text-slate-500">
-            History of all ingestion runs.
-          </p>
-        </div>
-        <RetryIngestButton />
-      </div>
+    <PageShell className="space-y-6">
+      <PageHeader
+        title="Ingest Logs"
+        description="History of all ingestion runs."
+        actions={<RetryIngestButton />}
+      />
 
       {/* Source filter */}
-      <form method="get" action="/admin/logs" className="flex items-center gap-2">
-        <input type="hidden" name="page" value="1" />
-        {pageSize !== 20 && (
-          <input type="hidden" name="pageSize" value={String(pageSize)} />
-        )}
-        <label className="text-sm text-slate-600" htmlFor="source-filter">
-          Source:
-        </label>
-        <select
-          id="source-filter"
-          name="source"
-          defaultValue={source ?? ""}
-          className="rounded-md border border-slate-300 px-2 py-1 text-sm text-slate-700"
-        >
-          <option value="">All sources</option>
-          {distinctSources.map((s) => (
-            <option key={s.source} value={s.source}>
-              {s.source}
-            </option>
-          ))}
-        </select>
-        <button
-          type="submit"
-          className="rounded-md border border-slate-300 px-3 py-1 text-sm font-medium text-slate-700 hover:bg-slate-50"
-        >
-          Filter
-        </button>
-        {source && (
-          <Link
-            href={`/admin/logs?page=1&pageSize=${pageSize}`}
-            className="text-sm text-slate-500 hover:text-slate-700"
+      <PageSection>
+        <form method="get" action="/admin/logs" className="flex items-center gap-2">
+          <input type="hidden" name="page" value="1" />
+          {pageSize !== 20 && (
+            <input type="hidden" name="pageSize" value={String(pageSize)} />
+          )}
+          <label className="text-sm text-slate-600" htmlFor="source-filter">
+            Source:
+          </label>
+          <select
+            id="source-filter"
+            name="source"
+            defaultValue={source ?? ""}
+            className="input-modern"
           >
-            Clear
-          </Link>
-        )}
-      </form>
+            <option value="">All sources</option>
+            {distinctSources.map((s) => (
+              <option key={s.source} value={s.source}>
+                {s.source}
+              </option>
+            ))}
+          </select>
+          <button type="submit" className="btn-secondary">
+            Filter
+          </button>
+          {source && (
+            <Link
+              href={`/admin/logs?page=1&pageSize=${pageSize}`}
+              className="text-sm text-slate-500 hover:text-slate-700"
+            >
+              Clear
+            </Link>
+          )}
+        </form>
+      </PageSection>
 
       {logs.length === 0 ? (
-        <div className="rounded-lg border border-slate-200 bg-white p-8 text-center text-sm text-slate-400">
-          No ingest logs found.
-        </div>
+        <PageSection>
+          <div className="card-modern p-8 text-center text-sm text-slate-400">
+            No ingest logs found.
+          </div>
+        </PageSection>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                <th className="px-4 py-2">Date</th>
-                <th className="px-4 py-2">Source</th>
-                <th className="px-4 py-2">Status</th>
-                <th className="px-4 py-2 text-right">Fetched</th>
-                <th className="px-4 py-2 text-right">New</th>
-                <th className="px-4 py-2 text-right">Skipped</th>
-                <th className="px-4 py-2">Error</th>
-              </tr>
-            </thead>
-            <tbody>
-              {logs.map((log) => (
-                <tr
-                  key={log.id}
-                  className="border-b border-slate-100 hover:bg-slate-50"
-                >
-                  <td className="whitespace-nowrap px-4 py-2 text-slate-600">
-                    {formatDate(log.createdAt)}
-                  </td>
-                  <td className="px-4 py-2 text-slate-700">{log.source}</td>
-                  <td className="px-4 py-2">
-                    <StatusBadge status={log.status} />
-                  </td>
-                  <td className="px-4 py-2 text-right text-slate-700">
-                    {log.itemsFetched}
-                  </td>
-                  <td className="px-4 py-2 text-right text-slate-700">
-                    {log.itemsNew}
-                  </td>
-                  <td className="px-4 py-2 text-right text-slate-700">
-                    {log.itemsSkipped}
-                  </td>
-                  <td
-                    className="max-w-xs truncate px-4 py-2 text-slate-500"
-                    title={log.error ?? ""}
-                  >
-                    {log.error
-                      ? log.error.length > 80
-                        ? log.error.slice(0, 80) + "…"
-                        : log.error
-                      : "—"}
-                  </td>
+        <PageSection>
+          <div className="card-modern overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  <th className="px-4 py-2">Date</th>
+                  <th className="px-4 py-2">Source</th>
+                  <th className="px-4 py-2">Status</th>
+                  <th className="px-4 py-2 text-right">Fetched</th>
+                  <th className="px-4 py-2 text-right">New</th>
+                  <th className="px-4 py-2 text-right">Skipped</th>
+                  <th className="px-4 py-2">Error</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {logs.map((log) => (
+                  <tr
+                    key={log.id}
+                    className="border-b border-slate-100 hover:bg-slate-50"
+                  >
+                    <td className="whitespace-nowrap px-4 py-2 text-slate-600">
+                      {formatDate(log.createdAt)}
+                    </td>
+                    <td className="px-4 py-2 text-slate-700">{log.source}</td>
+                    <td className="px-4 py-2">
+                      <StatusBadge status={log.status} />
+                    </td>
+                    <td className="px-4 py-2 text-right text-slate-700">
+                      {log.itemsFetched}
+                    </td>
+                    <td className="px-4 py-2 text-right text-slate-700">
+                      {log.itemsNew}
+                    </td>
+                    <td className="px-4 py-2 text-right text-slate-700">
+                      {log.itemsSkipped}
+                    </td>
+                    <td
+                      className="max-w-xs truncate px-4 py-2 text-slate-500"
+                      title={log.error ?? ""}
+                    >
+                      {log.error
+                        ? log.error.length > 80
+                          ? log.error.slice(0, 80) + "…"
+                          : log.error
+                        : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </PageSection>
       )}
 
       {/* Pagination */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-500">
-          Page {page} of {totalPages} · {total} total
-        </p>
-        <div className="flex gap-2">
-          {hasPrev ? (
-            <Link
-              href={pageHref(page - 1)}
-              className="rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-            >
-              Previous
-            </Link>
-          ) : (
-            <span className="cursor-not-allowed rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-300">
-              Previous
-            </span>
-          )}
-          {hasNext ? (
-            <Link
-              href={pageHref(page + 1)}
-              className="rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-            >
-              Next
-            </Link>
-          ) : (
-            <span className="cursor-not-allowed rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-300">
-              Next
-            </span>
-          )}
+      <PageSection>
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-slate-500">
+            Page {page} of {totalPages} · {total} total
+          </p>
+          <div className="flex gap-2">
+            {hasPrev ? (
+              <Link href={pageHref(page - 1)} className="btn-secondary">
+                Previous
+              </Link>
+            ) : (
+              <span className="cursor-not-allowed rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-300">
+                Previous
+              </span>
+            )}
+            {hasNext ? (
+              <Link href={pageHref(page + 1)} className="btn-secondary">
+                Next
+              </Link>
+            ) : (
+              <span className="cursor-not-allowed rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-300">
+                Next
+              </span>
+            )}
+          </div>
         </div>
-      </div>
-    </div>
+      </PageSection>
+    </PageShell>
   );
 }
 

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { VALID_EVENTS } from "@/lib/webhook-constants";
+import { showToast } from "@/lib/toast";
 
 export function WebhookCreateForm() {
   const [busy, setBusy] = useState(false);
@@ -29,11 +30,16 @@ export function WebhookCreateForm() {
         body: JSON.stringify(body),
       });
       if (res.ok) {
+        showToast("Webhook created", "success");
         window.location.reload();
       } else {
         const data = await res.json().catch(() => ({}));
-        setError(data.error ?? "Failed to create webhook");
+        const message = data.error ?? "Failed to create webhook";
+        setError(message);
+        showToast(message, "error");
       }
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Failed to create webhook", "error");
     } finally {
       setBusy(false);
     }

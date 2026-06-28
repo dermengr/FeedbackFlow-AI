@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { showToast } from "@/lib/toast";
 
 export function WebhookRowActions({
   webhookId,
@@ -16,12 +17,20 @@ export function WebhookRowActions({
   async function handleToggle() {
     setLoading(true);
     try {
-      await fetch(`/api/webhooks/${webhookId}`, {
+      const res = await fetch(`/api/webhooks/${webhookId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ enabled: !enabled }),
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.error ?? "Failed to update webhook", "error");
+        return;
+      }
       router.refresh();
+      showToast("Webhook updated", "success");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Failed to update webhook", "error");
     } finally {
       setLoading(false);
     }
@@ -31,8 +40,16 @@ export function WebhookRowActions({
     if (!confirm("Delete this webhook?")) return;
     setLoading(true);
     try {
-      await fetch(`/api/webhooks/${webhookId}`, { method: "DELETE" });
+      const res = await fetch(`/api/webhooks/${webhookId}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.error ?? "Failed to delete webhook", "error");
+        return;
+      }
       router.refresh();
+      showToast("Webhook deleted", "success");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Failed to delete webhook", "error");
     } finally {
       setLoading(false);
     }

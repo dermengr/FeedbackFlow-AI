@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { LabelChips } from "@/components/LabelChips";
+import { showToast } from "@/lib/toast";
 
 interface Label {
   id: string;
@@ -96,8 +97,11 @@ export function LabelManager({ feedbackItemId }: { feedbackItemId: string }) {
       }
       setCurrentLabels(await fetchCurrent());
       setMenuOpen(false);
+      showToast("Label added", "success");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      const message = err instanceof Error ? err.message : "Failed to add label";
+      setError(message);
+      showToast(message, "error");
     } finally {
       setBusy(false);
     }
@@ -116,8 +120,11 @@ export function LabelManager({ feedbackItemId }: { feedbackItemId: string }) {
         throw new Error(data.error ?? "Failed to remove label");
       }
       setCurrentLabels(await fetchCurrent());
+      showToast("Label removed", "success");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      const message = err instanceof Error ? err.message : "Failed to remove label";
+      setError(message);
+      showToast(message, "error");
     } finally {
       setBusy(false);
     }

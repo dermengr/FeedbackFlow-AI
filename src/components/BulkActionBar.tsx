@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { FEEDBACK_STATUSES, FeedbackStatus } from "@/lib/types";
+import { showToast } from "@/lib/toast";
 
 interface BulkActionBarProps {
   selectedIds: string[];
@@ -33,12 +34,17 @@ export function BulkActionBar({
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({ error: "Bulk action failed" }));
-        setError(data.error ?? "Bulk action failed");
+        const message = data.error ?? "Failed to apply bulk update";
+        setError(message);
+        showToast(message, "error");
         return;
       }
+      showToast("Bulk update applied", "success");
       onDone();
-    } catch {
-      setError("Bulk action failed");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to apply bulk update";
+      setError(message);
+      showToast(message, "error");
     } finally {
       setBusy(false);
     }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { showToast } from "@/lib/toast";
 
 // A5: Client-side actions for the sources page.
 // Handles Run-all, per-source enable/disable, and delete — replacing the
@@ -10,7 +11,15 @@ export function RunAllButton() {
   async function runAll() {
     setBusy(true);
     try {
-      await fetch("/api/ingest?multi=1", { method: "POST" });
+      const res = await fetch("/api/ingest?multi=1", { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.error ?? "Failed to run sources", "error");
+        return;
+      }
+      showToast("Source run started", "success");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Failed to run sources", "error");
     } finally {
       window.location.reload();
     }
@@ -32,11 +41,19 @@ export function RetryIngestButton() {
   async function retry() {
     setBusy(true);
     try {
-      await fetch("/api/ingest", { method: "POST" });
-    } catch (e) {
-      console.error(e);
+      const res = await fetch("/api/ingest", { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.error ?? "Failed to run source", "error");
+        return;
+      }
+      showToast("Source run started", "success");
+    } catch (err) {
+      console.error(err);
+      showToast(err instanceof Error ? err.message : "Failed to run source", "error");
+    } finally {
+      window.location.reload();
     }
-    window.location.reload();
   }
   return (
     <button
@@ -60,21 +77,43 @@ export function SourceRowActions({
 
   async function toggle() {
     setBusy(true);
-    const res = await fetch(`/api/sources/${sourceId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ enabled: !enabled }),
-    });
-    setBusy(false);
-    if (res.ok) window.location.reload();
+    try {
+      const res = await fetch(`/api/sources/${sourceId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enabled: !enabled }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.error ?? "Failed to update source", "error");
+        return;
+      }
+      showToast("Source updated", "success");
+      window.location.reload();
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Failed to update source", "error");
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function remove() {
     if (!confirm("Delete this source?")) return;
     setBusy(true);
-    const res = await fetch(`/api/sources/${sourceId}`, { method: "DELETE" });
-    setBusy(false);
-    if (res.ok) window.location.reload();
+    try {
+      const res = await fetch(`/api/sources/${sourceId}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.error ?? "Failed to delete source", "error");
+        return;
+      }
+      showToast("Source deleted", "success");
+      window.location.reload();
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Failed to delete source", "error");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { showToast } from "@/lib/toast";
 
 export function OnboardingActions({
   showSkip,
@@ -28,8 +29,11 @@ export function OnboardingActions({
         throw new Error(data.error ?? "Failed to complete step");
       }
       router.refresh();
+      showToast("Onboarding updated", "success");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      const message = err instanceof Error ? err.message : "Failed to update onboarding";
+      setError(message);
+      showToast(message, "error");
     } finally {
       setLoading(null);
     }
@@ -45,21 +49,24 @@ export function OnboardingActions({
         throw new Error(data.error ?? "Failed to skip onboarding");
       }
       router.refresh();
+      showToast("Onboarding updated", "success");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      const message = err instanceof Error ? err.message : "Failed to update onboarding";
+      setError(message);
+      showToast(message, "error");
     } finally {
       setLoading(null);
     }
   }
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-wrap items-center gap-3">
       {showWelcomeComplete && (
         <button
           type="button"
           onClick={() => completeStep("welcome")}
           disabled={loading !== null}
-          className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60"
+          className="btn-primary"
         >
           {loading === "welcome" ? "Saving…" : "Complete welcome step"}
         </button>
@@ -69,12 +76,12 @@ export function OnboardingActions({
           type="button"
           onClick={skipOnboarding}
           disabled={loading !== null}
-          className="text-sm text-slate-500 underline hover:text-slate-700"
+          className="text-sm font-medium text-slate-500 transition-colors hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
         >
           {loading === "skip" ? "Skipping…" : "Skip onboarding"}
         </button>
       )}
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>}
     </div>
   );
 }

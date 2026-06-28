@@ -177,8 +177,7 @@ export function SearchBar({ className }: { className?: string }) {
           placeholder={t("search.placeholder")}
           aria-label={t("search.placeholder")}
           className={cn(
-            "w-full rounded-md border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-900",
-            "placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+            "input-modern w-full py-2 pl-9 pr-3 text-sm"
           )}
         />
       </div>
@@ -198,12 +197,12 @@ export function SearchBar({ className }: { className?: string }) {
       {showResults && (
         <div
           role="listbox"
-          className="absolute z-50 mt-1 w-full min-w-[16rem] max-h-80 overflow-y-auto rounded-md border border-slate-200 bg-white py-1 shadow-lg"
+          className="absolute z-50 mt-1 w-full min-w-[16rem] max-h-80 overflow-y-auto rounded-xl border border-slate-200 bg-white py-1 shadow-lg dark:bg-slate-800 dark:border-slate-700"
         >
           {loading ? (
-            <div className="px-3 py-2 text-sm text-slate-500">Searching...</div>
+            <div className="px-3 py-2 text-sm text-slate-500 dark:text-slate-400">Searching...</div>
           ) : results.length === 0 ? (
-            <div className="px-3 py-2 text-sm text-slate-500">No results found</div>
+            <div className="px-3 py-2 text-sm text-slate-500 dark:text-slate-400">No results found</div>
           ) : (
             results.map((r) => (
               <button
@@ -214,7 +213,7 @@ export function SearchBar({ className }: { className?: string }) {
                   e.preventDefault();
                 }}
                 onClick={() => handleResultClick(r.id)}
-                className="flex w-full items-start gap-2 px-3 py-2 text-left hover:bg-slate-50"
+                className="flex w-full items-start gap-2 px-3 py-2 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-700"
               >
                 <span
                   className={cn(
@@ -224,11 +223,11 @@ export function SearchBar({ className }: { className?: string }) {
                   aria-hidden="true"
                 />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium text-slate-900">
+                  <span className="block truncate text-sm font-medium text-slate-900 dark:text-slate-100">
                     {truncate(r.title || r.rawContent, 80)}
                   </span>
                   {r.summary && (
-                    <span className="mt-0.5 block truncate text-xs text-slate-500">
+                    <span className="mt-0.5 block truncate text-xs text-slate-500 dark:text-slate-400">
                       {truncate(r.summary, 120)}
                     </span>
                   )}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { formatDate } from "@/lib/utils";
+import { showToast } from "@/lib/toast";
 
 export function SnoozeButton({
   feedbackItemId,
@@ -25,9 +26,12 @@ export function SnoozeButton({
     setBusy(false);
     if (!res.ok) {
       const data = await res.json().catch(() => ({ error: "Snooze failed" }));
-      setError(data.error ?? "Snooze failed");
+      const message = data.error ?? "Failed to snooze";
+      setError(message);
+      showToast(message, "error");
       return;
     }
+    showToast("Snoozed", "success");
     window.location.reload();
   }
 
@@ -42,9 +46,12 @@ export function SnoozeButton({
       const data = await res
         .json()
         .catch(() => ({ error: "Unsnooze failed" }));
-      setError(data.error ?? "Unsnooze failed");
+      const message = data.error ?? "Failed to unsnooze";
+      setError(message);
+      showToast(message, "error");
       return;
     }
+    showToast("Unsnoozed", "success");
     window.location.reload();
   }
 

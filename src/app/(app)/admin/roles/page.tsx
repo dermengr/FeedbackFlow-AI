@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getUserRoles, ROLES, type RoleName } from "@/lib/roles";
 import { RoleManager } from "@/components/RoleManager";
+import { PageShell, PageHeader, PageSection } from "@/components/PageShell";
 
 export const dynamic = "force-dynamic";
 
@@ -42,15 +43,15 @@ export default async function RolesAdminPage() {
   const [users, roles] = await Promise.all([getUsersWithRoles(), getAllRoles()]);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Role Management</h1>
-        <p className="text-sm text-slate-500">
-          Assign roles to users. Each user can have multiple roles.
-        </p>
-      </div>
+    <PageShell className="space-y-6">
+      <PageHeader
+        title="Role Management"
+        description="Assign roles to users. Each user can have multiple roles."
+      />
 
-      <RoleManager users={users} roles={roles} allRoleNames={ROLES as unknown as string[]} />
-    </div>
+      <PageSection>
+        <RoleManager users={users} roles={roles} allRoleNames={ROLES as unknown as string[]} />
+      </PageSection>
+    </PageShell>
   );
 }

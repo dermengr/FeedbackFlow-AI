@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { showToast } from "@/lib/toast";
 
 interface UserWithRoles {
   id: string;
@@ -26,11 +27,9 @@ interface RoleManagerProps {
 export function RoleManager({ users, roles, allRoleNames }: RoleManagerProps) {
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
 
   async function assignRole(userId: string, roleName: string) {
     setLoading(`${userId}-${roleName}`);
-    setMessage(null);
     try {
       const res = await fetch("/api/admin/roles/assign", {
         method: "POST",
@@ -39,13 +38,13 @@ export function RoleManager({ users, roles, allRoleNames }: RoleManagerProps) {
       });
       const data = await res.json();
       if (!res.ok) {
-        setMessage(data.error || "Failed to assign role");
+        showToast(data.error || "Failed to assign role", "error");
       } else {
-        setMessage(`Assigned ${roleName}`);
+        showToast(`Assigned ${roleName}`, "success");
         router.refresh();
       }
     } catch {
-      setMessage("Network error");
+      showToast("Network error", "error");
     } finally {
       setLoading(null);
     }
@@ -53,7 +52,6 @@ export function RoleManager({ users, roles, allRoleNames }: RoleManagerProps) {
 
   async function removeRole(userId: string, roleName: string) {
     setLoading(`${userId}-${roleName}-remove`);
-    setMessage(null);
     try {
       const res = await fetch("/api/admin/roles/remove", {
         method: "POST",
@@ -62,13 +60,13 @@ export function RoleManager({ users, roles, allRoleNames }: RoleManagerProps) {
       });
       const data = await res.json();
       if (!res.ok) {
-        setMessage(data.error || "Failed to remove role");
+        showToast(data.error || "Failed to remove role", "error");
       } else {
-        setMessage(`Removed ${roleName}`);
+        showToast(`Removed ${roleName}`, "success");
         router.refresh();
       }
     } catch {
-      setMessage("Network error");
+      showToast("Network error", "error");
     } finally {
       setLoading(null);
     }
@@ -78,12 +76,6 @@ export function RoleManager({ users, roles, allRoleNames }: RoleManagerProps) {
 
   return (
     <div className="space-y-4">
-      {message && (
-        <div className="rounded-md border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700">
-          {message}
-        </div>
-      )}
-
       <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
         <table className="min-w-full text-sm">
           <thead className="bg-slate-50">

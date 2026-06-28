@@ -5,6 +5,8 @@ import { PERMISSIONS } from "@/lib/roles";
 import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { prisma } from "@/lib/prisma";
 import { FEEDBACK_STATUSES } from "@/lib/types";
+import { recordAuditEvent } from "@/lib/audit";
+import { dispatchNotification } from "@/lib/notification-dispatch";
 
 // GET /api/feedback/:id - full detail (raw content + analysis)
 export async function GET(req: Request,
@@ -68,10 +70,38 @@ export async function PATCH(
     );
   }
 
+  const previous = await prisma.feedbackAnalysis.findUnique({
+    where: { feedbackItemId: params.id },
+    select: { status: true, assignedToId: true, severityScore: true },
+  });
+
   const updated = await prisma.feedbackAnalysis.update({
     where: { feedbackItemId: params.id },
     data: { status: parsed.data.status },
   });
+
+  void recordAuditEvent({
+    feedbackItemId: params.id,
+    actorId: auth.userId,
+    type: "STATUS_CHANGE",
+    meta: { from: previous?.status ?? null, to: parsed.data.status },
+  }).catch(() => {});
+
+  if (previous?.assignedToId && previous.assignedToId !== auth.userId) {
+    const item = await prisma.feedbackItem.findUnique({
+      where: { id: params.id },
+      select: { title: true, externalId: true },
+    });
+    void dispatchNotification({
+      userId: previous.assignedToId,
+      type: "feedback.status_changed",
+      title: "Feedback status changed",
+      body: `${item?.title ?? item?.externalId ?? "An assigned item"} is now ${parsed.data.status.toLowerCase()}.`,
+      feedbackItemId: params.id,
+      severity: previous.severityScore,
+      link: `/inbox/${params.id}`,
+    }).catch(() => {});
+  }
 
   return NextResponse.json(updated);
 }

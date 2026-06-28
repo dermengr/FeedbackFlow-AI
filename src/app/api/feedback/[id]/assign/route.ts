@@ -5,6 +5,8 @@ import { PERMISSIONS } from "@/lib/roles";
 import { getRequestAuth, unauthorizedResponse, requirePermission } from "@/lib/request-auth";
 import { prisma } from "@/lib/prisma";
 import { assignFeedback } from "@/lib/assign";
+import { recordAuditEvent } from "@/lib/audit";
+import { dispatchNotification } from "@/lib/notification-dispatch";
 
 const AssignSchema = z.object({
   assignedToId: z.string().nullable(),
@@ -61,6 +63,31 @@ export async function PATCH(
   }
 
   await assignFeedback(params.id, assignedToId);
+
+  // Record audit event and notify the affected user (if any) in the background.
+  const auditType = assignedToId === null ? "UNASSIGN" : "ASSIGN";
+  const link = `/inbox/${params.id}`;
+  void recordAuditEvent({
+    feedbackItemId: params.id,
+    actorId: auth.userId,
+    type: auditType,
+    meta: { assignedToId },
+  }).catch(() => {});
+
+  if (assignedToId) {
+    const item = await prisma.feedbackItem.findUnique({
+      where: { id: params.id },
+      select: { title: true, externalId: true },
+    });
+    void dispatchNotification({
+      userId: assignedToId,
+      type: "feedback.assigned",
+      title: "Feedback assigned to you",
+      body: item?.title ?? item?.externalId ?? "A feedback item has been assigned to you.",
+      feedbackItemId: params.id,
+      link,
+    }).catch(() => {});
+  }
 
   return NextResponse.json({ ok: true, assignedToId });
 }

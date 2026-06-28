@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { getHealthStatus, type CheckStatus } from "@/lib/health";
 import { checkLlmHealth } from "@/lib/llm-health";
 import { formatDate } from "@/lib/utils";
+import { PageShell, PageHeader, PageSection } from "@/components/PageShell";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +42,7 @@ function StatCard({
   hint?: string;
 }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
+    <div className="card-modern p-4">
       <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
         {label}
       </p>
@@ -72,27 +73,26 @@ export default async function HealthPage() {
       : `${health.avgProcessingTimeHours.toFixed(1)}h`;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Health Monitor</h1>
-          <p className="text-sm text-slate-500">
-            Ingestion and processing status for the FeedbackFlow pipeline.
-          </p>
-        </div>
-        <Link
-          href="/api/health"
-          className="text-xs font-medium text-indigo-600 hover:underline"
-        >
-          View JSON endpoint
-        </Link>
-      </div>
+    <PageShell className="space-y-6">
+      <PageHeader
+        title="Health Monitor"
+        description="Ingestion and processing status for the FeedbackFlow pipeline."
+        actions={
+          <Link
+            href="/api/health"
+            className="text-xs font-medium text-indigo-600 hover:underline"
+          >
+            View JSON endpoint
+          </Link>
+        }
+      />
 
       {/* Overall status banner */}
-      <div
-        className={`flex items-center gap-3 rounded-lg border px-4 py-3 ${BANNER_STYLES[health.status]}`}
-        role="status"
-      >
+      <PageSection>
+        <div
+          className={`flex items-center gap-3 rounded-lg border px-4 py-3 ${BANNER_STYLES[health.status]}`}
+          role="status"
+        >
         <span
           className={`inline-block h-3 w-3 rounded-full ${BANNER_DOT[health.status]}`}
         />
@@ -103,12 +103,14 @@ export default async function HealthPage() {
             enabled — reload to update.
           </p>
         </div>
-      </div>
+        </div>
+      </PageSection>
 
       {/* LLM status */}
-      <div
-        className={`rounded-lg border bg-white p-4 ${CARD_BORDER[llmHealth.status]}`}
-      >
+      <PageSection>
+        <div
+          className={`card-modern p-4 ${CARD_BORDER[llmHealth.status]}`}
+        >
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-sm font-semibold text-slate-900">LLM (AI model)</h2>
           <span
@@ -146,8 +148,10 @@ export default async function HealthPage() {
           </Link>
         </p>
       </div>
+    </PageSection>
 
       {/* Summary stat cards */}
+    <PageSection>
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <StatCard
           label="Last ingest"
@@ -174,13 +178,15 @@ export default async function HealthPage() {
           hint="Ingest → analysis (24h)"
         />
       </div>
+    </PageSection>
 
       {/* Check cards */}
+    <PageSection>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {health.checks.map((check) => (
           <div
             key={check.name}
-            className={`rounded-lg border bg-white p-4 ${CARD_BORDER[check.status]}`}
+            className={`card-modern p-4 ${CARD_BORDER[check.status]}`}
           >
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold text-slate-900">
@@ -199,10 +205,12 @@ export default async function HealthPage() {
           </div>
         ))}
       </div>
+    </PageSection>
 
       {/* Last ingest detail */}
+    <PageSection>
       {health.lastIngest && (
-        <div className="rounded-lg border border-slate-200 bg-white p-4">
+        <div className="card-modern p-4">
           <h2 className="text-sm font-semibold text-slate-900">Last ingest run</h2>
           <dl className="mt-3 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
             <div>
@@ -232,7 +240,9 @@ export default async function HealthPage() {
           </dl>
         </div>
       )}
+    </PageSection>
 
+    <PageSection>
       <p className="text-xs text-slate-400">
         Note: this page does not auto-refresh. Reload the page to fetch the
         latest health status, or poll{" "}
@@ -244,6 +254,7 @@ export default async function HealthPage() {
         </Link>{" "}
         for live updates.
       </p>
-    </div>
+    </PageSection>
+  </PageShell>
   );
 }

@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Github, Loader2, CheckCircle2, AlertCircle, ArrowRight } from "lucide-react";
+import { showToast } from "@/lib/toast";
 
 // GitHub repository link submit form.
 // Accepts a GitHub URL, shows a live preview of the parsed owner/repo,
@@ -88,6 +89,7 @@ export function GitHubRepoForm() {
           ok: true,
           message: `Repository ${preview.owner}/${preview.repo} is valid and source created!`,
         });
+        showToast("GitHub source created", "success");
         // Redirect to sources page after successful creation
         setTimeout(() => {
           router.push("/sources");
@@ -140,6 +142,7 @@ export function GitHubRepoForm() {
       });
       const data = await res.json();
       if (res.ok) {
+        showToast("GitHub source created", "success");
         router.push("/sources");
         router.refresh();
       } else if (res.status === 409) {
@@ -158,7 +161,7 @@ export function GitHubRepoForm() {
     <form onSubmit={submit} className="space-y-5">
       {/* URL input */}
       <div>
-        <label className="text-sm font-medium text-slate-700">
+        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
           GitHub repository URL
         </label>
         <div className="mt-1 flex items-center gap-2">
@@ -173,23 +176,23 @@ export function GitHubRepoForm() {
                 setError(null);
               }}
               placeholder="https://github.com/owner/repo"
-              className="block w-full rounded-md border border-slate-300 py-2 pl-9 pr-3 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              className="input-modern block w-full py-2 pl-9 pr-3"
               autoFocus
             />
           </div>
         </div>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
           Paste a GitHub URL, SSH URL, or <code>owner/repo</code> shorthand.
         </p>
       </div>
 
       {/* Live preview */}
       {preview && (
-        <div className="rounded-md border border-indigo-200 bg-indigo-50 p-3">
+        <div className="rounded-lg border border-indigo-200 bg-indigo-50 p-3 dark:border-indigo-800 dark:bg-indigo-900/20">
           <div className="flex items-center gap-2 text-sm">
             <ArrowRight className="h-4 w-4 text-indigo-500" />
-            <span className="text-slate-600">Detected repository:</span>
-            <span className="font-semibold text-indigo-700">
+            <span className="text-slate-600 dark:text-slate-300">Detected repository:</span>
+            <span className="font-semibold text-indigo-700 dark:text-indigo-300">
               {preview.owner}/{preview.repo}
             </span>
           </div>
@@ -198,7 +201,7 @@ export function GitHubRepoForm() {
 
       {/* Label (optional) */}
       <div>
-        <label className="text-sm font-medium text-slate-700">
+        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
           Label <span className="text-slate-400">(optional)</span>
         </label>
         <input
@@ -210,7 +213,7 @@ export function GitHubRepoForm() {
               ? `GitHub Issues — ${preview.owner}/${preview.repo}`
               : "Auto-generated from URL"
           }
-          className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+          className="input-modern mt-1 block w-full"
         />
       </div>
 
@@ -221,9 +224,9 @@ export function GitHubRepoForm() {
           id="validate-repo"
           checked={validate}
           onChange={(e) => setValidate(e.target.checked)}
-          className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+          className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-600"
         />
-        <label htmlFor="validate-repo" className="text-sm text-slate-600">
+        <label htmlFor="validate-repo" className="text-sm text-slate-600 dark:text-slate-400">
           Verify repository exists before creating
         </label>
       </div>
@@ -231,10 +234,10 @@ export function GitHubRepoForm() {
       {/* Test result */}
       {testResult && (
         <div
-          className={`flex items-start gap-2 rounded-md p-3 text-sm ${
+          className={`flex items-start gap-2 rounded-lg p-3 text-sm ${
             testResult.ok
-              ? "bg-green-50 text-green-700"
-              : "bg-red-50 text-red-700"
+              ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300"
+              : "bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-300"
           }`}
         >
           {testResult.ok ? (
@@ -248,7 +251,7 @@ export function GitHubRepoForm() {
 
       {/* Error */}
       {error && (
-        <div className="flex items-start gap-2 rounded-md bg-red-50 p-3 text-sm text-red-700">
+        <div className="flex items-start gap-2 rounded-lg bg-rose-50 p-3 text-sm text-rose-700 dark:bg-rose-900/20 dark:text-rose-300">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <span>{error}</span>
         </div>
@@ -259,7 +262,7 @@ export function GitHubRepoForm() {
         <button
           type="submit"
           disabled={submitting || !preview}
-          className="inline-flex items-center gap-1.5 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 btn-primary disabled:cursor-not-allowed disabled:opacity-50"
         >
           {submitting ? (
             <>
@@ -277,7 +280,7 @@ export function GitHubRepoForm() {
           type="button"
           onClick={testConnection}
           disabled={testing || !preview}
-          className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 btn-secondary disabled:cursor-not-allowed disabled:opacity-50"
         >
           {testing ? (
             <>
@@ -291,7 +294,7 @@ export function GitHubRepoForm() {
         <button
           type="button"
           onClick={() => router.back()}
-          className="rounded-md border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+          className="btn-secondary"
         >
           Cancel
         </button>
